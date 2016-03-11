@@ -221,9 +221,6 @@
     <ClCompile Include="transferfunctions\NaiveConstantFunction.cpp">
       <Filter>Source Files\transferfunctions</Filter>
     </ClCompile>
-    <ClCompile Include="..\pointing-osx\transferfunctions\OSXFunction.cpp">
-      <Filter>Source Files\transferfunctions</Filter>
-    </ClCompile>
     <ClCompile Include="transferfunctions\SigmoidFunction.cpp">
       <Filter>Source Files\transferfunctions</Filter>
     </ClCompile>
@@ -235,9 +232,6 @@
     </ClCompile>
     <ClCompile Include="utils\URI.cpp">
       <Filter>Source Files\utils</Filter>
-    </ClCompile>
-    <ClCompile Include="..\pointing-win\transferfunctions\WindowsFunction.cpp">
-      <Filter>Source Files\transferfunctions</Filter>
     </ClCompile>
     <ClCompile Include="..\pointing-xorg\transferfunctions\XorgFunction.cpp">
       <Filter>Source Files\transferfunctions</Filter>
