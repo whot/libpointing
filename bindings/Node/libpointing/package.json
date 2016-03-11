@@ -1,0 +1,32 @@
+{
+  "name": "libpointing",
+
+  "version": "0.0.9",
+
+  "description": "An open-source cross-platform library to get raw events from pointing devices and master transfer functions",
+
+  "homepage": "http://libpointing.org",
+
+  "contributors": [
+ 	{
+ 		"email": "izzatbek.mukhanov@inria.fr",
+    	"name": "Izzatbek Mukhanov"
+ 	},
+ 	{
+ 		"email": "nicolas.roussel@inria.fr",
+    	"name": "Nicolas Roussel"
+ 	},
+ 	{
+ 		"email": "gery.casiez@inria.fr",
+    	"name": "Géry Casiez"
+ 	}
+  ],
+
+  "dependencies": {
+    "nan": "^2.1.0"
+  },
+
+  "main": "build/Release/pointing.node",
+  
+  "license": "GPL"
+}

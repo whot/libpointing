@@ -1,0 +1,25 @@
+<script src="server.js"></script>
+<script>
+var gui = require('nw.gui');
+
+var tray = new gui.Tray({
+  title: 'Pointing Server',
+});
+
+if (process.platform != 'darwin') {
+  tray.icon = 'iconwin.png';
+  tray.alticon = 'iconwin.png';
+}
+
+var traymenu = new gui.Menu();
+//traymenu.append(new gui.MenuItem({label: 'Run', type: 'checkbox'}));
+traymenu.append(new gui.MenuItem({label: 'Exit', click: function() {
+		http.close();
+		gui.App.quit();
+	}
+})
+);
+//traymenu.append(new gui.MenuItem({type: 'separator' }));
+
+tray.menu = traymenu;  
+</script>

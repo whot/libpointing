@@ -1,0 +1,1 @@
+jar cvf libpointing.jar org/libpointing/*.class org/libpointing/event/*.class
