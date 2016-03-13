@@ -17,15 +17,14 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var pointing = require("libpointing");
 
-// TODO: error handling
-
 var manager = new pointing.PointingDeviceManager();
 var dManager = new pointing.DisplayDeviceManager();
-
+/*
 app.use('/static', express.static('static'));
 app.get('/', function(req, res) {
   res.sendFile(__dirname + '/index.html');
 });
+*/
 
 function uriIsOK(deviceDescriptor) {
   var ls = ['Keyboard', 'osxhid://0/AppleMikeyHIDDriver', 'osxhid:/USB/1d182000/AppleUSBMultitouchDriver', 'BNBTrackpadDevice', 'AppleUSBTCButtons']

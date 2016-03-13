@@ -24,7 +24,8 @@ Makefile
 *.tlog
 *.vs
 
-*node_modules/*
+*node_modules*
+*build*
 
 *debug/
 *release/
@@ -37,3 +38,7 @@ qrc_*.cpp
 
 .loc
 .qmake.stash
+
+apps/consoleExample/consoleExample
+apps/glutExample/glutExample
+apps/qtExample/qtExample

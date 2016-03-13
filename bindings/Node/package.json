@@ -5,7 +5,8 @@
   "main": "builder.js",
   "devDependencies": {},
   "scripts": {
-    "preinstall": "make install"
+    "install": "cd libpointing && npm install",
+    "build": "cd libpointing && node-gyp configure build"
   },
   "author": "Izzat Mukhanov",
   "license": "GPL-2.0",

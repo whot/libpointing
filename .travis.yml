@@ -1,0 +1,27 @@
+# .travis.yml for libpointing
+#
+# Authors: Izzatbek Mukhanov
+# Copyright © Inria
+# http://libpointing.org/
+#
+# This software may be used and distributed according to the terms of
+# the GNU General Public License version 2 or any later version.
+#
+
+language: cpp
+
+before_install:
+    - sudo add-apt-repository --yes ppa:ubuntu-sdk-team/ppa
+    - sudo apt-get update -qq
+
+install:
+    - sudo apt-get install -qq qt5-qmake qtbase5-dev qtdeclarative5-dev #qt5-default
+    - sudo apt-get install -qq libudev-dev
+    - sudo apt-get install -qq xorg-dev
+    - sudo apt-get install -qq freeglut3-dev
+
+before_script:
+    - qmake -qt=qt5
+
+script:
+    - make
