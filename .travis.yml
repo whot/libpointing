@@ -10,15 +10,28 @@
 
 language: cpp
 
+os:
+    - linux
+    - osx
+
 before_install:
-    - sudo add-apt-repository --yes ppa:ubuntu-sdk-team/ppa
-    - sudo apt-get update -qq
+    - |
+      if [ $TRAVIS_OS_NAME == linux ] ; then
+          sudo add-apt-repository --yes ppa:ubuntu-sdk-team/ppa ;
+          sudo apt-get update -qq ;
+      fi
 
 install:
-    - sudo apt-get install -qq qt5-qmake qtbase5-dev qtdeclarative5-dev #qt5-default
-    - sudo apt-get install -qq libudev-dev
-    - sudo apt-get install -qq xorg-dev
-    - sudo apt-get install -qq freeglut3-dev
+    - |
+      if [ $TRAVIS_OS_NAME == linux ] ; then
+          sudo apt-get install -qq qt5-qmake qtbase5-dev qtdeclarative5-dev ; #qt5-default
+          sudo apt-get install -qq libudev-dev ;
+          sudo apt-get install -qq xorg-dev ;
+          sudo apt-get install -qq freeglut3-dev ;
+      elif [ $TRAVIS_OS_NAME == osx ] ; then
+          brew update ;
+          brew ls | grep -wq qt5 || brew install qt5 ;
+      fi
 
 before_script:
     - qmake -qt=qt5
