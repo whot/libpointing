@@ -1,0 +1,11 @@
+version: 0.9.{build}
+configuration:
+- Debug
+- Release
+platform:
+- x86
+- x64
+build:
+  project: pointing/pointing.vcxproj
+  parallel: true
+  verbosity: minimal
