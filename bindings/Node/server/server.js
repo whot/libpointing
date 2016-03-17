@@ -27,7 +27,7 @@ app.get('/', function(req, res) {
 */
 
 function uriIsOK(deviceDescriptor) {
-  var ls = ['Keyboard', 'osxhid://0/AppleMikeyHIDDriver', 'osxhid:/USB/1d182000/AppleUSBMultitouchDriver', 'BNBTrackpadDevice', 'AppleUSBTCButtons']
+  var ls = ['Keyboard', 'osxhid://0/AppleMikeyHIDDriver', 'osxhid:/USB/1d182000/AppleUSBMultitouchDriver', 'BNBTrackpadDevice', 'AppleUSBTCButtons'];
   for (var i = 0; i < ls.length; i++) {
     if (deviceDescriptor.devURI.indexOf(ls[i]) != -1) {
       return false;

@@ -3,7 +3,7 @@
 if (process.argv.length < 3)
 	console.log("Usage: pointingserver [start | stop]");
 
-var arg = (process.argv.length > 2) ? process.argv[2] : 'start'
+var arg = (process.argv.length > 2) ? process.argv[2] : 'start';
 var pidPath = __dirname + '/pointing.pid';
 const fs = require('fs');
 
@@ -37,7 +37,7 @@ if (arg == 'stop') {
 				if (ex.code == 'ESRCH') {
 					console.log('PointingServer is not running');
 				}
-			};
+			}
 		}
 	});
 }

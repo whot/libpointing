@@ -8,7 +8,7 @@ fs.readFile('./server/server.js', 'utf8', function (err, data) {
   }
   originalFile = data;
   var result = originalFile.replace(/require\("libpointing"\)/g, 'require("./pointing.node")');
-  var result = result.replace(/#!\/usr\/bin\/env node/g, '');
+  result = result.replace(/#!\/usr\/bin\/env node/g, '');
 
   fs.writeFile('./nw/server.js', result, 'utf8', function (err) {
     if (err) return console.log(err);

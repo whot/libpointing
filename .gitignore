@@ -22,6 +22,7 @@ Makefile
 *.iobj
 *.ipdb
 *.tlog
+*.log
 *.vs
 
 *node_modules*
