@@ -1,0 +1,85 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# building-and-packaging/linux/create_deb
+#
+# Initial software
+# Authors: Izzatbek Mukhanov
+# Copyright © Inria
+
+import os
+import sys
+import shutil
+import distutils.dir_util
+import subprocess
+import platform
+
+# --------------------------------------------------------------------------------
+
+HERE = os.path.dirname(os.path.abspath(sys.argv[0]))
+ROOT = os.path.relpath(os.path.abspath(os.path.join(HERE, "../..")), os.getcwd())
+
+def copyFile(src, dst):
+    parent = os.path.dirname(dst)
+    if not os.path.exists(parent): os.makedirs(parent)
+    shutil.copy2(src, dst)
+
+def getVersion():
+    defines = {
+        "LIBPOINTING_VER_MAJOR":None,
+        "LIBPOINTING_VER_MINOR":None,
+        "LIBPOINTING_VER_RELEASE":None,
+        }
+    with open(os.path.join(ROOT, "pointing/pointing.h"), "r") as header:
+        for line in header:
+            for key in defines.keys():
+                if line.find(key)!=-1 and not defines[key]:
+                    defines[key] = line.split()[2].strip()
+    version = ""
+    if defines["LIBPOINTING_VER_MAJOR"]:
+        version = version+defines["LIBPOINTING_VER_MAJOR"]
+    if defines["LIBPOINTING_VER_MINOR"]:
+        if version: version = version+"."
+        version = version+defines["LIBPOINTING_VER_MINOR"]
+    if defines["LIBPOINTING_VER_RELEASE"]:
+        if version: version = version+"."
+        version = version+defines["LIBPOINTING_VER_RELEASE"]
+    return version
+
+VERSION = getVersion()
+ARCH = platform.machine()
+
+# Generate and copy files neccessary to build libpointing
+subprocess.call("python prepare", stdout=subprocess.PIPE, shell=True)
+DIST = os.path.relpath(os.path.join(HERE, "libpointing-dist"), os.getcwd())
+os.chdir(DIST)
+subprocess.call("make")
+os.chdir("..")
+distutils.dir_util.copy_tree(os.path.join(DIST, "include"), "./libpointing/usr/local/include")
+distutils.dir_util.copy_tree(os.path.join(DIST, "lib"), "./libpointing/usr/local/lib")
+
+PACKAGE_NAME = "libpointing"
+DEPENDS = ["libudev-dev", "xorg-dev", "libpthread-stubs0-dev"]
+
+if not os.path.exists('./libpointing/DEBIAN/'):
+    os.makedirs('./libpointing/DEBIAN/')
+
+with open("./libpointing/DEBIAN/control", "w") as cfile:
+    print >> cfile, "Package:", PACKAGE_NAME
+    print >> cfile, "Version:", VERSION
+    print >> cfile, """Section: custom
+Priority: optional
+Architecture: all
+Essential: no
+Installed-Size: 1024
+Maintainer: libpointing.org
+Description: An open-source cross-platform library to get raw events from pointing devices and master transfer functions."""
+    print >> cfile, "Depends:", ", ".join(DEPENDS)
+
+subprocess.call("dpkg-deb --build libpointing", stdout=subprocess.PIPE, shell=True)
+package_name = "libpointing-%s_%s.deb"%(VERSION, ARCH)
+os.rename("libpointing.deb", package_name)
+if not os.path.exists('debian'):
+    os.mkdir("debian")
+shutil.move(package_name, "debian/" + package_name)
+subprocess.call("dpkg-scanpackages debian /dev/null | gzip -9c > debian/Packages.gz", stdout=subprocess.PIPE, shell=True)
