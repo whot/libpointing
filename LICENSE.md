@@ -8,5 +8,5 @@ directory) or any later version.
 
 Ad-hoc licences can be granted upon request.
 
-Contact nicolas.roussel@inria.fr or gery.casiez@lifl.fr for more
+Contact nicolas.roussel@inria.fr or gery.casiez@univ-lille1.fr for more
 information.

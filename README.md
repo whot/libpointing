@@ -112,3 +112,5 @@ Once you correctly installed *libpointing* and linked it to your project, simply
 ## License
 
 This software may be used and distributed according to the terms of the GNU General Public License version 2 or any later version.
+
+Ad-hoc licences can be granted upon request.
