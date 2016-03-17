@@ -7,7 +7,33 @@ An open-source cross-platform library to get raw events from pointing devices an
 
 ## Description
 
-Libpointing is an open-source cross-platform library that provides direct access to HID pointing devices and supports the design of pointing transfer functions.
+Libpointing is an open-source cross-platform library written in C++ that provides direct access to HID pointing devices and supports the design of pointing transfer functions. External contributions as pull requests are welcome!
+
+- If you use libpointing for industrial purposes, please consider funding libpointing through a research contract with Inria (contact Géry Casiez or Nicolas Roussel for this).
+
+- If you use libpointing for academic purposes, please cite: Casiez, G. & Roussel, N. (2011). No more bricolage! Methods and tools to characterize, replicate and compare pointing transfer functions. In proceedings of UIST'11, the 24th ACM Symposium on User Interface Software and Technology, 603-614. ACM Press. [DOI](http://dx.doi.org/10.1145/2047196.2047276)
+
+```
+@inproceedings{Casiez:2011:NMB:2047196.2047276,
+ author = {Casiez, G{\'e}ry and Roussel, Nicolas},
+ title = {No More Bricolage!: Methods and Tools to Characterize, Replicate and Compare Pointing Transfer Functions},
+ booktitle = {Proceedings of the 24th Annual ACM Symposium on User Interface Software and Technology},
+ series = {UIST '11},
+ year = {2011},
+ isbn = {978-1-4503-0716-1},
+ location = {Santa Barbara, California, USA},
+ pages = {603--614},
+ numpages = {12},
+ url = {http://doi.acm.org/10.1145/2047196.2047276},
+ doi = {10.1145/2047196.2047276},
+ acmid = {2047276},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {CD gain, control-display gain functions, pointer acceleration, pointing, toolkit, transfer functions},
+} 
+```
+
+The official website is available [here](http://libpointing.org/).
 
 ## Installation
 
@@ -24,7 +50,7 @@ Visit [installation page](http://libpointing.org/user-guide/install/) or build i
 * replicates as faithfully as possible the transfer functions used by **Microsoft Windows**, **Apple OS X** and **Xorg** (the X.Org Foundation server).
 * running on these three platforms, it makes it possible to compare the replicated functions to the genuine ones as well as custom ones.
 * provides the functionality to use existing transfer functions, custom ones or even build your own functions.
-* supports subpixel interaction.
+* supports [subpixel interaction](http://dx.doi.org/10.1145/2380116.2380162).
 * Java, Python, Node.js bindings are available.
 
 ## Minimalistic example
@@ -80,7 +106,7 @@ Once you correctly installed *libpointing* and linked it to your project, simply
 ## Contributors
 
 * [Nicolas Roussel](http://interaction.lille.inria.fr/~roussel)
-* [Géry Casiez](http://www.lifl.fr/~casiez/)
+* [Géry Casiez](http://cristal.univ-lille.fr/~casiez/)
 * Izzatbek Mukhanov
 
 ## License
