@@ -1,0 +1,227 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# building-and-packaging/mac/prepare
+#
+# Initial software
+# Authors: Nicolas Roussel
+# Copyright © Inria
+
+import os
+import sys
+import shutil
+import subprocess
+
+# --------------------------------------------------------------------------------
+
+HERE = os.path.dirname(os.path.abspath(sys.argv[0]))
+ROOT = os.path.relpath(os.path.abspath(os.path.join(HERE, "../..")), os.getcwd())
+
+if 'LIBPOINTING_VERSION' in os.environ:
+    VERSION = os.environ['LIBPOINTING_VERSION']
+else:
+    PARENT = os.path.relpath(os.path.abspath(os.path.join(HERE, "..")), os.getcwd())
+    os.chdir(PARENT)
+    VERSION = subprocess.Popen("./libpointing-version", stdout=subprocess.PIPE).communicate()[0].strip()
+    os.chdir(HERE)
+    
+DIST = os.path.relpath(os.path.join(HERE, "libpointing-%s")%VERSION, os.getcwd())
+
+SRC = "src"
+INC = "include"
+LIB = "lib"
+
+CPPFLAGS = [
+    "-I%s"%INC,
+    ]
+CXXFLAGS = [
+    "-mmacosx-version-min=10.6"
+    ]
+
+LDFLAGS = [
+    "-L%s"%LIB,
+    "-F/System/Library/PrivateFrameworks",
+    "-mmacosx-version-min=10.6"
+    ]
+LIBS = [
+    "-framework MultitouchSupport",
+    "-framework IOKit",
+    "-framework CoreFoundation",
+    "-framework ApplicationServices",
+    "-framework AppKit",
+    ]
+
+HEADERS = [
+    # --------------------------------------------------------------
+    # Generic stuff
+    # --------------------------------------------------------------
+    "pointing/pointing.h",
+    "pointing/utils/Base64.h",
+    "pointing/utils/ByteOrder.h",
+    "pointing/utils/Correlation.h",
+    "pointing/utils/FileUtils.h",
+    "pointing/utils/TimeStamp.h",
+    "pointing/utils/URI.h",
+    "pointing/utils/ConfigDict.h",
+    "pointing/utils/HIDReportParser.h",
+    "pointing/utils/HIDItem.h",
+    "pointing/utils/HIDTags.h",
+    "pointing/utils/PointingCursor.h",
+    "pointing/input/DummyPointingDevice.h",
+    "pointing/input/PointingDevice.h",
+    "pointing/output/DisplayDevice.h",
+    "pointing/output/DisplayDeviceManager.h",
+    "pointing/output/DummyDisplayDevice.h",
+    "pointing/transferfunctions/Composition.h",
+    "pointing/transferfunctions/ConstantFunction.h",
+    "pointing/transferfunctions/NaiveConstantFunction.h",
+    "pointing/transferfunctions/SigmoidFunction.h",
+    "pointing/transferfunctions/TransferFunction.h",
+    "pointing/transferfunctions/SubPixelFunction.h",
+    "pointing/transferfunctions/Interpolation.h",
+    "pointing/input/PointingDeviceManager.h",
+    # --------------------------------------------------------------
+    # OS X specifics
+    # --------------------------------------------------------------
+    "pointing/utils/osx/osxPlistUtils.h",
+    "pointing/utils/osx/osxTimeUtils.h",
+    "pointing/input/osx/osxHIDInputDevice.h",
+    "pointing/input/osx/osxHIDPointingDevice.h",
+    "pointing/input/osx/osxHIDUtils.h",
+    "pointing/input/osx/osxPrivateMultitouchDevice.h",
+    "pointing/input/osx/osxPrivateMultitouchSupport.h",
+    "pointing/input/osx/osxPointingDeviceManager.h",
+    "pointing/output/osx/osxDisplayDevice.h",
+    "pointing/output/osx/osxDisplayDeviceManager.h",
+    "pointing/transferfunctions/osx/osxSystemPointerAcceleration.h",
+    ]
+
+SOURCES = [
+    # --------------------------------------------------------------
+    # Generic stuff
+    # --------------------------------------------------------------
+    "pointing/utils/Base64.cpp",
+    "pointing/utils/ByteOrder.cpp",
+    "pointing/utils/FileUtils.cpp",
+    "pointing/utils/TimeStamp.cpp",
+    "pointing/utils/URI.cpp",
+    "pointing/utils/ConfigDict.cpp",
+    "pointing/utils/HIDItem.cpp",
+    "pointing/utils/HIDReportParser.cpp",
+    "pointing/utils/PointingCursor.cpp",
+    "pointing/input/PointingDevice.cpp",
+    "pointing/input/DummyPointingDevice.cpp",
+    "pointing/output/DisplayDevice.cpp",
+    "pointing/output/DisplayDeviceManager.cpp",
+    "pointing/output/DummyDisplayDevice.cpp",
+    "pointing/transferfunctions/Composition.cpp",
+    "pointing/transferfunctions/ConstantFunction.cpp",
+    "pointing/transferfunctions/NaiveConstantFunction.cpp",
+    "pointing/transferfunctions/SigmoidFunction.cpp",
+    "pointing/transferfunctions/TransferFunction.cpp",
+    "pointing/transferfunctions/SubPixelFunction.cpp",
+    "pointing/transferfunctions/Interpolation.cpp",
+    "pointing/input/PointingDeviceManager.cpp",
+    # --------------------------------------------------------------
+    # OS X specifics
+    # --------------------------------------------------------------
+    "pointing/utils/osx/osxPlistUtils.cpp",
+    "pointing/input/osx/osxHIDInputDevice.cpp",
+    "pointing/input/osx/osxHIDPointingDevice.cpp",
+    "pointing/input/osx/osxHIDUtils.cpp",
+    "pointing/input/osx/osxPrivateMultitouchDevice.cpp",
+    "pointing/input/osx/osxPointingDeviceManager.cpp",
+    "pointing/output/osx/osxDisplayDevice.cpp",
+    "pointing/output/osx/osxDisplayDeviceManager.cpp",
+    "pointing/transferfunctions/osx/osxSystemPointerAcceleration.cpp",
+    ]
+
+SOURCES_XTRA = []
+
+TEST_PROG_EXEC = "simpletest"
+TEST_PROG_SOURCE = "simpletest.cpp"
+TEST_PROG = """
+#include <pointing/pointing.h>
+#include <iostream>
+using namespace pointing ;        
+int
+main(int argc, char **argv) {
+  std::cout << LIBPOINTING_VER_STRING << " |" ;
+  std::list<std::string> schemes = TransferFunction::schemes() ;
+  for (std::list<std::string>::iterator i=schemes.begin(); i!=schemes.end(); ++i) {
+    std::cout << " " << (*i) ;
+  }
+  std::cout << std::endl ;
+  return 0 ;
+}
+"""
+
+CPPFLAGS.append("-DPOINTING_XORG")
+HEADERS.append("pointing-xorg/transferfunctions/XorgFunction.h")
+SOURCES.append("pointing-xorg/transferfunctions/XorgFunction.cpp")
+SOURCES_XTRA.append("pointing-xorg/transferfunctions/XorgFunctionPrivate.cpp")
+
+# --------------------------------------------------------------------------------
+
+def copyFile(src, dst):
+    parent = os.path.dirname(dst)
+    if not os.path.exists(parent): os.makedirs(parent)
+    shutil.copy2(src, dst)
+
+def prepareFiles():
+    for header in HEADERS:
+        copyFile(os.path.join(ROOT, header), os.path.join(DIST,os.path.join(INC, header)))
+    for source in SOURCES:
+        copyFile(os.path.join(ROOT, source), os.path.join(DIST,os.path.join(SRC, source)))
+    for source in SOURCES_XTRA:
+        copyFile(os.path.join(ROOT, source), os.path.join(DIST,os.path.join(SRC, source)))
+    lib = os.path.join(DIST, LIB)
+    if not os.path.exists(lib): os.makedirs(lib)
+    with open(os.path.join(DIST,os.path.join(SRC,TEST_PROG_SOURCE)),"w") as fd: print >> fd, TEST_PROG
+    
+def generateMakefile():
+    sources = map(lambda p: os.path.join(SRC,p), SOURCES)
+    headers = map(lambda p: os.path.join(INC,p), HEADERS)
+    testsrc = os.path.join(SRC,TEST_PROG_SOURCE)
+    testexec = os.path.join(SRC,TEST_PROG_EXEC)
+    with open(os.path.join(DIST, "Makefile"), "w") as makefile:
+        print >> makefile, "ifndef PREFIX\n\tPREFIX = /usr/local\nendif"
+        print >> makefile
+        print >> makefile, "LIBPOINTING = libpointing.dylib"
+        print >> makefile
+        print >> makefile, "HEADERS =", " ".join(headers)
+        print >> makefile
+        print >> makefile, "SOURCES =", " ".join(sources)
+        print >> makefile
+        print >> makefile, "CXX      = g++"
+        print >> makefile, "CPPFLAGS =", " ".join(CPPFLAGS)
+        print >> makefile, "CXXFLAGS =", " ".join(CXXFLAGS)
+        print >> makefile, "LDFLAGS  =", " ".join(LDFLAGS)
+        print >> makefile, "LIBS     =", " ".join(LIBS)
+        print >> makefile
+        print >> makefile, "OBJECTS = $(SOURCES:.cpp=.o)"
+        print >> makefile
+        print >> makefile, "lib/$(LIBPOINTING): $(OBJECTS)\n\t$(CXX) -shared -o $@ $^ $(LDFLAGS) $(LIBS)"
+        print >> makefile
+        print >> makefile, "%s: %s\n\t$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -lpointing"%(testexec,testsrc)
+        print >> makefile
+        print >> makefile, "test: lib/$(LIBPOINTING) %s\n\t%s"%(testexec,testexec)
+        print >> makefile, "clean:\n\trm -f $(OBJECTS)"
+        print >> makefile, "distclean: clean\n\trm -f lib/$(LIBPOINTING)"
+        print >> makefile, "install:"
+        print >> makefile, "\tmkdir -p $(PREFIX)/include"
+        print >> makefile, "\tcp -r %s/pointing $(PREFIX)/include/pointing"%INC
+        print >> makefile, "\tcp -r %s/pointing $(PREFIX)/include/pointing-xorg"%INC
+        print >> makefile, "\tmkdir -p $(PREFIX)/lib"
+        print >> makefile, "\tcp -r lib $(PREFIX)"
+        print >> makefile, "uninstall:"
+        print >> makefile, "\trm -rf $(PREFIX)/include/pointing"
+        print >> makefile, "\trm -rf $(PREFIX)/include/pointing-xorg"
+        print >> makefile, "\trm -f $(PREFIX)/lib/$(LIBPOINTING)"
+        print >> makefile, "tarball: distclean\n\tcd .. && tar cvzf libpointing-%s.tar.gz libpointing-%s/"%(VERSION,VERSION)
+        print >> makefile, "\topenssl sha1 ../libpointing-%s.tar.gz"%VERSION
+
+# --------------------------------------------------------------------------------
+
+prepareFiles()
+generateMakefile()

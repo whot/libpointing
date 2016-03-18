@@ -34,6 +34,8 @@ install:
       elif [ $TRAVIS_OS_NAME == osx ] ; then
           brew ls | grep -wq qt || brew install qt ;
       fi
+    - git config --global user.email "libpointing@inria.fr"
+    - git config --global user.name "Travis CI"
 
 before_script:
     - qmake
@@ -45,13 +47,16 @@ before_deploy:
     - |
       if [ $TRAVIS_OS_NAME == linux ] ; then
           ./building-and-packaging/linux/create-deb
+      elif [ $TRAVIS_OS_NAME == osx ] ; then
+          ./building-and-packaging/mac/create-formula
       fi
 
 deploy:
     provider: releases
-    api_key:
-        secure: DBrLbyfJ/+x+wT93pq7w3CPt0TU7AE9nx4UlK7sVdA2WWbyEUukH5vahA3mbgvn+WRAmi3Y2ssmiwee1+ujlZ912wBy7iWOCY0kRWJZK30Kjlh3GSPVlsXgHN5fJMlvHlGzyHasJdMP3sL/wgpXwxeoy+P0XwEw5/RWTu1JVtxwGvZC/N8Gam6CFTaKz7nDe4hk8qO8Th9sVBYzk+2sFpPXEDUb8IQn1kiU1231QeYGYtuf/Qg75Cnr6AokR5S61aQlVQEW9nSmC3KrDiR++OFt50I7xtyjIg6ToI8ZKzAdgB/VidmtFo6+uh7xCZZsdSwKHtK4QFlYO2ozkTsiuEb3njg1aqNiFPH7rXK4ZyhtLpMupLMWnKlmaRQl3cwzwVOk/WYCP0+dK2zKPypKtpf9qUjXaMNH7BRnlfL1ZgP8yOE7Lt/jYMBIhAgSst9XGEfOhV1IDrit4bhemKEXYJUsKUoKDB3JcJ17dnoRAfsCR035R75mhi95ttXDfocByqRVcIzS1YWB6LCWgIZVkcK64FWxujvNxDzHvjVCn33ZK3ez53cu23loaXUIOXeqZnGcbWVFGgAa6XPVNfEcBm/kF8hqERDz/5j+BBT2oN9HjLbsm4niN+duyUgAlV4NSp4gM50YrAPwY4IbpqO9M4HdzK/6I5C8EMM/+n9s9gPo=
-    file: "building-and-packaging/linux/debian/*.deb"
+    api_key: $GITHUB_API_KEY
+    file:
+        - "building-and-packaging/linux/debian/*.deb"
+        - "building-and-packaging/mac/*.tar.gz"
     file_glob: true
     skip_cleanup: true
     on:

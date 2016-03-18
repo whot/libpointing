@@ -1,0 +1,38 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# building-and-packaging/libpointing_version
+#
+# Initial software
+# Authors: Izzatbek Mukhanov
+# Copyright © Inria
+
+import os
+import sys
+
+HERE = os.path.dirname(os.path.abspath(sys.argv[0]))
+ROOT = os.path.relpath(os.path.abspath(os.path.join(HERE, "..")), os.getcwd())
+
+def getVersion():
+    defines = {
+        "LIBPOINTING_VER_MAJOR":None,
+        "LIBPOINTING_VER_MINOR":None,
+        "LIBPOINTING_VER_RELEASE":None,
+        }
+    with open(os.path.join(ROOT, "pointing/pointing.h"), "r") as header:
+        for line in header:
+            for key in defines.keys():
+                if line.find(key)!=-1 and not defines[key]:
+                    defines[key] = line.split()[2].strip()
+    version = ""
+    if defines["LIBPOINTING_VER_MAJOR"]:
+        version = version+defines["LIBPOINTING_VER_MAJOR"]
+    if defines["LIBPOINTING_VER_MINOR"]:
+        if version: version = version+"."
+        version = version+defines["LIBPOINTING_VER_MINOR"]
+    if defines["LIBPOINTING_VER_RELEASE"]:
+        if version: version = version+"."
+        version = version+defines["LIBPOINTING_VER_RELEASE"]
+    return version
+
+print getVersion()
