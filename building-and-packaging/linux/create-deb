@@ -49,9 +49,11 @@ def getVersion():
 VERSION = getVersion()
 ARCH = platform.machine()
 
+os.chdir(HERE)
 # Generate and copy files neccessary to build libpointing
 subprocess.call("python prepare", stdout=subprocess.PIPE, shell=True)
 DIST = os.path.relpath(os.path.join(HERE, "libpointing-dist"), os.getcwd())
+print DIST
 os.chdir(DIST)
 subprocess.call("make")
 os.chdir("..")
