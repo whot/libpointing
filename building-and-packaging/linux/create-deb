@@ -24,29 +24,14 @@ def copyFile(src, dst):
     if not os.path.exists(parent): os.makedirs(parent)
     shutil.copy2(src, dst)
 
-def getVersion():
-    defines = {
-        "LIBPOINTING_VER_MAJOR":None,
-        "LIBPOINTING_VER_MINOR":None,
-        "LIBPOINTING_VER_RELEASE":None,
-        }
-    with open(os.path.join(ROOT, "pointing/pointing.h"), "r") as header:
-        for line in header:
-            for key in defines.keys():
-                if line.find(key)!=-1 and not defines[key]:
-                    defines[key] = line.split()[2].strip()
-    version = ""
-    if defines["LIBPOINTING_VER_MAJOR"]:
-        version = version+defines["LIBPOINTING_VER_MAJOR"]
-    if defines["LIBPOINTING_VER_MINOR"]:
-        if version: version = version+"."
-        version = version+defines["LIBPOINTING_VER_MINOR"]
-    if defines["LIBPOINTING_VER_RELEASE"]:
-        if version: version = version+"."
-        version = version+defines["LIBPOINTING_VER_RELEASE"]
-    return version
+if 'LIBPOINTING_VERSION' in os.environ:
+    VERSION = os.environ['LIBPOINTING_VERSION']
+else:
+    PARENT = os.path.relpath(os.path.abspath(os.path.join(HERE, "..")), os.getcwd())
+    os.chdir(PARENT)
+    VERSION = subprocess.Popen("./libpointing-version", stdout=subprocess.PIPE).communicate()[0].strip()
+    os.chdir(HERE)
 
-VERSION = getVersion()
 ARCH = platform.machine()
 
 os.chdir(HERE)

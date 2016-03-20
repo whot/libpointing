@@ -37,7 +37,7 @@ subprocess.Popen(['./prepare']).wait()
 print "Compiling and archiving..."
 # Execute the Makefile to generate tarball and copy checksum
 os.chdir(LIBPOINTING_FOLDER)
-sha1_val = subprocess.Popen('make tarball', shell=True, stdout=subprocess.PIPE).stdout.read().split()[-1]
+sha256_val = subprocess.Popen('make tarball', shell=True, stdout=subprocess.PIPE).stdout.read().split()[-1]
 os.chdir(HERE)
 
 with open(os.path.join(HERE, HOMEBREW_REPO_FILE), "r") as ruby_file:
@@ -45,11 +45,11 @@ with open(os.path.join(HERE, HOMEBREW_REPO_FILE), "r") as ruby_file:
 
 to_subs = 'url "https://github.com/INRIA/libpointing/releases/download/v%s/libpointing-%s.tar.gz'%(VERSION, VERSION) + '"'
 replaced = re.sub('url ".*"', to_subs, new_script)
-to_subs = 'sha1 ' + '"' + sha1_val + '"'
-replaced = re.sub('sha1 ".*"', to_subs, replaced)
+to_subs = 'sha256 ' + '"' + sha256_val + '"'
+replaced = re.sub('sha256 ".*"', to_subs, replaced, 1)
 
 os.chdir(HOMEBREW_REPO)
-os.system("git checkout -b libpointing")
+os.system("git checkout -b libpointing origin/libpointing")
 print "Making changes to the formula description in " + HOMEBREW_REPO_FILE
 with open(os.path.join(HERE, HOMEBREW_REPO_FILE), "w") as ruby_file:
     ruby_file.write(replaced)

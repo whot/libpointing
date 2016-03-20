@@ -26,8 +26,7 @@ before_install:
 install:
     - |
       if [ $TRAVIS_OS_NAME == linux ] ; then
-          sudo apt-get install -qq qt5-qmake qtbase5-dev qtdeclarative5-dev ; #qt5-default
-          sudo apt-get install -qq qt5-default ;
+          sudo apt-get install -qq qt5-qmake qtbase5-dev qtdeclarative5-dev qt5-default ;
           sudo apt-get install -qq libudev-dev ;
           sudo apt-get install -qq xorg-dev ;
           sudo apt-get install -qq freeglut3-dev ;

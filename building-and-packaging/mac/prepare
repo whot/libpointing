@@ -219,7 +219,7 @@ def generateMakefile():
         print >> makefile, "\trm -rf $(PREFIX)/include/pointing-xorg"
         print >> makefile, "\trm -f $(PREFIX)/lib/$(LIBPOINTING)"
         print >> makefile, "tarball: distclean\n\tcd .. && tar cvzf libpointing-%s.tar.gz libpointing-%s/"%(VERSION,VERSION)
-        print >> makefile, "\topenssl sha1 ../libpointing-%s.tar.gz"%VERSION
+        print >> makefile, "\topenssl dgst -sha256 ../libpointing-%s.tar.gz"%VERSION
 
 # --------------------------------------------------------------------------------
 
