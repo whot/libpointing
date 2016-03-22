@@ -94,6 +94,9 @@ namespace pointing {
     URI::getQueryArg(uri.query, "den", &ctrl_den) ;
     URI::getQueryArg(uri.query, "thr", &ctrl_threshold) ;
 
+    normalize = false;
+    URI::getQueryArg(uri.query, "normalize", &normalize);
+
     if (uri.opaque=="noop")
       scheme = PtrAccelNoOp ;
     else if (uri.opaque=="lightweight")
@@ -135,6 +138,9 @@ namespace pointing {
   void
   XorgFunction::applyi(int dxMickey, int dyMickey, int *dxPixel, int *dyPixel,
 		      TimeStamp::inttime timestamp) {
+
+    if (normalize)
+      normalizeInput(&dxMickey, &dyMickey, input);
     // std::cerr << "XorgFunction::apply:" << timestamp << std::endl ;
     if (timestamp==TimeStamp::undef) 
       timestamp = TimeStamp::createAsInt() ;
@@ -146,6 +152,8 @@ namespace pointing {
     // std::cerr << "XorgFunction::apply: " << timestamp << "/" << ms << " " << dxMickey << " " << dyMickey << std::endl ;
     if (dev->valuator->accelScheme.AccelSchemeProc)
       dev->valuator->accelScheme.AccelSchemeProc(dev, first, num, valuators, ms) ;
+    if (normalize)
+      normalizeOutput(valuators, valuators + 1, output);
     *dxPixel = valuators[0] ;
     *dyPixel = valuators[1] ;
   }
@@ -178,6 +186,8 @@ namespace pointing {
       if (expanded || min_acceleration!=XORG_DEFAULT_PRED_MA) 
 	q << (i++?"&":"") << "ma=" << min_acceleration ;
     }
+    if (expanded || normalize)
+      q << (i++?"&":"") << "normalize=" << normalize ;
     uri.query = q.str() ;
     return uri ;
   }

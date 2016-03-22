@@ -41,6 +41,26 @@ namespace pointing {
 
     TransferFunction(void) {}
 
+    /**
+     * @brief normalizeInput Normalizes input to a transfer function with respect to the given PointingDevice.
+     * For example, to prevent fast movements of the cursor for high resolution mice.
+     * dx and dy are changed according to the input->getResolution()
+     * @param dx Input x-displacement
+     * @param dy Input y-displacement
+     * @param input Given PointingDevice
+     */
+    void normalizeInput(int *dx, int *dy, PointingDevice *input) const;
+
+    /**
+     * @brief normalizeOutput Normalizes output of a transfer function with respect to the given DisplayDevice.
+     * For example, to prevent slow movements of the cursor for high resolution display.
+     * dx and dy are changed according to the output->getResolution()
+     * @param dx x-pixel-displacement
+     * @param dy y-pixel-displacement
+     * @param output Given DisplayDevice
+     */
+    void normalizeOutput(int *dx, int *dy, DisplayDevice *output) const;
+
   public:
 
     static std::list<std::string> schemes(void) ;

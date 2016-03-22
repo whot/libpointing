@@ -64,6 +64,7 @@ namespace pointing {
     float corr_mul ;
     float const_acceleration ;
     float min_acceleration ;
+    bool normalize;
 
     URI baseuri ;
 

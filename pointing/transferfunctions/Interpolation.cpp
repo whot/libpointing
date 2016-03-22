@@ -148,7 +148,7 @@ namespace pointing
   }
 
   Interpolation::Interpolation(URI &uri, PointingDevice *input, DisplayDevice *output)
-    :originalInput(0),originalOutput(0),tableAcc(1, 0.)
+    :originalInput(0),originalOutput(0),normalize(false),tableAcc(1, 0.)
   {
     if (uri.scheme!="interp")
       cerr << "Interpolation warning: scheme is '" << uri.scheme << "', should be 'interp'" << endl ;
@@ -157,8 +157,7 @@ namespace pointing
     displayDevice = output;
 
     URI::getQueryArg(uri.query, "f", &curAcc);
-    resolAware = false;
-    URI::getQueryArg(uri.query, "resolaware", &resolAware);
+    URI::getQueryArg(uri.query, "normalize", &normalize);
 
     directory = uri.opaque!="" ? uri.opaque : uri.path ;
     if (cfg.loadFrom(directory + "/config.dict"))
@@ -222,14 +221,14 @@ namespace pointing
 
     float index = floor(sqrt(float(mouseRawX * mouseRawX + mouseRawY * mouseRawY)));
 
-    if (resolAware)
+    if (normalize)
       index *= round(originalInput->getResolution()) / round(pointingDevice->getResolution());
 
     float valTable = valueFromTable(index);
     float curValueX = valTable * Abs(mouseRawX) * Sign(mouseRawX);
     float curValueY = valTable * Abs(mouseRawY) * Sign(mouseRawY);
 
-    if (resolAware)
+    if (normalize)
     {
       float coef = displayDevice->getResolution() / originalOutput->getResolution();
       curValueX = coef * curValueX;
@@ -250,14 +249,14 @@ namespace pointing
   {
     double index = floor(sqrt(double(mouseRawX * mouseRawX + mouseRawY * mouseRawY)));
 
-    if (resolAware)
+    if (normalize)
       index *= round(originalInput->getResolution()) / round(pointingDevice->getResolution());
 
     double valTable = valueFromTable(index);
     double curValueX = valTable * Abs(mouseRawX) * Sign(mouseRawX);
     double curValueY = valTable * Abs(mouseRawY) * Sign(mouseRawY);
 
-    if (resolAware)
+    if (normalize)
     {
       double coef = displayDevice->getResolution() / originalOutput->getResolution();
       curValueX = coef * curValueX;
@@ -274,8 +273,8 @@ namespace pointing
     uri.scheme = "interp";
     uri.path = directory;
     std::stringstream q ;
-    if (expanded || resolAware)
-      q << "resolaware=" << resolAware;
+    if (expanded || normalize)
+      q << "normalize=" << normalize;
     uri.query = q.str() ;
     return uri;
   }

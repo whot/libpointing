@@ -42,7 +42,7 @@ namespace pointing
     PointingDevice *originalInput;
     DisplayDevice *originalOutput;
 
-    bool resolAware;
+    bool normalize;
     std::string directory;
     std::string curAcc;
 

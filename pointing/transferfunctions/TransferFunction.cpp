@@ -48,6 +48,9 @@
 #include <pointing/transferfunctions/windows/winSystemPointerAcceleration.h>
 #endif
 
+#define   DEFAULT_INPUT_CPI     400.
+#define   DEFAULT_OUTPUT_PPI    96.
+
 #include <stdexcept>
 #include <iostream>
 #include <sstream>
@@ -83,6 +86,26 @@ namespace pointing {
     std::string uri ;
     if (function_uri) uri = function_uri ;
     return create(uri, input, output) ;
+  }
+
+  void TransferFunction::normalizeInput(int *dx, int *dy, PointingDevice *input) const {
+    double resolution = DEFAULT_INPUT_CPI;
+    double coef = DEFAULT_INPUT_CPI / input->getResolution(&resolution);
+    if (coef > 0. && coef != 1.)
+    {
+      *dx = coef * *dx;
+      *dy = coef * *dy;
+    }
+  }
+
+  void TransferFunction::normalizeOutput(int *dx, int *dy, DisplayDevice *output) const {
+    double resolution = DEFAULT_OUTPUT_PPI;
+    double coef = output->getResolution(&resolution) / DEFAULT_OUTPUT_PPI;
+    if (coef > 1.)
+    {
+      *dx = coef * *dx;
+      *dy = coef * *dy;
+    }
   }
 
   TransferFunction* 
