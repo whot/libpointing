@@ -67,13 +67,13 @@ main(int argc, char **argv) {
     QGLFormat::setDefaultFormat(fmt) ;
 #endif
 
-    PointingDevice *input = PointingDevice::create(input_uri) ;
+    PointingDevice *input = PointingDevice::create(input_uri ? input_uri : "any:?") ;
     for (TimeStamp reftime, now;
      !input->isActive() && now-reftime<15*TimeStamp::one_second;
      now.refresh())
     PointingDevice::idle(500) ;
 
-    DisplayDevice *output = DisplayDevice::create(output_uri) ;
+    DisplayDevice *output = DisplayDevice::create(output_uri ? output_uri : "any:?") ;
 
     playground = new BallisticsPlayground(input, output) ;
     if (argc==0)
