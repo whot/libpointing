@@ -259,7 +259,9 @@ namespace pointing {
   double
   linuxHIDPointingDevice::getUpdateFrequency(double *defval) const {
     if (forced_hz > 0) return forced_hz;
-    // TODO If possible find the correct value in the descriptor
+    double estimated = estimatedUpdateFrequency();
+    if (estimated > 0.)
+      return estimated;
     return defval ? *defval : XORG_DEFAULT_HZ;
   }
 
@@ -512,11 +514,15 @@ namespace pointing {
     parser->setReport(report);
     delete report;
 
-    if (callback && length > 0)
+    if (length > 0)
     {
-      int dx=0, dy=0, buttons=0;
-      parser->getReportData(&dx, &dy, &buttons);
-      callback(callback_context, now, dx, dy, buttons) ;
+      registerTimestamp(now);
+      if (callback)
+      {
+        int dx=0, dy=0, buttons=0;
+        parser->getReportData(&dx, &dy, &buttons);
+        callback(callback_context, now, dx, dy, buttons) ;
+      }
     }
   }
 

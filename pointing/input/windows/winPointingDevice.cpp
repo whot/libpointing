@@ -67,8 +67,8 @@ namespace pointing {
     }
 
     winPointingDevice::winPointingDevice(URI uri) :
-        debugLevel(WIN_DEFAULT_DEBUGLEVEL),cpi(WIN_DEFAULT_CPI),
-        hz(WIN_DEFAULT_HZ),handle(WIN_DEFAULT_HANDLE),
+        debugLevel(WIN_DEFAULT_DEBUGLEVEL),forced_cpi(-1.),
+        forced_hz(-1.),handle(WIN_DEFAULT_HANDLE),
         active(0),vendorID(0),productID(0),buttons(0)
     {
       try {
@@ -76,8 +76,8 @@ namespace pointing {
         callback_context=NULL;
 
         ATTRIB_FROM_URI(uri.query,debugLevel);
-        ATTRIB_FROM_URI(uri.query,cpi);
-        ATTRIB_FROM_URI(uri.query,hz);
+        ATTRIB_FROM_URI(uri.query,forced_cpi);
+        ATTRIB_FROM_URI(uri.query,forced_hz);
 
         winPointingDeviceManager *man = (winPointingDeviceManager *)PointingDeviceManager::get();
 
@@ -115,12 +115,19 @@ namespace pointing {
 
     double
     winPointingDevice::getResolution(double *defval) const {
-      return defval ? *defval : cpi ;
+      if (forced_cpi > 0)
+        return forced_cpi;
+      return defval ? *defval : WIN_DEFAULT_CPI ;
     }
 
     double
     winPointingDevice::getUpdateFrequency(double *defval) const {
-      return defval ? *defval : hz ;
+      if (forced_hz > 0)
+        return forced_hz;
+      double estimated = estimatedUpdateFrequency();
+      if (estimated > 0)
+        return estimated;
+      return defval ? *defval : WIN_DEFAULT_HZ ;
     }
 
     void
@@ -148,6 +155,10 @@ namespace pointing {
 
       if (expanded || debugLevel)
           URI::addQueryArg(result.query, "debugLevel", debugLevel);
+      if (expanded || forced_cpi > 0)
+        URI::addQueryArg(uri.query, "cpi", getResolution());
+      if (expanded || forced_hz > 0)
+        URI::addQueryArg(uri.query, "hz", getUpdateFrequency());
 
       return result;
     }

@@ -35,8 +35,8 @@ namespace pointing
         URI uri ;
 
         int debugLevel;
-        double cpi;
-        double hz;
+        double forced_cpi;
+        double forced_hz;
         unsigned int handle;
 
         int vendorID, productID;
