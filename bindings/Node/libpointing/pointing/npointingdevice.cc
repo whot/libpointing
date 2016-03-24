@@ -108,6 +108,8 @@ NAN_MODULE_INIT(NPointingDevice::Init)
   Nan::SetAccessor(itpl, Nan::New("productID").ToLocalChecked(), getProductID);
   Nan::SetAccessor(itpl, Nan::New("vendor").ToLocalChecked(), getVendor);
   Nan::SetAccessor(itpl, Nan::New("product").ToLocalChecked(), getProduct);
+  Nan::SetAccessor(itpl, Nan::New("updateFrequency").ToLocalChecked(), getUpdateFrequency);
+  Nan::SetAccessor(itpl, Nan::New("resolution").ToLocalChecked(), getResolution);
   Nan::SetAccessor(itpl, Nan::New("uri").ToLocalChecked(), getURI);
   Nan::SetAccessor(itpl, Nan::New("active").ToLocalChecked(), isActive);
 
@@ -166,6 +168,20 @@ NAN_GETTER(NPointingDevice::getProduct)
   NPointingDevice* self = ObjectWrap::Unwrap<NPointingDevice>(info.Holder());
 
   info.GetReturnValue().Set(Nan::New(self->input->getProduct()).ToLocalChecked());
+}
+
+NAN_GETTER(NPointingDevice::getUpdateFrequency)
+{
+  NPointingDevice* self = ObjectWrap::Unwrap<NPointingDevice>(info.Holder());
+
+  info.GetReturnValue().Set(Nan::New(self->input->getUpdateFrequency()));
+}
+
+NAN_GETTER(NPointingDevice::getResolution)
+{
+  NPointingDevice* self = ObjectWrap::Unwrap<NPointingDevice>(info.Holder());
+
+  info.GetReturnValue().Set(Nan::New(self->input->getResolution()));
 }
 
 NAN_GETTER(NPointingDevice::getURI)
