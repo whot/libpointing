@@ -36,9 +36,27 @@ namespace pointing {
 
   protected:
 
-    PointingDevice(void) {}
+    PointingDevice(void);
+
+    static const int BUCKETS_SIZE = 5;
+    unsigned long buckets[BUCKETS_SIZE];
+    TimeStamp::inttime lastTime;
+
+    /**
+     * @brief registerTimestamp Registers the current timestamp to calculate frequency of the device
+     * @param timestamp Current timestamp
+     */
+    void registerTimestamp(TimeStamp::inttime timestamp);
+
+    /**
+     * @brief estimatedUpdateFrequency Estimates the frequency depending on the input timestamps
+     * @return 125, 250, 500, 1000 or -1
+     */
+    double estimatedUpdateFrequency() const;
 
   public:
+
+    //double estimatedUpdateFrequency() const;
 
     /**
      * The enumeration of mouse buttons

@@ -40,6 +40,66 @@
 
 namespace pointing {
 
+  typedef enum {
+    FREQUENCY_LOW,
+    FREQUENCY_125,
+    FREQUENCY_250,
+    FREQUENCY_500,
+    FREQUENCY_1000
+  } DeviceFrequency;
+
+  // Each delta increases the corresponding value of buckets-accumulator
+  // For example:
+  // 0.87 ms -> buckets[FREQUENCY_1000]++
+  // 1.8 ms -> buckets[FREQUENCY_500]++
+  // 3.4 ms -> buckets[FREQUENCY_250]++
+  // everything > 14 ms -> buckets[FREQUENCY_LOW]++
+  // which is normally an outlier and produced at the beginning of a movement
+  void PointingDevice::registerTimestamp(TimeStamp::inttime timestamp)
+  {
+    static int minThresholds[BUCKETS_SIZE] = {14000, 6000, 3000, 1500, 0};
+    TimeStamp::inttime delta = (timestamp - lastTime) / TimeStamp::one_microsecond;
+    //std::cout << "tintin: " << delta << std::endl;
+    lastTime = timestamp;
+    for (int i = 0; i < BUCKETS_SIZE; i++)
+    {
+      if (delta > minThresholds[i])
+      {
+        buckets[i] += 1;
+        return;
+      }
+    }
+  }
+
+  double PointingDevice::estimatedUpdateFrequency() const
+  {
+    static const int MIN_N = 25;
+    static const double minPerc[BUCKETS_SIZE] = {0.5, 0.4, 0.3, 0.2, 0.1};
+    unsigned long sum = 0;
+    //std::cerr << "Buckets: ";
+    for (int i = 1; i < BUCKETS_SIZE; i++) {
+      //std::cerr << i << ": " << buckets[i] << " ";
+      sum += buckets[i];
+    }
+    std::cerr << std::endl;
+    if (sum < MIN_N)
+      return -1;
+    if (double(buckets[FREQUENCY_1000]) / sum > minPerc[FREQUENCY_1000])
+      return 1000.;
+    if (double(buckets[FREQUENCY_500]) / sum > minPerc[FREQUENCY_500])
+      return 500.;
+    if (double(buckets[FREQUENCY_250]) / sum > minPerc[FREQUENCY_250])
+      return 250.;
+    if (double(buckets[FREQUENCY_125]) / sum > minPerc[FREQUENCY_125])
+      return 125.;
+    return -1;
+  }
+
+  PointingDevice::PointingDevice()
+    :lastTime(0) {
+    memset(buckets, 0, sizeof(buckets));
+  }
+
   PointingDevice *
   PointingDevice::create(const char *device_uri) {
     std::string uri ;

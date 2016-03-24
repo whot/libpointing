@@ -190,6 +190,9 @@ namespace pointing {
     double result = -1 ;
     if (hiddev->theDevice) result = 1.0 / hidGetReportInterval(hiddev->theDevice->device) ;
     if (result>0) return result ;
+    double estimated = estimatedUpdateFrequency();
+    if (estimated > 0.)
+      return estimated;
     if (defval) return *defval ;
     return OSX_DEFAULT_HZ ;
   }
@@ -372,13 +375,16 @@ namespace pointing {
 
   void
   osxHIDPointingDevice::report(osxHIDPointingDevice::PointingReport &r) {
-    if (callback && r.t) {
-      if (hiddev->debugLevel>1)
-	std::cerr << "osxHIDPointingDevice::report: " << r.toString() << std::endl ;
-      if (r.t==TimeStamp::undef) std::cerr << "TimeStamp::undef!" << std::endl ;
-      callback(callback_context, r.t, r.dx, r.dy, r.btns) ;
-    } else if (hiddev->debugLevel>2) {
-      std::cerr << "osxHIDPointingDevice::report: skipping " << r.toString() << std::endl ;
+    if (r.t) {
+      registerTimestamp(r.t);
+      if (callback) {
+        if (hiddev->debugLevel>1)
+      std::cerr << "osxHIDPointingDevice::report: " << r.toString() << std::endl ;
+        if (r.t==TimeStamp::undef) std::cerr << "TimeStamp::undef!" << std::endl ;
+        callback(callback_context, r.t, r.dx, r.dy, r.btns) ;
+      } else if (hiddev->debugLevel>2) {
+        std::cerr << "osxHIDPointingDevice::report: skipping " << r.toString() << std::endl ;
+      }
     }
   }
 
