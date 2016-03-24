@@ -23,6 +23,7 @@
 #include <iostream>
 
 #include <stdint.h>
+#include <cstring>
 
 namespace pointing {
 

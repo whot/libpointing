@@ -156,9 +156,9 @@ namespace pointing {
       if (expanded || debugLevel)
           URI::addQueryArg(result.query, "debugLevel", debugLevel);
       if (expanded || forced_cpi > 0)
-        URI::addQueryArg(uri.query, "cpi", getResolution());
+          URI::addQueryArg(result.query, "cpi", forced_cpi);
       if (expanded || forced_hz > 0)
-        URI::addQueryArg(uri.query, "hz", getUpdateFrequency());
+          URI::addQueryArg(result.query, "hz", forced_hz);
 
       return result;
     }
