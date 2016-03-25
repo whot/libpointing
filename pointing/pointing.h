@@ -25,11 +25,15 @@
   * <ul>
   * <li>provides resolution and frequency information for the available pointing and display devices.</li>
   * <li>makes it easy to choose the devices at run-time through the use of URIs.</li>
+  * <li>provides raw information from input devices.</li>
+  * <li>provides resolution and frequency information for the available pointing and display devices.</li>
+  * <li>supports hot-plugging</li>
   * <li>allows to bypass the system's transfer functions to receive raw asynchronous events from one or more pointing devices.</li>
   * <li>replicates as faithfully as possible the transfer functions used by <strong>Microsoft Windows</strong>, <strong>Apple OS X</strong> and <strong>Xorg</strong> (the X.Org Foundation server).</li>
   * <li>running on these three platforms, it makes it possible to compare the replicated functions to the genuine ones as well as custom ones.</li>
   * <li>provides the functionality to use existing transfer functions, custom ones or even build your <a href="http://libpointing.org/user-guide/custom/">own</a> functions.</li>
   * <li>allows <a href="http://libpointing.org/subpixel/">subpixel</a> interaction.
+  * <li>Java, Python, Node.js <a href="http://libpointing.org/user-guide/bindings/">bindings</a> are available.</li>
   * </ul>
   *
   * <h3>Find more information <a href="http://libpointing.org">here</a>.</h3>
