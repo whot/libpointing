@@ -15,9 +15,10 @@
 
 #include <pointing/utils/FileUtils.h>
 
-#include <string>
 #include <stdexcept>
 #include <iostream>
+#include <stdio.h>
+#include <cstring>
 
 #ifndef _MSC_VER // Not include it on Windows
 #include <unistd.h>

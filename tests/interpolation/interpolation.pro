@@ -1,4 +1,4 @@
-# test/basic/interpolation/interpolation.pro --
+# tests/interpolation/interpolation.pro --
 #
 # Initial software
 # Authors: Izzat Mukhanov

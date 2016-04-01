@@ -2,7 +2,7 @@
 Makefile
 
 *~
-*.pro.user
+*.pro.user*
 *.o
 *.app
 *.a

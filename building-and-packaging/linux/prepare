@@ -36,6 +36,7 @@ LIBS = [
     "-lXrandr",
     "-lX11",
     "-lXi",
+    "-ldl",
     ]
 
 HEADERS = [
