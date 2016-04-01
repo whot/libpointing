@@ -272,10 +272,9 @@ namespace pointing
     URI uri;
     uri.scheme = "interp";
     uri.path = directory;
-    std::stringstream q ;
+    URI::addQueryArg(uri.query, "f", curAcc);
     if (expanded || normalize)
-      q << "normalize=" << normalize;
-    uri.query = q.str() ;
+      URI::addQueryArg(uri.query, "normalize", normalize);
     return uri;
   }
 

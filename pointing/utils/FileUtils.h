@@ -17,6 +17,7 @@
 #define FileUtils_h
 
 #include <stdint.h>
+#include <string>
 
 namespace pointing {
 
@@ -26,6 +27,7 @@ namespace pointing {
 
   void readFromFile(const char *filename, char *data, unsigned int size) ;
 
+  std::string moduleHeadersPath();
 }
 
 #endif

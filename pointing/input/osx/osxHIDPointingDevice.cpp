@@ -189,8 +189,10 @@ namespace pointing {
 
     double result = -1 ;
     if (hiddev->theDevice) result = 1.0 / hidGetReportInterval(hiddev->theDevice->device) ;
-    if (result>0) return result ;
     double estimated = estimatedUpdateFrequency();
+    if (result == 125. && estimated > 0.)
+      return estimated;
+    if (result>0) return result ;
     if (estimated > 0.)
       return estimated;
     if (defval) return *defval ;

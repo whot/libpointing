@@ -43,3 +43,4 @@ qrc_*.cpp
 apps/consoleExample/consoleExample
 apps/glutExample/glutExample
 apps/qtExample/qtExample
+tests/interpolation/interpolation

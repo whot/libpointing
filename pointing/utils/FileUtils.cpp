@@ -26,6 +26,19 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#if defined(__APPLE__) || defined(__linux__)
+#include <dlfcn.h>
+#define SLASH '/'
+#endif
+
+#ifdef _WIN32
+#include <windows.h>
+#define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
+#define SLASH '\\'
+#endif
+
+#define PATH_LENGTH 256
+
 namespace pointing {
 
   bool
@@ -75,4 +88,63 @@ namespace pointing {
 #endif
   }
 
+  bool pointingDirExists(const char *path)
+  {
+    const char pointingDir[] = "/pointing";
+    char tmp[PATH_LENGTH];
+    sprintf(tmp, "%s%s", path, pointingDir);
+    struct stat sb;
+    return stat(tmp, &sb) == 0 && S_ISDIR(sb.st_mode);
+  }
+
+  bool getModulePath(char *path)
+  {
+#ifdef _WIN32
+    HMODULE hm = NULL;
+
+    if (!GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+            GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+            (LPCSTR) &moduleHeadersPath,
+            &hm))
+    {
+        int ret = GetLastError();
+        fprintf(stderr, "GetModuleHandle returned %d\n", ret);
+        return false;
+    }
+    GetModuleFileNameA(hm, path, PATH_LENGTH);
+    return true;
+#else
+    Dl_info info;
+    if (dladdr((void *)moduleHeadersPath, &info))
+    {
+      strcpy(path, info.dli_fname);
+      return true;
+    }
+    return false;
+#endif
+  }
+
+  std::string moduleHeadersPath()
+  {
+    char path[PATH_LENGTH];
+    if (getModulePath(path))
+    {
+      for (int i = 0; i < 5; i++) // Check 5 levels max
+      {
+        char *lastSlash = strrchr(path, SLASH);
+        if (!lastSlash)
+          break;
+
+        sprintf(lastSlash, "%s", "/include");
+        if (pointingDirExists(path))
+          return std::string(path);
+
+        // Cut the path (go to path/..)
+        *lastSlash = 0;
+        if (pointingDirExists(path))
+          return std::string(path);
+      }
+    }
+    return "";
+  }
 }

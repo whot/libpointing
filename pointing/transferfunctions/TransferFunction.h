@@ -67,7 +67,7 @@ namespace pointing {
     
     /**
      * @brief Static method to instantiate an object of a sub-class.
-     * @param function_uri URI caracterizing the type and details of an object
+     * @param function_uri URI defining the type and details of an object
      * @param input Input device associated with this transfer function.
      * @param output Output device associated with this transfer function
      * @return Pointer to the initialized transfer function.

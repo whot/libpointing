@@ -35,6 +35,7 @@
 #include <pointing/transferfunctions/Interpolation.h>
 
 #include <pointing/transferfunctions/Composition.h>
+#include <pointing/utils/FileUtils.h>
 
 #ifdef __APPLE__
 #include <pointing/transferfunctions/osx/osxSystemPointerAcceleration.h>
@@ -50,6 +51,10 @@
 
 #define   DEFAULT_INPUT_CPI     400.
 #define   DEFAULT_OUTPUT_PPI    96.
+
+#define   DEFAULT_OSX_SETTING       0.6875
+#define   DEFAULT_WINDOWS_SLIDER    0
+#define   DEFAULT_WINDOWS_EPP       true
 
 #include <stdexcept>
 #include <iostream>
@@ -124,24 +129,21 @@ namespace pointing {
 
   TransferFunction* 
   TransferFunction::create(URI &uri,
-			   PointingDevice* input, DisplayDevice* output) {
-    // uri.debug(std::cerr) ;
+               PointingDevice* input, DisplayDevice* output) {
 
     if (uri.scheme=="system") {
 #ifdef __APPLE__
       osxSystemPointerAcceleration sysAcc ;
       double setting = sysAcc.get(uri.opaque.c_str()) ;
       if (!uri.query.empty()) {
-    URI::getQueryArg(uri.query, "setting", &setting) ;
-    sysAcc.set(setting, uri.opaque.c_str()) ;
-    setting = sysAcc.get(uri.opaque.c_str()) ;
-    // std::cerr << "Setting: " << setting << std::endl ;
+        URI::getQueryArg(uri.query, "setting", &setting) ;
+        sysAcc.set(setting, uri.opaque.c_str()) ;
+        setting = sysAcc.get(uri.opaque.c_str()) ;
       }
       uri.scheme = "osx" ;
       std::stringstream q ;
       q << "setting=" << setting ;
       uri.query = q.str() ;
-      // std::cerr << uri.asString() << std::endl ;
 #endif
 
 #ifdef __linux__
@@ -202,6 +204,31 @@ namespace pointing {
     if (uri.scheme=="xorg")
       return new XorgFunction(uri, input, output) ;
 #endif
+
+    // Replace with the corresponding interpolated tfs
+    if (uri.scheme == "osx" || uri.scheme == "windows")
+    {
+      std::string modulePath = moduleHeadersPath();
+      std::string subDir;
+      if (uri.scheme == "osx")
+      {
+        double setting = DEFAULT_OSX_SETTING;
+        URI::getQueryArg(uri.query, "setting", &setting);
+        URI::addQueryArg(uri.query, "f", setting);
+        subDir = "/pointing-echomouse/darwin-15";
+      }
+      else
+      {
+        int slider = DEFAULT_WINDOWS_SLIDER;
+        int epp = DEFAULT_WINDOWS_EPP;
+        URI::getQueryArg(uri.query, "slider", &slider);
+        URI::addQueryArg(uri.query, "f", slider);
+        URI::getQueryArg(uri.query, "epp", &epp);
+        subDir = "/pointing-echomouse/windows" + std::string(epp ? "/epp" : "/no-epp");
+      }
+      uri.path = modulePath + subDir;
+      uri.scheme = "interp";
+    }
 
     if (uri.scheme=="interp")
       return new Interpolation(uri, input, output) ;
