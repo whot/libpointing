@@ -102,7 +102,7 @@ namespace pointing
     string path = directory + "/" + replaceAlias(curAcc) + ".dat";
     ConfigDict accCfg;
     if (!accCfg.loadFrom(path))
-      cerr << "[WARNING]: Unable to open the interpolation data from " << path << endl;
+      cerr << "Unable to open the interpolation data from " << path << endl;
     loadTableFromConfig(accCfg);
   }
 
@@ -160,7 +160,8 @@ namespace pointing
     URI::getQueryArg(uri.query, "normalize", &normalize);
 
     directory = uri.opaque!="" ? uri.opaque : uri.path ;
-    if (cfg.loadFrom(directory + "/config.dict"))
+    string configDictPath = directory + "/config.dict";
+    if (cfg.loadFrom(configDictPath))
     {
       originalInput = PointingDevice::create(cfg.get<string>("libpointing-input"));
       originalOutput = DisplayDevice::create(cfg.get<string>("libpointing-output"));
@@ -171,6 +172,8 @@ namespace pointing
         curAcc = cfg.get<string>("default-function");
       loadFromDirectory();
     }
+    else
+      cerr << "Unable to open the interpolation file " << configDictPath << endl;
     clearState();
   }
 

@@ -48,7 +48,7 @@ namespace pointing {
     point.x = x;
     point.y = y;
 
-    CGEventRef mouseMoveEvent = CGEventCreateMouseEvent(NULL, kCGEventMouseMoved, point, 0);
+    CGEventRef mouseMoveEvent = CGEventCreateMouseEvent(NULL, kCGEventMouseMoved, point, kCGMouseButtonLeft);
     CGEventPost(kCGSessionEventTap, mouseMoveEvent);
     CFRelease(mouseMoveEvent);
 #endif

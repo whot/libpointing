@@ -232,7 +232,7 @@ BallisticsPlayground::paintEvent(QPaintEvent * /*event*/) {
   }
 
   if (debugLevel > 1) {
-    int width = painter.window().width(), x = 20, y = 20 ;
+    int x = 20, y = 20 ;
 
 #if BALLISCTICSPLAYGROUND_SHOW_PAINTDEVICEDPI
     painter.drawStaticText(x,y, pdDesc) ;
