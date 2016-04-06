@@ -75,8 +75,8 @@ subprocess.call("dpkg-scanpackages debian /dev/null | gzip -9c > debian/Packages
 if 'LIBPOINTING_ORG_KEY' in os.environ:
     # Upload to libpointing.org
     url = 'http://libpointing.org/data/upload-distrib.php'
-    files = {'deb': open("debian/" + package_name, 'rb'), 'packages': open('debian/Packages.gz', 'rb')};
-    data = {'token': os.environ['LIBPOINTING_ORG_KEY'], 'type': 'debian'}}
+    files = {'deb': open("debian/" + package_name, 'rb'), 'packages': open('debian/Packages.gz', 'rb')}
+    data = {'token': os.environ['LIBPOINTING_ORG_KEY'], 'type': 'debian'}
     r = requests.post(url, files=files, data=data)
     print r.text
 else:
