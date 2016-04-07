@@ -46,6 +46,6 @@ Follow these instructions to build the nw-app for Windows:
 1. Compile bindings with libpointing/nw/pointing.vcxproj in Release mode.
    Note that, if you compile with VS 2015, the output executable may not work on previous Windows versions.
    Compiling with VS 2012 worked well.
-1. In *nw*-folder and run `npm install`
+1. In *Node/nw*-folder run `npm install`
 1. Run `node builder.js`
 
