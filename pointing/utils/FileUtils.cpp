@@ -108,11 +108,14 @@ namespace pointing {
             (LPCSTR) &moduleHeadersPath,
             &hm))
     {
-        int ret = GetLastError();
-        fprintf(stderr, "GetModuleHandle returned %d\n", ret);
-        return false;
+      fprintf(stderr, "GetModuleHandle returned %d\n", GetLastError());
+      return false;
     }
-    GetModuleFileNameA(hm, path, PATH_LENGTH);
+    if (!GetModuleFileNameA(hm, path, PATH_LENGTH))
+    {
+      fprintf(stderr, "GetModuleFileName returned %d\n", GetLastError());
+      return false;
+    }
     return true;
 #else
     Dl_info info;
