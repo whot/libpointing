@@ -6,4 +6,4 @@
 
 TEMPLATE = subdirs
 
-SUBDIRS += interpolation
+SUBDIRS += interpolation subpixel

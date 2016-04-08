@@ -133,7 +133,7 @@ namespace pointing {
     char path[PATH_LENGTH];
     if (getModulePath(path))
     {
-      for (int i = 0; i < 5; i++) // Check 5 levels max
+      for (int i = 0; i < 7; i++) // Check 7 levels max
       {
         char *lastSlash = strrchr(path, SLASH);
         if (!lastSlash)

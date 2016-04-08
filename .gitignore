@@ -24,6 +24,7 @@ Makefile
 *.tlog
 *.log
 *.vs
+*pointing.node
 
 *node_modules*
 *build*
@@ -44,3 +45,5 @@ apps/consoleExample/consoleExample
 apps/glutExample/glutExample
 apps/qtExample/qtExample
 tests/interpolation/interpolation
+tests/subpixel/subpixel
+bindings/Node/cache

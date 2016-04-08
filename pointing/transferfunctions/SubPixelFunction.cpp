@@ -19,6 +19,16 @@
 #define         DEFAULT_RESOLUTION_HUMAN       400
 #define         MIN(X, Y)              (((X) < (Y)) ? (X) : (Y))
 
+#define         INCH_TO_MM                     25.4
+
+// TODOs:
+// 1. Use appropriate timestamps
+// 2. Refactor gain interpolation
+// 3. Rename minGainAndVelocity
+// 4. Don't use sleeps
+// 5. More test cases
+// 6. Change Node.js bindings to take into account timestamps
+
 namespace pointing
 {
   URI SubPixelFunction::decodeURI(URI &uri)
@@ -62,7 +72,7 @@ namespace pointing
     cardinality = widgetSize = lastTime = 0;
     URI::getQueryArg(uri.query, "isOn", &isOn);
     URI::getQueryArg(uri.query, "cardinality", &cardinality);
-    URI::getQueryArg(uri.query, "widgetsize", &widgetSize);
+    URI::getQueryArg(uri.query, "widgetSize", &widgetSize);
 
     int resHuman = DEFAULT_RESOLUTION_HUMAN;
     URI::getQueryArg(uri.query, "resHuman", &resHuman);
@@ -85,11 +95,13 @@ namespace pointing
     int x = 0;
     double resx = 0, resy;
     int sleepTimeInMs = int(1000 / input->getUpdateFrequency());
+    std::cerr << input->getUpdateFrequency() << std::endl;
     while (resx < 1 && ++x < 128)
     {
       func->applyd(x, 0, &resx, &resy, TimeStamp::createAsInt());
       PointingDevice::idle(sleepTimeInMs);
     }
+    std::cerr << "resx: " << resx << " x: " << x << std::endl;
     Gpix = resx / x;
     if (debugLevel)
       std::cerr << "SubPixelFunction::minGainAndVelocity: Gpix=" << Gpix << std::endl;
@@ -97,17 +109,28 @@ namespace pointing
 
   void SubPixelFunction::computeParameters()
   {
-    if (cardinality && widgetSize)
+    if (cardinality > 0 && widgetSize > 0)
     {
+      Vuse = INCH_TO_MM * input->getUpdateFrequency() / resUseful;
+      Vpix = INCH_TO_MM * input->getUpdateFrequency() / output->getResolution() / Gpix ;
       Gopt = widgetSize * resUseful / cardinality / output->getResolution();
-      Vuse = 25.4 * input->getUpdateFrequency() / resUseful;
-      Vpix = 25.4 * input->getUpdateFrequency() / output->getResolution() / Gpix ;
+      if (Gopt >= Gpix)
+      {
+        if (debugLevel) std::cerr << "No need for subpixeling when Gopt >= Gpix" << std::endl;
+        cardinality = 0;
+      }
       if (debugLevel)
       {
-        std::cerr << "gOpt: " << Gopt << std::endl;
-        std::cerr << "vUse: " << Vuse << std::endl;
+        std::cerr << "Vuse: " << Vuse << std::endl;
         std::cerr << "Vpix: " << Vpix << std::endl;
+        std::cerr << "Gopt: " << Gopt << std::endl;
       }
+    }
+    else
+    {
+      // If one of them is incorrect, change both to 0
+      cardinality = 0;
+      widgetSize = 0;
     }
   }
 
@@ -158,15 +181,13 @@ namespace pointing
 
   void SubPixelFunction::applyd(int dxMickey, int dyMickey, double *dxPixel, double *dyPixel, TimeStamp::inttime timestamp)
   {
-    if (isOn)
+    if (isOn && cardinality > 0)
     {
-      TimeStamp::inttime now = TimeStamp::createAsInt();
-      double dtInSec = (now - lastTime) / 1000000000.;
-      //std::cout << "dtInSec: " << dtInSec << std::endl;
-      lastTime = now;
+      double dtInSec = double(timestamp - lastTime) / TimeStamp::one_second;
+      lastTime = timestamp;
 
-      double dxInMm = dxMickey / input->getResolution() * 25.4;
-      double dyInMm = dyMickey / input->getResolution() * 25.4;
+      double dxInMm = dxMickey / input->getResolution() * INCH_TO_MM;
+      double dyInMm = dyMickey / input->getResolution() * INCH_TO_MM;
       double ddInMm = sqrt(dxInMm * dxInMm + dyInMm * dyInMm);
       double speedInMmPerSec = ddInMm / dtInSec;
       double outDx = 0, outDy = 0;
@@ -180,22 +201,20 @@ namespace pointing
         if(speedInMmPerSec <= Vuse) {
           gain = Gopt;
         } else if(speedInMmPerSec <= Vpix) {
-          gain = (1-q) * Gopt + q * gain;
+          gain = (1 - q) * Gopt + q * gain;
         }
       }
       else
       {
         double q = speedInMmPerSec / Vpix;
         if(q < 1) {
-          gain = (1-q) * Gopt + q * gain;
+          gain = (1 - q) * Gopt + q * gain;
         }
       }
       *dxPixel = gain * dxInMm;
       *dyPixel = gain * dyInMm;
 
       if (debugLevel > 1) std::cerr << "Computed gain: " << gain << std::endl;
-
-      lastTime = TimeStamp::createAsInt();
     }
     else func->applyd(dxMickey, dyMickey, dxPixel, dyPixel, timestamp);
   }

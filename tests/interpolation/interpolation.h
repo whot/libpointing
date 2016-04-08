@@ -115,7 +115,7 @@ private slots:
 
     void replacedWindowsWithArgsURI()
     {
-      TransferFunction *f = TransferFunction::create("windows:?epp=false&slider=3", 0, 0);
+      TransferFunction *f = TransferFunction::create("windows:8?epp=false&slider=3", 0, 0);
       URI uri = f->getURI();
       QCOMPARE(uri.scheme, std::string("interp"));
       int slider = -1;
