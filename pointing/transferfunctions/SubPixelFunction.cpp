@@ -72,7 +72,8 @@ namespace pointing
     cardinality = widgetSize = lastTime = 0;
     URI::getQueryArg(uri.query, "isOn", &isOn);
     URI::getQueryArg(uri.query, "cardinality", &cardinality);
-    URI::getQueryArg(uri.query, "widgetSize", &widgetSize);
+    if (!URI::getQueryArg(uri.query, "widgetsize", &widgetSize))
+      URI::getQueryArg(uri.query, "widgetSize", &widgetSize);
 
     this->input = input;
     this->output = output;
@@ -98,8 +99,11 @@ namespace pointing
       func->applyd(x, 0, &dxP, &dxY);
     }
 
+    if (debugLevel)
+      std::cerr << "One pixel gain starts when input displacement is " << x << " or more" << std::endl;
+
     gPix = dxP / x * input->getResolution() / output->getResolution();
-    vPix = input->getUpdateFrequency() / gPix ;
+    vPix = input->getUpdateFrequency() / 1000 / gPix;
     if (debugLevel)
       std::cerr << "One pixel gain Gpix: " << gPix << std::endl << "One pixel velocity Vpix: " << vPix << std::endl;
   }
@@ -108,7 +112,7 @@ namespace pointing
   {
     if (cardinality > 0 && widgetSize > 0)
     {
-      vUse = input->getUpdateFrequency() / resUseful;
+      vUse = input->getUpdateFrequency() / 1000 / resUseful;
       gOpt = widgetSize * resUseful / cardinality / output->getResolution();
       if (gOpt > gPix)
       {
@@ -171,31 +175,39 @@ namespace pointing
     func->applyi(dxMickey, dyMickey, dxPixel, dyPixel, timestamp);
   }
 
+
+
   void SubPixelFunction::applyd(int dxMickey, int dyMickey, double *dxPixel, double *dyPixel, TimeStamp::inttime timestamp)
   {
     if (isOn && cardinality > 0)
     {
       double dt = double(timestamp - lastTime) / TimeStamp::one_second;
-      lastTime = timestamp;
+      lastTime = (timestamp == TimeStamp::undef) ? TimeStamp::createAsInt() : timestamp;
 
-      double dx = dxMickey / input->getResolution();
-      double dy = dyMickey / input->getResolution();
-      double dd = sqrt(dx * dx + dy * dy);
+      double dd = sqrt(dxMickey * dxMickey + dyMickey * dyMickey) / input->getResolution();
       double speed = dd / dt;
+
       double outDx = 0, outDy = 0;
       func->applyd(dxMickey, dyMickey, &outDx, &outDy, timestamp);
       double gain = sqrt(outDx * outDx + outDy * outDy) / dd / output->getResolution();
 
       if (debugLevel > 1) std::cerr << "Original gain: " << gain << std::endl;
 
-      double newVUse = (vPix > vUse) ? vUse : 0;
-
-      // q should be between 0 and 1
-      double q = MIN(MAX((speed - newVUse) / (vPix - newVUse), 0.), 1.);
+      double q = 1.0;
+      if (vPix > vUse)
+      {
+        // q should be between 0 and 1
+        q = MIN(MAX((speed - vUse) / (vPix - vUse), 0.), 1.);
+      }
+      else
+      {
+        q = MIN(speed / vPix, 1.0);
+      }
       gain = (1 - q) * gOpt + q * gain;
 
-      *dxPixel = gain * dx * output->getResolution();
-      *dyPixel = gain * dy * output->getResolution();
+      double pixelGain = gain * output->getResolution() / input->getResolution();
+      *dxPixel = dxMickey * pixelGain;
+      *dyPixel = dyMickey * pixelGain;
 
       if (debugLevel > 1) std::cerr << "Computed gain: " << gain << std::endl;
     }
