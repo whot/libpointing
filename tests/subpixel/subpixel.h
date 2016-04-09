@@ -68,17 +68,39 @@ private slots:
     }
     QCOMPARE(i, 45);
   }
-  /*
-  void Cardinality1000widgetSize50()
+
+  void OptimalGainApply()
   {
-    double dxP, dyP;
-    func->setCardinalitySize(1000, 50);
     func->clearState();
-    func->applyd(5, 5, &dxP, &dyP);
-    QCOMPARE(dxP, 5.);
-    QCOMPARE(dyP, 5.);
+    double dxP, dyP;
+    func->applyd(1, 0, &dxP, &dyP, TimeStamp::createAsInt());
+    QCOMPARE(dxP, 0.0225);
+    func->clearState();
+    func->applyd(1, 0, &dxP, &dyP, TimeStamp::createAsInt());
+    QCOMPARE(dxP, 0.0225);
   }
-  */
+
+  void MaxGainApply()
+  {
+    func->clearState();
+    double firstDxP, secondDxP, dyP;
+    TimeStamp::inttime now = TimeStamp::createAsInt();
+    func->applyd(1, 0, &firstDxP, &dyP, now);
+    func->applyd(1, 0, &secondDxP, &dyP, now);
+    QCOMPARE(firstDxP + secondDxP, 1.0225);
+  }
+
+  void InterpolatedGainApply()
+  {
+    func->clearState();
+    double firstDxP, secondDxP, dyP;
+    TimeStamp::inttime now = TimeStamp::createAsInt();
+    func->applyd(1, 0, &firstDxP, &dyP, now);
+    func->applyd(1, 0, &secondDxP, &dyP, now + 24 * TimeStamp::one_millisecond);
+    // TODO: Verify this value
+    QCOMPARE(firstDxP + secondDxP, 0.946725);
+  }
+
   void OutputEqualsInput()
   {
     double dxP, dyP;

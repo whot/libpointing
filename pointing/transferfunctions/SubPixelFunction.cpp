@@ -22,10 +22,6 @@
 #define         MIN(X, Y)                      (((X) < (Y)) ? (X) : (Y))
 #define         MAX(X, Y)                      (((X) > (Y)) ? (X) : (Y))
 
-// TODOs:
-// 1. More test cases
-// 2. Change Node.js bindings to take into account timestamps
-
 // Implementation follows the original paper:
 // http://interaction.lille.inria.fr/~roussel/publications/2012-UIST-subpixel.pdf
 // However, the difference is that variables are expressed in inches, rather than mms
@@ -167,6 +163,7 @@ namespace pointing
 
   void SubPixelFunction::clearState()
   {
+    lastTime = 0;
     func->clearState();
   }
 
@@ -174,8 +171,6 @@ namespace pointing
   {
     func->applyi(dxMickey, dyMickey, dxPixel, dyPixel, timestamp);
   }
-
-
 
   void SubPixelFunction::applyd(int dxMickey, int dyMickey, double *dxPixel, double *dyPixel, TimeStamp::inttime timestamp)
   {
