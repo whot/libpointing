@@ -17,18 +17,18 @@
 #include <math.h>
 
 #define         DEFAULT_RESOLUTION_HUMAN       400
-#define         MIN(X, Y)              (((X) < (Y)) ? (X) : (Y))
+#define         MIN_RESOLUTION_HUMAN           200
 
-#define         INCH_TO_MM                     25.4
+#define         MIN(X, Y)                      (((X) < (Y)) ? (X) : (Y))
+#define         MAX(X, Y)                      (((X) > (Y)) ? (X) : (Y))
 
 // TODOs:
-// 1. Use appropriate timestamps
-// 2. Refactor gain interpolation
-// 3. Rename minGainAndVelocity
-// 4. Don't use sleeps
-// 5. More test cases
-// 6. Change Node.js bindings to take into account timestamps
+// 1. More test cases
+// 2. Change Node.js bindings to take into account timestamps
 
+// Implementation follows the original paper:
+// http://interaction.lille.inria.fr/~roussel/publications/2012-UIST-subpixel.pdf
+// However, the difference is that variables are expressed in inches, rather than mms
 namespace pointing
 {
   URI SubPixelFunction::decodeURI(URI &uri)
@@ -74,12 +74,11 @@ namespace pointing
     URI::getQueryArg(uri.query, "cardinality", &cardinality);
     URI::getQueryArg(uri.query, "widgetSize", &widgetSize);
 
-    int resHuman = DEFAULT_RESOLUTION_HUMAN;
-    URI::getQueryArg(uri.query, "resHuman", &resHuman);
-
     this->input = input;
     this->output = output;
 
+    int resHuman = DEFAULT_RESOLUTION_HUMAN;
+    URI::getQueryArg(uri.query, "resHuman", &resHuman);
     setHumanResolution(resHuman);
     minGainAndVelocity();
     computeParameters();
@@ -93,44 +92,38 @@ namespace pointing
   void SubPixelFunction::minGainAndVelocity()
   {
     int x = 0;
-    double resx = 0, resy;
-    int sleepTimeInMs = int(1000 / input->getUpdateFrequency());
-    std::cerr << input->getUpdateFrequency() << std::endl;
-    while (resx < 1 && ++x < 128)
+    double dxP = 0, dxY;
+    while (dxP < 1 && ++x < 128)
     {
-      func->applyd(x, 0, &resx, &resy, TimeStamp::createAsInt());
-      PointingDevice::idle(sleepTimeInMs);
+      func->applyd(x, 0, &dxP, &dxY);
     }
-    std::cerr << "resx: " << resx << " x: " << x << std::endl;
-    Gpix = resx / x;
+
+    gPix = dxP / x * input->getResolution() / output->getResolution();
+    vPix = input->getUpdateFrequency() / gPix ;
     if (debugLevel)
-      std::cerr << "SubPixelFunction::minGainAndVelocity: Gpix=" << Gpix << std::endl;
+      std::cerr << "One pixel gain Gpix: " << gPix << std::endl << "One pixel velocity Vpix: " << vPix << std::endl;
   }
 
   void SubPixelFunction::computeParameters()
   {
     if (cardinality > 0 && widgetSize > 0)
     {
-      Vuse = INCH_TO_MM * input->getUpdateFrequency() / resUseful;
-      Vpix = INCH_TO_MM * input->getUpdateFrequency() / output->getResolution() / Gpix ;
-      Gopt = widgetSize * resUseful / cardinality / output->getResolution();
-      if (Gopt >= Gpix)
+      vUse = input->getUpdateFrequency() / resUseful;
+      gOpt = widgetSize * resUseful / cardinality / output->getResolution();
+      if (gOpt > gPix)
       {
-        if (debugLevel) std::cerr << "No need for subpixeling when Gopt >= Gpix" << std::endl;
-        cardinality = 0;
+        std::cerr << "Warning: Gopt > Gpix. No subpixeling" << std::endl;
+        cardinality = widgetSize = 0;
       }
       if (debugLevel)
       {
-        std::cerr << "Vuse: " << Vuse << std::endl;
-        std::cerr << "Vpix: " << Vpix << std::endl;
-        std::cerr << "Gopt: " << Gopt << std::endl;
+        std::cerr << "Optimal gain Gopt: " << gOpt << std::endl << "Useful velocity Vuse: " << vUse << std::endl;
       }
     }
     else
     {
       // If one of them is incorrect, change both to 0
-      cardinality = 0;
-      widgetSize = 0;
+      cardinality = widgetSize = 0;
     }
   }
 
@@ -146,9 +139,8 @@ namespace pointing
 
   void SubPixelFunction::setHumanResolution(int resHuman)
   {
-    this->resUseful = MIN(DEFAULT_RESOLUTION_HUMAN, input->getResolution());
-    if (resHuman > 200 && resHuman < this->resUseful)
-      this->resUseful = (float)resHuman;
+    // Should not be too small
+    resUseful = MIN(MAX(resHuman, MIN_RESOLUTION_HUMAN), input->getResolution());
   }
 
   int SubPixelFunction::getHumanResolution()
@@ -183,36 +175,27 @@ namespace pointing
   {
     if (isOn && cardinality > 0)
     {
-      double dtInSec = double(timestamp - lastTime) / TimeStamp::one_second;
+      double dt = double(timestamp - lastTime) / TimeStamp::one_second;
       lastTime = timestamp;
 
-      double dxInMm = dxMickey / input->getResolution() * INCH_TO_MM;
-      double dyInMm = dyMickey / input->getResolution() * INCH_TO_MM;
-      double ddInMm = sqrt(dxInMm * dxInMm + dyInMm * dyInMm);
-      double speedInMmPerSec = ddInMm / dtInSec;
+      double dx = dxMickey / input->getResolution();
+      double dy = dyMickey / input->getResolution();
+      double dd = sqrt(dx * dx + dy * dy);
+      double speed = dd / dt;
       double outDx = 0, outDy = 0;
       func->applyd(dxMickey, dyMickey, &outDx, &outDy, timestamp);
-      double gain = sqrt(outDx*outDx + outDy*outDy) / ddInMm;
+      double gain = sqrt(outDx * outDx + outDy * outDy) / dd / output->getResolution();
 
       if (debugLevel > 1) std::cerr << "Original gain: " << gain << std::endl;
-      if (Vpix > Vuse)
-      {
-        double q = (speedInMmPerSec - Vuse) / (Vpix - Vuse);
-        if(speedInMmPerSec <= Vuse) {
-          gain = Gopt;
-        } else if(speedInMmPerSec <= Vpix) {
-          gain = (1 - q) * Gopt + q * gain;
-        }
-      }
-      else
-      {
-        double q = speedInMmPerSec / Vpix;
-        if(q < 1) {
-          gain = (1 - q) * Gopt + q * gain;
-        }
-      }
-      *dxPixel = gain * dxInMm;
-      *dyPixel = gain * dyInMm;
+
+      double newVUse = (vPix > vUse) ? vUse : 0;
+
+      // q should be between 0 and 1
+      double q = MIN(MAX((speed - newVUse) / (vPix - newVUse), 0.), 1.);
+      gain = (1 - q) * gOpt + q * gain;
+
+      *dxPixel = gain * dx * output->getResolution();
+      *dyPixel = gain * dy * output->getResolution();
 
       if (debugLevel > 1) std::cerr << "Computed gain: " << gain << std::endl;
     }
@@ -236,7 +219,6 @@ namespace pointing
   {
     return func->getURI(expanded);
   }
-
 
   SubPixelFunction::~SubPixelFunction()
   {

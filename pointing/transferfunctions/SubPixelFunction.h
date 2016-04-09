@@ -40,7 +40,7 @@ namespace pointing
     float resUseful;
 
     TimeStamp::inttime lastTime;
-    double Vpix, Vuse, Gopt, Gpix;
+    double vPix, vUse, gOpt, gPix;
 
     void minGainAndVelocity();
     void computeParameters();
