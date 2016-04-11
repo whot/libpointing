@@ -96,9 +96,8 @@ private slots:
     double firstDxP, secondDxP, dyP;
     TimeStamp::inttime now = TimeStamp::createAsInt();
     func->applyd(1, 0, &firstDxP, &dyP, now);
-    func->applyd(1, 0, &secondDxP, &dyP, now + 24 * TimeStamp::one_millisecond);
-    // TODO: Verify this value
-    QCOMPARE(firstDxP + secondDxP, 0.946725);
+    func->applyd(1, 0, &secondDxP, &dyP, now + 64 * TimeStamp::one_millisecond);
+    QCOMPARE(firstDxP + secondDxP, 0.35473110465116275);
   }
 
   void OutputEqualsInput()
@@ -108,6 +107,23 @@ private slots:
     func->clearState();
     func->applyd(5, 5, &dxP, &dyP);
     QVERIFY2(dxP == 5. && dyP == 5., "Output cannot be more than the input with naive gain = 1");
+  }
+
+  // SubPixelFunction is built in such a way that
+  // the number of optimal displacements multiplied by
+  // the cardinality gives the widgetSize
+  void cardinalityWidgetSize()
+  {
+    func->clearState();
+    double dxP, dyP;
+    // We set humanResolution to match input resolution just for testing
+    func->setHumanResolution(input->getResolution());
+    int cardinality, widgetSize;
+    func->getCardinalitySize(&cardinality, &widgetSize);
+    func->applyd(1, 0, &dxP, &dyP);
+    double sum = dxP * cardinality;
+    func->setHumanResolution(1000);
+    QCOMPARE(int(sum), widgetSize);
   }
 
   // At the end

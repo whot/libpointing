@@ -74,10 +74,10 @@ namespace pointing
     this->input = input;
     this->output = output;
 
+    minGainAndVelocity();
     int resHuman = DEFAULT_RESOLUTION_HUMAN;
     URI::getQueryArg(uri.query, "resHuman", &resHuman);
     setHumanResolution(resHuman);
-    minGainAndVelocity();
     computeParameters();
   }
 
