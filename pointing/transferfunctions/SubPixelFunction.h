@@ -68,7 +68,7 @@ namespace pointing
      * @brief getSubPixeling Is subpixeling activated?
      * @param subpixeling Subpixeling is turned on if True otherwise defined transfer function is applied
      */
-    bool getSubPixeling();
+    bool getSubPixeling() const;
 
     /**
      * @brief setHumanResolution Sets the resolution of the pointing device
@@ -82,7 +82,7 @@ namespace pointing
      * at which humans have maximum pointing task efficiency.
      * @param humanResolution Device's Human Resolution in CPI
      */
-    int getHumanResolution();
+    int getHumanResolution() const;
 
     /**
      * @brief setCardinalitySize
@@ -96,7 +96,7 @@ namespace pointing
      * @param cardinality Parameter defining the number of elements which users expect to select from.
      * @param size The size of the model (element or widget) in pixels
      */
-    void getCardinalitySize(int *cardinality, int *size);
+    void getCardinalitySize(int *cardinality, int *size) const;
 
     void clearState(void);
 

@@ -166,7 +166,7 @@ namespace pointing {
     }
     else if(uMsg==WM_INPUT)
     {
-      UINT dwSize;
+      UINT dwSize = 0;
 
       // We have stored in the GWL_USERDATA a pointer to the winPointingDevice. This object
       // is needed to route the event to the user provided callback and context.

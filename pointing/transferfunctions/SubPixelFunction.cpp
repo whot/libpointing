@@ -132,7 +132,7 @@ namespace pointing
     this->isOn = subpixeling;
   }
 
-  bool SubPixelFunction::getSubPixeling()
+  bool SubPixelFunction::getSubPixeling() const
   {
     return this->isOn;
   }
@@ -143,7 +143,7 @@ namespace pointing
     resUseful = MIN(MAX(resHuman, MIN_RESOLUTION_HUMAN), input->getResolution());
   }
 
-  int SubPixelFunction::getHumanResolution()
+  int SubPixelFunction::getHumanResolution() const
   {
     return this->resUseful;
   }
@@ -155,7 +155,7 @@ namespace pointing
     computeParameters();
   }
 
-  void SubPixelFunction::getCardinalitySize(int *cardinality, int *size)
+  void SubPixelFunction::getCardinalitySize(int *cardinality, int *size) const
   {
     *cardinality = this->cardinality;
     *size = this->widgetSize;
