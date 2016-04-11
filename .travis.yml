@@ -42,7 +42,7 @@ before_script:
 
 script:
     - make
-    - make check
+    - make check -s
 
 before_deploy:
     - |

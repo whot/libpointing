@@ -47,5 +47,6 @@ apps/qtExample/qtExample
 bindings/Node/cache
 tests/interpolation/interpolation
 tests/subpixel/subpixel
+tests/hidreportparser/hidreportparser
 tests/*/target_wrapper.sh
 bindings/Node/cache

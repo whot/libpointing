@@ -8,6 +8,7 @@ TEMPLATE  = app
 CONFIG   += warn_on link_prl testcase
 CONFIG   -= app_bundle
 
+QT -= gui
 QT += testlib
 
 TARGET = interpolation
