@@ -187,8 +187,9 @@ void winSystemPointerAcceleration::setTransferFunction(URI &funcURI)
 		*winVersion = "10";
 
 #else
-	// TODO Add Windows 10
-	if (IsWindows8Point1OrGreater())
+	if (IsWindows10OrGreater())
+		*winVersion = "10";
+	else if (IsWindows8Point1OrGreater())
 		*winVersion = "8.1";
 	else if (IsWindows8OrGreater())
 		*winVersion = "8.0";
