@@ -163,8 +163,18 @@ namespace pointing
     string configDictPath = directory + "/config.dict";
     if (cfg.loadFrom(configDictPath))
     {
-      originalInput = PointingDevice::create(cfg.get<string>("libpointing-input"));
-      originalOutput = DisplayDevice::create(cfg.get<string>("libpointing-output"));
+      string origInputURI = cfg.get<string>("libpointing-input");
+      string origOutputURI = cfg.get<string>("libpointing-output");
+      if (origInputURI.length() && origOutputURI.length())
+      {
+        originalInput = PointingDevice::create(origInputURI);
+        originalOutput = DisplayDevice::create(origOutputURI);
+      }
+      else
+      {
+        // Cannot normalize if original devices are not defined
+        normalize = false;
+      }
 
       system = cfg.get<string>("system");
       constructAccMap();
