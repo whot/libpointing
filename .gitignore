@@ -44,6 +44,8 @@ qrc_*.cpp
 apps/consoleExample/consoleExample
 apps/glutExample/glutExample
 apps/qtExample/qtExample
+bindings/Node/cache
 tests/interpolation/interpolation
 tests/subpixel/subpixel
+tests/*/target_wrapper.sh
 bindings/Node/cache

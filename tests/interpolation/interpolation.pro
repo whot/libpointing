@@ -5,7 +5,7 @@
 # Copyright © INRIA
 
 TEMPLATE  = app
-CONFIG   += warn_on link_prl
+CONFIG   += warn_on link_prl testcase
 CONFIG   -= app_bundle
 
 QT += testlib

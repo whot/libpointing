@@ -42,6 +42,7 @@ before_script:
 
 script:
     - make
+    - make check
 
 before_deploy:
     - |
