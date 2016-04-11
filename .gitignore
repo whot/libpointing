@@ -24,6 +24,7 @@ Makefile
 *.tlog
 *.log
 *.vs
+*.jar
 *pointing.node
 
 *node_modules*
