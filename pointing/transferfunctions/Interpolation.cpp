@@ -102,7 +102,12 @@ namespace pointing
     string path = directory + "/" + replaceAlias(curAcc) + ".dat";
     ConfigDict accCfg;
     if (!accCfg.loadFrom(path))
+    {
       cerr << "Unable to open the interpolation data from " << path << endl;
+      path = directory + "/" + cfg.get<string>("default-function") + ".dat";
+      if (accCfg.loadFrom(path))
+        cerr << "Loaded the default function from" << path << endl;
+    }
     loadTableFromConfig(accCfg);
   }
 

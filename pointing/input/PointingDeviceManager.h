@@ -86,6 +86,9 @@ namespace pointing
 
         void callCallbackFunctions(PointingDeviceDescriptor &descriptor, bool wasAdded);
 
+        void addDevice(PointingDeviceDescriptor &descriptor);
+        void removeDevice(PointingDeviceDescriptor &descriptor);
+
     public:
 
         /**
@@ -128,10 +131,6 @@ namespace pointing
         PointingDescriptorIterator begin() { return descriptors.begin(); }
         PointingDescriptorIterator end() { return descriptors.end(); }
         //@}
-
-        // TODO: Make this protected
-        void addDevice(PointingDeviceDescriptor &descriptor);
-        void removeDevice(PointingDeviceDescriptor &descriptor);
     };
 }
 

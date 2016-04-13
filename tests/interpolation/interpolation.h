@@ -9,6 +9,8 @@
 using namespace pointing;
 using namespace std;
 
+#define DELTA 0.0005
+
 class InterpolationTest : public QObject
 {
     Q_OBJECT
@@ -52,6 +54,28 @@ private slots:
         QCOMPARE(dxP, 20);
     }
 
+    void ApplyDoublePrecision()
+    {
+        func->loadTableStr("max-counts: 1\n"
+                           "0: 0\n"
+                           "1: 0.2\n");
+        double dxP, dyP;
+        func->clearState();
+        func->applyd(4, 0, &dxP, &dyP);
+        QVERIFY(dxP < 0.8 + DELTA && dxP > 0.8 - DELTA);
+    }
+
+    void HugeValues()
+    {
+        func->loadTableStr("max-counts: 1\n"
+                           "0: 0\n"
+                           "1: 0.2\n");
+        int dxP, dyP;
+        func->clearState();
+        func->applyi(1000, 0, &dxP, &dyP);
+        QCOMPARE(dxP, 200);
+    }
+
     void InterpolateBetween2()
     {
         func->loadTableStr("max-counts: 3\n"
@@ -71,6 +95,7 @@ private slots:
                            "5: 10\n"
                            "11: 22\n");
         int dxP, dyP;
+        func->clearState();
         func->applyi(2, 0, &dxP, &dyP);
         QCOMPARE(dxP, 3);
         func->clearState();
@@ -112,6 +137,53 @@ private slots:
       QCOMPARE(uri.path, modulePath + "/pointing-echomouse/windows/epp");
       delete f;
     }
+
+    void sliderWindowsEpp()
+    {
+      // For Windows transfer function with epp 1 point displacement
+      // should start giving 1 px displacement at slider = 4
+      // So, slider = [-5, 3] should return 0 for 1 point displacement
+      TransferFunction *f = TransferFunction::create("windows:?slider=3", 0, 0);
+      int dxP, dyP;
+      f->applyi(1, 0, &dxP, &dyP);
+      QCOMPARE(dxP, 0);
+      delete f;
+      f = TransferFunction::create("windows:?slider=4", 0, 0);
+      f->applyi(1, 0, &dxP, &dyP);
+      QCOMPARE(dxP, 1);
+      delete f;
+    }
+
+    void defaultSettingIfWrongArgument()
+    {
+      // Slider = 7 option does not exist, so the default setting should be applied
+      TransferFunction *f = TransferFunction::create("windows:?slider=7", 0, 0);
+      int dxP, dyP;
+      f->applyi(100, 0, &dxP, &dyP);
+      QCOMPARE(dxP, 253);
+      delete f;
+    }
+
+    void normalizedFunction()
+    {
+      PointingDevice *i = PointingDevice::create("dummy:?cpi=800");
+      DisplayDevice *o = DisplayDevice::create("dummy:?ppi=96");
+      TransferFunction *f = TransferFunction::create("windows:?normalize=true", i, o);
+      int dxP, dyP;
+      f->applyi(10, 0, &dxP, &dyP);
+      QCOMPARE(dxP, 7);
+      delete f; delete i; delete o;
+    }
+
+    void windowsNoEpp()
+    {
+      TransferFunction *f = TransferFunction::create("windows:?f=f9&epp=false", 0, 0);
+      int dxP, dyP;
+      f->applyi(102, 0, &dxP, &dyP);
+      QCOMPARE(dxP, 255);
+      delete f;
+    }
+
 
     void replacedWindowsWithArgsURI()
     {

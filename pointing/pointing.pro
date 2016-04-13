@@ -118,7 +118,7 @@ windows {
 
 win32-msvc* {
   QMAKE_LFLAGS_DEBUG += /INCREMENTAL:NO
-  QMAKE_CXXFLAGS_WARN_ON += -wd 4244 -wd 4305 -wd 4800
+  QMAKE_CXXFLAGS_WARN_ON += -wd 4244 -wd 4305 -wd 4800 -wd 4312 -wd 4267
   QMAKE_CXXFLAGS += -D _CRT_SECURE_NO_WARNINGS
 }
   CONFIG  += windows console
