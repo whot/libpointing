@@ -215,9 +215,9 @@ def generateMakefile():
         print >> makefile, "distclean: clean\n\trm -f lib/$(LIBPOINTING)"
         print >> makefile, "install:"
         print >> makefile, "\tmkdir -p $(PREFIX)/include"
-        print >> makefile, "\tcp -r %s/pointing $(PREFIX)/include/pointing"%INC
-        print >> makefile, "\tcp -r %s/pointing $(PREFIX)/include/pointing-xorg"%INC
-        print >> makefile, "\tcp -r %s/pointing $(PREFIX)/include/pointing-echomouse"%INC
+        print >> makefile, "\tcp -r %s/pointing $(PREFIX)/include"%INC
+        print >> makefile, "\tcp -r %s/pointing-xorg $(PREFIX)/include"%INC
+        print >> makefile, "\tcp -r %s/pointing-echomouse $(PREFIX)/include"%INC
         print >> makefile, "\tmkdir -p $(PREFIX)/lib"
         print >> makefile, "\tcp -r lib $(PREFIX)"
         print >> makefile, "uninstall:"
