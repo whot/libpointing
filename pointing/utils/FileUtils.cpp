@@ -130,7 +130,8 @@ namespace pointing {
     Dl_info info;
     if (dladdr((void *)moduleHeadersPath, &info))
     {
-      if (!info.dli_sname)
+      // If found path is relative
+      if (info.dli_fname[0] != '/')
       {
         char *real_path = realpath(info.dli_fname, NULL);
         if (real_path)
@@ -139,7 +140,10 @@ namespace pointing {
           free(real_path);
         }
         else
+        {
           printf ("realpath function failed with error: %s\n", strerror(errno));
+          return false;
+        }
       }
       else
         strcpy(path, info.dli_fname);
