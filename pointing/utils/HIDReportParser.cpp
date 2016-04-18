@@ -23,125 +23,125 @@ using namespace std;
 
 namespace pointing
 {
-// FIXME: Wheel, Z
+  // FIXME: Wheel, Z
 
-HIDReportParser::HIDReportParser()
-  :lastRepCount(0),lastRepSize(0),curRepInfo(0),debugLevel(0) { }
+  HIDReportParser::HIDReportParser()
+    :lastRepCount(0),lastRepSize(0),curRepInfo(0),debugLevel(0) { }
 
-HIDReportParser::HIDReportParser(unsigned char *desc, int size, int debugLevel):
-  lastRepCount(0),lastRepSize(0),curRepInfo(0),debugLevel(debugLevel)
-{
-  if (size)
-    setDescriptor(desc, size);
-}
-
-void HIDReportParser::parseItem(const HIDItem &item)
-{
-  int value = item.dataAsUnsignedLong();
-  unsigned int typeAndTag = item.typeAndTag();
-  switch(typeAndTag)
+  HIDReportParser::HIDReportParser(unsigned char *desc, int size, int debugLevel):
+    lastRepCount(0),lastRepSize(0),curRepInfo(0),debugLevel(debugLevel)
   {
-  case INPUT:
+    if (size)
+      setDescriptor(desc, size);
+  }
+
+  void HIDReportParser::parseItem(const HIDItem &item)
   {
-    int size = lastRepCount * lastRepSize;
-    // The first bit defines if the input is
-    // constant or variable (spec. HID 1.11, p.30)
-    if (value & INPUT_CONSTANT)
+    int value = item.dataAsUnsignedLong();
+    unsigned int typeAndTag = item.typeAndTag();
+    switch(typeAndTag)
     {
-      curRepInfo->size += size;
-    }
-    else if (lastUsagePage == USAGE_PAGE_BUTTONS && curRepInfo->buttonsPos == -1)
+    case INPUT:
     {
-      curRepInfo->buttonsPos = curRepInfo->size;
-      curRepInfo->size += size;
-    }
-    else if(lastUsagePage == USAGE_PAGE_GEN_DESKTOP)
-    {
-      int usageXY = 0;
-      for (list<int>::iterator it = usageList.begin(); it != usageList.end(); it++)
+      int size = lastRepCount * lastRepSize;
+      // The first bit defines if the input is
+      // constant or variable (spec. HID 1.11, p.30)
+      if (value & INPUT_CONSTANT)
       {
-        if (*it == USAGE_X)
-        {
-          curRepInfo->dxPos = curRepInfo->size;
-          usageXY++;
-        }
-        if (*it == USAGE_Y)
-        {
-          curRepInfo->dyPos = curRepInfo->size;
-          usageXY++;
-        }
-        curRepInfo->size += lastRepSize;
+        curRepInfo->size += size;
       }
-      if (usageXY == 2)
+      else if (lastUsagePage == USAGE_PAGE_BUTTONS && curRepInfo->buttonsPos == -1)
       {
-        curRepInfo->min = dataMap[LOGICAL_MIN];
-        curRepInfo->max = dataMap[LOGICAL_MAX];
-        int mask = 0xFFFFFFFF;
-        curRepInfo->dMask = ~(mask << lastRepSize);
+        curRepInfo->buttonsPos = curRepInfo->size;
+        curRepInfo->size += size;
       }
-      usageList.clear();
-      dataMap.clear();
+      else if(lastUsagePage == USAGE_PAGE_GEN_DESKTOP)
+      {
+        int usageXY = 0;
+        for (list<int>::iterator it = usageList.begin(); it != usageList.end(); it++)
+        {
+          if (*it == USAGE_X)
+          {
+            curRepInfo->dxPos = curRepInfo->size;
+            usageXY++;
+          }
+          if (*it == USAGE_Y)
+          {
+            curRepInfo->dyPos = curRepInfo->size;
+            usageXY++;
+          }
+          curRepInfo->size += lastRepSize;
+        }
+        if (usageXY == 2)
+        {
+          curRepInfo->min = dataMap[LOGICAL_MIN];
+          curRepInfo->max = dataMap[LOGICAL_MAX];
+          int mask = 0xFFFFFFFF;
+          curRepInfo->dMask = ~(mask << lastRepSize);
+        }
+        usageList.clear();
+        dataMap.clear();
+      }
+      else {
+        curRepInfo->size += size;
+      }
+      break;
     }
-    else {
-      curRepInfo->size += size;
-    }
-    break;
-  }
-  case REPORT_ID:
-  {
-    map<int, MouseReport>::iterator it = reportMap.find(value);
-    if (it == reportMap.end())
+    case REPORT_ID:
     {
-      MouseReport report = MouseReport();
-      report.reportId = value;
-      reportMap[value] = report;
+      map<int, MouseReport>::iterator it = reportMap.find(value);
+      if (it == reportMap.end())
+      {
+        MouseReport report = MouseReport();
+        report.reportId = value;
+        reportMap[value] = report;
+      }
+      curRepInfo = &reportMap[value];
+      break;
     }
-    curRepInfo = &reportMap[value];
-    break;
+    case USAGE_PAGE:
+    {
+      lastUsagePage = value;
+      break;
+    }
+    case USAGE:
+    {
+      if (lastUsagePage == USAGE_PAGE_GEN_DESKTOP && parentUsage == USAGE_POINTER)
+        usageList.push_back(value);
+      lastUsage = item.dataAsSignedLong();
+      break;
+    }
+    case COLLECTION:
+    {
+      if (lastUsage == USAGE_MOUSE)
+        parentUsage = USAGE_MOUSE;
+      else if(lastUsage == USAGE_POINTER && parentUsage == USAGE_MOUSE) // Not sure about the second condition
+        parentUsage = USAGE_POINTER;
+      break;
+    }
+    case REPORT_SIZE:
+    {
+      lastRepSize = value;
+      break;
+    }
+    case REPORT_COUNT:
+    {
+      lastRepCount = value;
+      break;
+    }
+    case LOGICAL_MIN:
+    case LOGICAL_MAX:
+    case USAGE_MIN:
+    case USAGE_MAX:
+      dataMap[typeAndTag] = value;
+      break;
+    default:
+      break;
+    }
   }
-  case USAGE_PAGE:
-  {
-    lastUsagePage = value;
-    break;
-  }
-  case USAGE:
-  {
-    if (lastUsagePage == USAGE_PAGE_GEN_DESKTOP && parentUsage == USAGE_POINTER)
-      usageList.push_back(value);
-    lastUsage = item.dataAsSignedLong();
-    break;
-  }
-  case COLLECTION:
-  {
-    if (lastUsage == USAGE_MOUSE)
-      parentUsage = USAGE_MOUSE;
-    else if(lastUsage == USAGE_POINTER && parentUsage == USAGE_MOUSE) // Not sure about the second condition
-      parentUsage = USAGE_POINTER;
-    break;
-  }
-  case REPORT_SIZE:
-  {
-    lastRepSize = value;
-    break;
-  }
-  case REPORT_COUNT:
-  {
-    lastRepCount = value;
-    break;
-  }
-  case LOGICAL_MIN:
-  case LOGICAL_MAX:
-  case USAGE_MIN:
-  case USAGE_MAX:
-    dataMap[typeAndTag] = value;
-    break;
-  default:
-    break;
-  }
-}
 
-void HIDReportParser::clearAll()
-{
+  void HIDReportParser::clearAll()
+  {
     lastUsage = 0;
     parentUsage = 0;
     lastUsagePage = 0;
@@ -152,46 +152,46 @@ void HIDReportParser::clearAll()
     curRepInfo = &reportMap[0];
     dataMap.clear();
     usageList.clear();
-}
+  }
 
-bool HIDReportParser::findCorrectReport()
-{
+  bool HIDReportParser::findCorrectReport()
+  {
     for (map<int, MouseReport>::iterator it = reportMap.begin(); it != reportMap.end(); it++)
     {
       //cout << it->first << endl;
-        MouseReport rep = it->second;
-        if (rep.dxPos && rep.dyPos)
+      MouseReport rep = it->second;
+      if (rep.dxPos && rep.dyPos)
+      {
+        curRepInfo = &(it->second);
+        // 1 byte for tagId by SPEC HID;
+        if (curRepInfo->reportId)
         {
-            curRepInfo = &(it->second);
-            // 1 byte for tagId by SPEC HID;
-            if (curRepInfo->reportId)
-            {
-                curRepInfo->size += 8;
-                curRepInfo->dxPos += 8;
-                curRepInfo->dyPos += 8;
-                curRepInfo->buttonsPos += 8;
-            }
-            if (debugLevel)
-            {
-                cerr << "    HIDReportParser: report ID #" << curRepInfo->reportId << " - "
-                     << "buttons: " << curRepInfo->buttonsPos
-                     << ", dx: " << curRepInfo->dxPos
-                     << ", dy: " << curRepInfo->dyPos
-                     << ", total size: " << curRepInfo->size << endl;
-            }
-            return true;
+          curRepInfo->size += 8;
+          curRepInfo->dxPos += 8;
+          curRepInfo->dyPos += 8;
+          curRepInfo->buttonsPos += 8;
         }
+        if (debugLevel)
+        {
+          cerr << "    HIDReportParser: report ID #" << curRepInfo->reportId << " - "
+               << "buttons: " << curRepInfo->buttonsPos
+               << ", dx: " << curRepInfo->dxPos
+               << ", dy: " << curRepInfo->dyPos
+               << ", total size: " << curRepInfo->size << endl;
+        }
+        return true;
+      }
     }
     return false;
-}
+  }
 
-HIDReportParser::~HIDReportParser()
-{
+  HIDReportParser::~HIDReportParser()
+  {
     delete report;
-}
+  }
 
-bool HIDReportParser::setDescriptor(const unsigned char *desc, int size)
-{
+  bool HIDReportParser::setDescriptor(const unsigned char *desc, int size)
+  {
     clearAll();
 
     int currentPosition = 0;
@@ -206,36 +206,36 @@ bool HIDReportParser::setDescriptor(const unsigned char *desc, int size)
     report = new unsigned char[curRepInfo->size];
     memset(report, 0, curRepInfo->size / 8);
     return result;
-}
+  }
 
-bool HIDReportParser::setReport(const unsigned char *newReport)
-{
+  bool HIDReportParser::setReport(const unsigned char *newReport)
+  {
     if (curRepInfo->reportId && curRepInfo->reportId != newReport[0])
-        return false;
+      return false;
     memcpy(report, newReport, curRepInfo->size / 8);
     return true;
-}
+  }
 
-int HIDReportParser::getReportLength()
-{
+  int HIDReportParser::getReportLength()
+  {
     // Should be divisible by 8, thus not returning ceil(curRepInfo->size / 8)
     return curRepInfo->size / 8;
-}
+  }
 
-bool HIDReportParser::getReportData(int *dx, int *dy, int *buttons) const
-{
+  bool HIDReportParser::getReportData(int *dx, int *dy, int *buttons) const
+  {
     if (!curRepInfo->size)
-        return false;
+      return false;
 
     int *dxLoc = (int *)(report + (curRepInfo->dxPos / 8));
     int *dyLoc = (int *)(report + (curRepInfo->dyPos / 8));
     *dx = *dxLoc >> (curRepInfo->dxPos % 8) & curRepInfo->dMask;
     *dy = *dyLoc >> (curRepInfo->dyPos % 8) & curRepInfo->dMask;
     if (*dx > curRepInfo->max)
-        *dx = *dx - curRepInfo->dMask - 1;
+      *dx = *dx - curRepInfo->dMask - 1;
     if (*dy > curRepInfo->max)
-        *dy = *dy - curRepInfo->dMask - 1;
+      *dy = *dy - curRepInfo->dMask - 1;
     *buttons = *(report + (curRepInfo->buttonsPos / 8)) >> (curRepInfo->buttonsPos % 8) & 7;
     return true;
-}
+  }
 }
