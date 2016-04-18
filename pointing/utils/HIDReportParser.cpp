@@ -21,30 +21,18 @@
 
 using namespace std;
 
+namespace pointing
+{
 // FIXME: Wheel, Z
 
-struct MouseReport
-{
-    int reportId;
-    int size;
-    int dxPos;
-    int dyPos;
-
-    // dMask is mask that can read bits which do not correspond to entire bytes
-    // for example: for 12 bits this will be 0xFFF
-    int dMask;
-    int min;
-    int max;
-    int buttonsPos;
-
-    MouseReport():reportId(0),size(0),dxPos(0),dyPos(0),dMask(0),min(0),max(0),buttonsPos(-1) {}
-};
+HIDReportParser::HIDReportParser()
+  :lastRepCount(0),lastRepSize(0),curRepInfo(0),debugLevel(0) { }
 
 HIDReportParser::HIDReportParser(unsigned char *desc, int size, int debugLevel):
-  lastRepCount(0),lastRepSize(0),report(0),debugLevel(debugLevel)
+  lastRepCount(0),lastRepSize(0),curRepInfo(0),debugLevel(debugLevel)
 {
-    if (size)
-        setDescriptor(desc, size);
+  if (size)
+    setDescriptor(desc, size);
 }
 
 void HIDReportParser::parseItem(const HIDItem &item)
@@ -170,7 +158,7 @@ bool HIDReportParser::findCorrectReport()
 {
     for (map<int, MouseReport>::iterator it = reportMap.begin(); it != reportMap.end(); it++)
     {
-        //cout << it->first << endl;
+      //cout << it->first << endl;
         MouseReport rep = it->second;
         if (rep.dxPos && rep.dyPos)
         {
@@ -185,7 +173,7 @@ bool HIDReportParser::findCorrectReport()
             }
             if (debugLevel)
             {
-        cerr << "    HIDReportParser: report ID #" << curRepInfo->reportId << " - "
+                cerr << "    HIDReportParser: report ID #" << curRepInfo->reportId << " - "
                      << "buttons: " << curRepInfo->buttonsPos
                      << ", dx: " << curRepInfo->dxPos
                      << ", dy: " << curRepInfo->dyPos
@@ -249,4 +237,5 @@ bool HIDReportParser::getReportData(int *dx, int *dy, int *buttons) const
         *dy = *dy - curRepInfo->dMask - 1;
     *buttons = *(report + (curRepInfo->buttonsPos / 8)) >> (curRepInfo->buttonsPos % 8) & 7;
     return true;
+}
 }
