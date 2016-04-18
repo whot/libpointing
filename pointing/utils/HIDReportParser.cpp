@@ -26,10 +26,10 @@ namespace pointing
   // FIXME: Wheel, Z
 
   HIDReportParser::HIDReportParser()
-    :lastRepCount(0),lastRepSize(0),curRepInfo(0),debugLevel(0) { }
+    :lastRepCount(0),lastRepSize(0),curRepInfo(0),report(0),debugLevel(0) { }
 
   HIDReportParser::HIDReportParser(unsigned char *desc, int size, int debugLevel):
-    lastRepCount(0),lastRepSize(0),curRepInfo(0),debugLevel(debugLevel)
+    lastRepCount(0),lastRepSize(0),curRepInfo(0),report(0),debugLevel(debugLevel)
   {
     if (size)
       setDescriptor(desc, size);
