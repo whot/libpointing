@@ -49,7 +49,7 @@ namespace pointing
         removeDevice(desc);
     }
 
-    void winPointingDeviceManager::registerMouseDevice(HANDLE h, RID_DEVICE_INFO& /*deviceinfo*/)
+    void winPointingDeviceManager::registerMouseDevice(HANDLE h)
     {
         PointingDeviceDescriptor desc;
         if (ConvertDevice(h, desc))
