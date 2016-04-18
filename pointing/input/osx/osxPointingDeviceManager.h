@@ -17,34 +17,66 @@
 
 #include <iostream>
 #include <map>
+#include <list>
 #include <pointing/input/PointingDeviceManager.h>
 #include <IOKit/hid/IOHIDManager.h>
+#include <pointing/input/osx/osxPointingDevice.h>
+#include <pointing/utils/HIDReportParser.h>
 
+#include <iomanip>
 
 namespace pointing
 {
-    /**
-     * @brief The osxPointingDeviceManager class is the platform-specific
-     * subclass of the PointingDeviceManager class.
-     *
-     * There is no public members of this class, because all the functions are called by its parent
-     * which is also a friend of this class.
-     */
-    class osxPointingDeviceManager : public PointingDeviceManager
+/**
+   * @brief The osxPointingDeviceManager class is the platform-specific
+   * subclass of the PointingDeviceManager class.
+   *
+   * There is no public members of this class, because all the functions are called by its parent
+   * which is also a friend of this class.
+   */
+  class osxPointingDeviceManager : public PointingDeviceManager
+  {
+    typedef std::list<osxPointingDevice *> PointingList;
+
+    // TODO maybe move it to another class
+    struct PointingDeviceData
     {
-        friend class PointingDeviceManager;
-        typedef std::map<IOHIDDeviceRef, PointingDeviceDescriptor> descMap_t;
-
-        // Map is needed because we cannot find all the information about removed device
-        descMap_t descMap;
-
-        IOHIDManagerRef manager;
-        static void AddDevice(void *context, IOReturn /*result*/, void *sender, IOHIDDeviceRef device);
-        static void RemoveDevice(void *context, IOReturn /*result*/, void *sender, IOHIDDeviceRef device);
-        static void ConvertDevice(IOHIDDeviceRef inDevice, PointingDeviceDescriptor &desc);
-        osxPointingDeviceManager();
-        ~osxPointingDeviceManager() {}
+      PointingDeviceDescriptor desc;
+      PointingList pointingList;
+      HIDReportParser parser;
+      uint8_t report[64];
+      IOHIDDeviceRef devRef;
     };
+
+    PointingList candidates;
+
+    friend class PointingDeviceManager;
+    friend class osxPointingDevice;
+    typedef std::map<IOHIDDeviceRef, PointingDeviceData *> devMap_t;
+
+    void convertAnyCandidates();
+    //IOHIDDeviceRef findDevRefByURI(const URI &uri);
+
+    void matchCandidates();
+
+    // Map is needed because we cannot find all the information about removed device
+    devMap_t devMap;
+
+    IOHIDManagerRef manager;
+    static void AddDevice(void *context, IOReturn /*result*/, void *sender, IOHIDDeviceRef devRef);
+    static void RemoveDevice(void *context, IOReturn /*result*/, void *sender, IOHIDDeviceRef devRef);
+    static void FillDescriptor(IOHIDDeviceRef devRef, PointingDeviceDescriptor &desc);
+
+    osxPointingDeviceManager();
+    ~osxPointingDeviceManager() {}
+
+    void addPointingDevice(osxPointingDevice *device);
+    void removePointingDevice(osxPointingDevice *device);
+
+    static void hidReportCallback(void *context, IOReturn result, void *sender,
+                  IOHIDReportType type, uint32_t reportID,
+                  uint8_t *report, CFIndex reportLength) ;
+  };
 }
 
 
