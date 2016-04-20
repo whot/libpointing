@@ -26,11 +26,12 @@ namespace pointing {
 
   osxPointingDevice::osxPointingDevice(URI uri)
      :callback(NULL),callback_context(0),forced_cpi(-1.),
-      forced_hz(-1.),debugLevel(0),devRef(0)
+      forced_hz(-1.),debugLevel(0),devRef(0),seize(false)
   {
     URI::getQueryArg(uri.query, "cpi", &forced_cpi);
     URI::getQueryArg(uri.query, "hz", &forced_hz);
     URI::getQueryArg(uri.query, "debugLevel", &debugLevel);
+    URI::getQueryArg(uri.query, "seize", &seize);
 
     osxPointingDeviceManager *man = (osxPointingDeviceManager *)PointingDeviceManager::get();
 
@@ -43,20 +44,6 @@ namespace pointing {
     }
 
     man->addPointingDevice(this);
-    /*
-    if (debugLevel)
-    {
-      for (PointingDescriptorIterator it = man->begin(); it != man->end(); it++)
-      {
-          PointingDeviceDescriptor desc = *it;
-          bool match = ((URI(desc.devURI).path) == uri.path);
-          std::cout << (match ? "+ " : "  ") << desc.devURI
-               << " [" << std::hex << "vend:0x" << desc.vendorID
-               << ", prod:0x" << desc.productID
-               << std::dec << " - " << desc.name << " ]" << std::endl;
-      }
-    }
-    */
   }
 
   bool osxPointingDevice::isActive(void) const {

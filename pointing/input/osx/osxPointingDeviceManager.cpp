@@ -20,19 +20,23 @@
 
 #include <stdexcept>
 
-// FIXME Should I use CFRetain
-// seize
-
 namespace pointing {
 
 #define USE_CURRENT_RUNLOOP 0
 
-  void osxPointingDeviceManager::FillDescriptor(IOHIDDeviceRef devRef, PointingDeviceDescriptor &desc)
+  void fillDescriptorInfo(IOHIDDeviceRef devRef, PointingDeviceDescriptor &desc)
   {
     desc.devURI = hidDeviceURI(devRef).asString();
     desc.name = hidDeviceName(devRef);
     desc.vendorID = hidDeviceGetIntProperty(devRef, CFSTR(kIOHIDVendorIDKey));
     desc.productID = hidDeviceGetIntProperty(devRef, CFSTR(kIOHIDProductIDKey));
+  }
+
+  void printDevice(IOHIDDeviceRef devRef, bool exists)
+  {
+    std::cerr << (exists ? "+ " : "  ");
+    hidDebugDevice(devRef, std::cerr);
+    std::cerr << std::endl;
   }
 
   void osxPointingDeviceManager::convertAnyCandidates()
@@ -48,48 +52,59 @@ namespace pointing {
   void osxPointingDeviceManager::matchCandidates()
   {
     convertAnyCandidates();
-    PointingList::iterator i = candidates.begin();
-    while (i != candidates.end())
+    for(devMap_t::iterator it = devMap.begin(); it != devMap.end(); it++)
     {
-      osxPointingDevice *device = *i;
-      bool found = false;
-      for(devMap_t::iterator it = devMap.begin(); it != devMap.end(); it++)
+      PointingDeviceData *pdd = it->second;
+
+      PointingList::iterator i = candidates.begin();
+      while (i != candidates.end())
       {
-        PointingDeviceData *pdd = it->second;
+        osxPointingDevice *device = *i;
         // Found matching device
         // Move it from candidates to devMap
         if (pdd->desc.devURI == device->uri.asString())
         {
           candidates.erase(i++);
-          pdd->pointingList.push_back(device);
-          device->devRef = pdd->devRef;
-          found = true;
-          break;
+          processMatching(pdd, device);
         }
+        else
+          i++;
       }
-      if (!found)
-        i++;
     }
   }
-  /*
-  IOHIDDeviceRef osxPointingDeviceManager::findDevRefByURI(const URI &uri)
+
+  void osxPointingDeviceManager::processMatching(PointingDeviceData *pdd, osxPointingDevice *device)
   {
-    for(descMap_t::iterator it = descMap.begin(); it != descMap.end(); it++)
-    {
-      PointingDeviceData *pdd = it->second;
-      if (pdd->desc.devURI == uri.asString())
-        return it->first;
-    }
-    return NULL;
+    pdd->pointingList.push_back(device);
+    device->devRef = pdd->devRef;
+    // FIXME Possible look all the candidates for seize option
+    // since only the first matching is used to establish the connection
+    IOOptionBits inOptions = device->seize ? kIOHIDOptionsTypeSeizeDevice : kIOHIDOptionsTypeNone;
+    if (IOHIDDeviceOpen(device->devRef, inOptions) != kIOReturnSuccess)
+      throw std::runtime_error("IOHIDDeviceOpen failed");
   }
-  */
+
+  void osxPointingDeviceManager::printAll(bool debugLevel)
+  {
+    // Making sure that we print devices in the AddDevice callback
+    // even if a single PointingDevice's debugLevel > 0
+    printList |= debugLevel;
+    if (debugLevel)
+    {
+      for(devMap_t::iterator it = devMap.begin(); it != devMap.end(); it++)
+      {
+        printDevice(it->first, it->second->pointingList.size());
+      }
+    }
+  }
+
   void osxPointingDeviceManager::AddDevice(void *sender, IOReturn, void *, IOHIDDeviceRef devRef)
   {
     osxPointingDeviceManager *self = (osxPointingDeviceManager *)sender;
     PointingDeviceData *pdd = new PointingDeviceData;
     self->devMap[devRef] = pdd;
     pdd->devRef = devRef;
-    FillDescriptor(devRef, pdd->desc);
+    fillDescriptorInfo(devRef, pdd->desc);
     self->addDevice(pdd->desc);
 
     CFDataRef descriptor = (CFDataRef)IOHIDDeviceGetProperty(devRef, CFSTR(kIOHIDReportDescriptorKey));
@@ -106,14 +121,16 @@ namespace pointing {
 
       //if (self->debugLevel > 1)
       //{
-        std::cerr << "HID descriptors: [ " << std::flush ;
-        for (int i=0; i<length; ++i)
-          std::cerr << std::hex << std::setfill('0') << std::setw(2) << (int)bytes[i] << " " ;
-        std::cerr << "]" << std::endl ;
+        //std::cerr << "HID descriptors: [ " << std::flush ;
+        //for (int i=0; i<length; ++i)
+        //  std::cerr << std::hex << std::setfill('0') << std::setw(2) << (int)bytes[i] << " " ;
+        //std::cerr << "]" << std::endl ;
       //}
     }
-
     self->matchCandidates();
+
+    if (self->printList)
+      printDevice(devRef, pdd->pointingList.size());
   }
 
   void osxPointingDeviceManager::RemoveDevice(void *sender, IOReturn, void *, IOHIDDeviceRef devRef)
@@ -128,6 +145,7 @@ namespace pointing {
       {
         osxPointingDevice *device = *it;
         device->devRef = NULL;
+        IOHIDDeviceClose(devRef, kIOHIDOptionsTypeNone);
         self->candidates.push_back(device);
       }
       delete pdd;
@@ -137,35 +155,34 @@ namespace pointing {
   }
 
   osxPointingDeviceManager::osxPointingDeviceManager()
+    :printList(false)
   {
-    manager = IOHIDManagerCreate(kCFAllocatorDefault, kIOHIDOptionsTypeNone) ;
+    manager = IOHIDManagerCreate(kCFAllocatorDefault, kIOHIDOptionsTypeNone);
     if (!manager)
       throw std::runtime_error("IOHIDManagerCreate failed");
 
-    const char *plist = hidDeviceFromVendorProductUsagePageUsage(0, 0, kHIDPage_GenericDesktop, kHIDUsage_GD_Mouse).c_str() ;
-    CFMutableDictionaryRef device_match = (CFMutableDictionaryRef)getPropertyListFromXML(plist) ;
-    IOHIDManagerSetDeviceMatching(manager, device_match) ;
+    const char *plist = hidDeviceFromVendorProductUsagePageUsage(0, 0, kHIDPage_GenericDesktop, kHIDUsage_GD_Mouse).c_str();
+    CFMutableDictionaryRef device_match = (CFMutableDictionaryRef)getPropertyListFromXML(plist);
+    IOHIDManagerSetDeviceMatching(manager, device_match);
 
-    IOHIDManagerRegisterDeviceMatchingCallback(manager, AddDevice, (void*)this) ;
-    IOHIDManagerRegisterDeviceRemovalCallback(manager, RemoveDevice, (void*)this) ;
+    IOHIDManagerRegisterDeviceMatchingCallback(manager, AddDevice, (void*)this);
+    IOHIDManagerRegisterDeviceRemovalCallback(manager, RemoveDevice, (void*)this);
 
 #if USE_CURRENT_RUNLOOP
-    CFRunLoopRef runLoop = CFRunLoopGetCurrent() ;
-    CFStringRef runLoopMode = kCFRunLoopDefaultMode ;
+    CFRunLoopRef runLoop = CFRunLoopGetCurrent();
+    CFStringRef runLoopMode = kCFRunLoopDefaultMode;
 #else
-    CFRunLoopRef runLoop = CFRunLoopGetMain() ;
-    CFStringRef runLoopMode = kCFRunLoopCommonModes ;
+    CFRunLoopRef runLoop = CFRunLoopGetMain();
+    CFStringRef runLoopMode = kCFRunLoopCommonModes;
 #endif
-    IOHIDManagerScheduleWithRunLoop(manager, runLoop, runLoopMode) ;
-
-    if (IOHIDManagerOpen(manager, kIOHIDOptionsTypeNone)!=kIOReturnSuccess)
-      throw std::runtime_error("IOHIDManagerOpen failed") ;
+    IOHIDManagerScheduleWithRunLoop(manager, runLoop, runLoopMode);
   }
 
   void osxPointingDeviceManager::addPointingDevice(osxPointingDevice *device)
   {
     candidates.push_back(device);
     matchCandidates();
+    printAll(device->debugLevel);
   }
 
   void osxPointingDeviceManager::removePointingDevice(osxPointingDevice *device)

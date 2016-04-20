@@ -31,14 +31,16 @@ namespace pointing
    * @brief The osxPointingDeviceManager class is the platform-specific
    * subclass of the PointingDeviceManager class.
    *
-   * There is no public members of this class, because all the functions are called by its parent
-   * which is also a friend of this class.
+   * There are no public members of this class, because all the functions are called by
+   * either its parent or osxPointingDevice which are friends of this class.
    */
   class osxPointingDeviceManager : public PointingDeviceManager
   {
+    friend class PointingDeviceManager;
+    friend class osxPointingDevice;
+
     typedef std::list<osxPointingDevice *> PointingList;
 
-    // TODO maybe move it to another class
     struct PointingDeviceData
     {
       PointingDeviceDescriptor desc;
@@ -49,15 +51,15 @@ namespace pointing
     };
 
     PointingList candidates;
+    bool printList;
 
-    friend class PointingDeviceManager;
-    friend class osxPointingDevice;
     typedef std::map<IOHIDDeviceRef, PointingDeviceData *> devMap_t;
 
     void convertAnyCandidates();
-    //IOHIDDeviceRef findDevRefByURI(const URI &uri);
-
     void matchCandidates();
+    void processMatching(PointingDeviceData *pdd, osxPointingDevice *device);
+
+    void printAll(bool debugLevel);
 
     // Map is needed because we cannot find all the information about removed device
     devMap_t devMap;
@@ -65,7 +67,6 @@ namespace pointing
     IOHIDManagerRef manager;
     static void AddDevice(void *context, IOReturn /*result*/, void *sender, IOHIDDeviceRef devRef);
     static void RemoveDevice(void *context, IOReturn /*result*/, void *sender, IOHIDDeviceRef devRef);
-    static void FillDescriptor(IOHIDDeviceRef devRef, PointingDeviceDescriptor &desc);
 
     osxPointingDeviceManager();
     ~osxPointingDeviceManager() {}

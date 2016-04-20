@@ -38,6 +38,7 @@ namespace pointing {
     bool isBluetooth(void);
 
     IOHIDDeviceRef devRef;
+    bool seize;
 
   public:
     osxPointingDevice(URI uri);
