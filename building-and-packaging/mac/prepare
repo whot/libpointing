@@ -88,8 +88,7 @@ HEADERS = [
     # --------------------------------------------------------------
     "pointing/utils/osx/osxPlistUtils.h",
     "pointing/utils/osx/osxTimeUtils.h",
-    "pointing/input/osx/osxHIDInputDevice.h",
-    "pointing/input/osx/osxHIDPointingDevice.h",
+    "pointing/input/osx/osxPointingDevice.h",
     "pointing/input/osx/osxHIDUtils.h",
     "pointing/input/osx/osxPrivateMultitouchDevice.h",
     "pointing/input/osx/osxPrivateMultitouchSupport.h",
@@ -129,8 +128,7 @@ SOURCES = [
     # OS X specifics
     # --------------------------------------------------------------
     "pointing/utils/osx/osxPlistUtils.cpp",
-    "pointing/input/osx/osxHIDInputDevice.cpp",
-    "pointing/input/osx/osxHIDPointingDevice.cpp",
+    "pointing/input/osx/osxPointingDevice.cpp",
     "pointing/input/osx/osxHIDUtils.cpp",
     "pointing/input/osx/osxPrivateMultitouchDevice.cpp",
     "pointing/input/osx/osxPointingDeviceManager.cpp",

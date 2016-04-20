@@ -150,8 +150,7 @@ namespace pointing {
       case GIDC_ARRIVAL:
       {
         self->existingDevices.insert(((HANDLE)lParam));
-        RID_DEVICE_INFO deviceinfo;
-        self->manager->registerMouseDevice((HANDLE)lParam, deviceinfo);
+        self->manager->registerMouseDevice((HANDLE)lParam);
         self->activateDevice((HANDLE)lParam, true);
         break;
       }

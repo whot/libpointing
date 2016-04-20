@@ -14,10 +14,11 @@
       'conditions': [
 			['OS=="mac"', {
 				"link_settings": {
-				'libraries': [
-				   '-lpointing',
-				   '-L/usr/local/lib'
-				 ]},
+					'libraries': [
+					   '-lpointing',
+					   '-L/usr/local/lib'
+					 ]
+				 },
 				"include_dirs": [
 					'/usr/local/include',
 					"<!(node -e \"require('nan')\")"

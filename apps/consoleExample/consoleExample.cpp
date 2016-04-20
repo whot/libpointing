@@ -84,7 +84,7 @@ main(int argc, char** argv) {
 
     // --- Transfer function --------------------------------------------------
 
-    func = TransferFunction::create(argc>3?argv[3]:"sigmoid:?debugLevel=2", input, output) ;
+    func = TransferFunction::create(argc>3?argv[3]:"system:?debugLevel=2", input, output) ;
 
     std::cout << std::endl << "Transfer function" << std::endl
         << "  " << func->getURI(true).asString() << std::endl

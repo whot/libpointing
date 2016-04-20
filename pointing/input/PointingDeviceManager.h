@@ -114,7 +114,7 @@ namespace pointing
          * @param anyURI URI with any scheme
          * @return platform-specific URI
          */
-        const URI anyToSpecific(const URI &anyURI) const;
+        URI anyToSpecific(const URI &anyURI) const;
 
         //static void destroy();
 

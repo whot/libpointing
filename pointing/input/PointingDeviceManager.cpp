@@ -96,7 +96,7 @@ namespace pointing {
         }
     }
 
-    const URI PointingDeviceManager::anyToSpecific(const URI &anyURI) const
+    URI PointingDeviceManager::anyToSpecific(const URI &anyURI) const
     {
         if (anyURI.scheme != "any")
         {
@@ -117,7 +117,7 @@ namespace pointing {
                 return pdd.devURI;
             }
         }
-        std::cerr << "Warning: could not find a device with a given URI" << std::endl ;
+        //std::cerr << "Warning: could not find a device with a given URI" << std::endl ;
         return anyURI;
     }
 

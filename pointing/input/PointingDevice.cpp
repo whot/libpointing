@@ -22,7 +22,7 @@
 #include <pointing/input/DummyPointingDevice.h>
 
 #ifdef __APPLE__
-#include <pointing/input/osx/osxHIDPointingDevice.h>
+#include <pointing/input/osx/osxPointingDevice.h>
 #endif
 
 #ifdef _WIN32
@@ -124,7 +124,7 @@ namespace pointing {
 
 #ifdef __APPLE__
     if (anywilldo || uri.scheme=="osxhid")
-      return new osxHIDPointingDevice(uri) ;
+      return new osxPointingDevice(uri) ;
 #endif
 
 #ifdef _WIN32
