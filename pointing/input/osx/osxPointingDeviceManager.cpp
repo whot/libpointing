@@ -23,6 +23,7 @@
 namespace pointing {
 
 #define USE_CURRENT_RUNLOOP 0
+#define MAX(X, Y)           (((X) > (Y)) ? (X) : (Y))
 
   void fillDescriptorInfo(IOHIDDeviceRef devRef, PointingDeviceDescriptor &desc)
   {
@@ -84,20 +85,6 @@ namespace pointing {
       throw std::runtime_error("IOHIDDeviceOpen failed");
   }
 
-  void osxPointingDeviceManager::printAll(bool debugLevel)
-  {
-    // Making sure that we print devices in the AddDevice callback
-    // even if a single PointingDevice's debugLevel > 0
-    printList |= debugLevel;
-    if (debugLevel)
-    {
-      for(devMap_t::iterator it = devMap.begin(); it != devMap.end(); it++)
-      {
-        printDevice(it->first, it->second->pointingList.size());
-      }
-    }
-  }
-
   void osxPointingDeviceManager::AddDevice(void *sender, IOReturn, void *, IOHIDDeviceRef devRef)
   {
     osxPointingDeviceManager *self = (osxPointingDeviceManager *)sender;
@@ -106,6 +93,10 @@ namespace pointing {
     pdd->devRef = devRef;
     fillDescriptorInfo(devRef, pdd->desc);
     self->addDevice(pdd->desc);
+    self->matchCandidates();
+
+    if (self->debugLevel > 0)
+      printDevice(devRef, pdd->pointingList.size());
 
     CFDataRef descriptor = (CFDataRef)IOHIDDeviceGetProperty(devRef, CFSTR(kIOHIDReportDescriptorKey));
     if (descriptor) {
@@ -114,23 +105,17 @@ namespace pointing {
       if (!pdd->parser.setDescriptor(bytes, length))
         std::cerr << "osxPointingDeviceManager::AddDevice: unable to parse the HID report descriptor" << std::endl;
       else
-      {
         IOHIDDeviceRegisterInputReportCallback(devRef, pdd->report, sizeof(pdd->report),
                                                hidReportCallback, self);
+
+      if (self->debugLevel > 1)
+      {
+        std::cerr << "HID descriptors: [ " << std::flush ;
+        for (int i=0; i<length; ++i)
+          std::cerr << std::hex << std::setfill('0') << std::setw(2) << (int)bytes[i] << " " ;
+        std::cerr << "]" << std::endl ;
       }
-
-      //if (self->debugLevel > 1)
-      //{
-        //std::cerr << "HID descriptors: [ " << std::flush ;
-        //for (int i=0; i<length; ++i)
-        //  std::cerr << std::hex << std::setfill('0') << std::setw(2) << (int)bytes[i] << " " ;
-        //std::cerr << "]" << std::endl ;
-      //}
     }
-    self->matchCandidates();
-
-    if (self->printList)
-      printDevice(devRef, pdd->pointingList.size());
   }
 
   void osxPointingDeviceManager::RemoveDevice(void *sender, IOReturn, void *, IOHIDDeviceRef devRef)
@@ -155,7 +140,7 @@ namespace pointing {
   }
 
   osxPointingDeviceManager::osxPointingDeviceManager()
-    :printList(false)
+    :debugLevel(0)
   {
     manager = IOHIDManagerCreate(kCFAllocatorDefault, kIOHIDOptionsTypeNone);
     if (!manager)
@@ -180,9 +165,9 @@ namespace pointing {
 
   void osxPointingDeviceManager::addPointingDevice(osxPointingDevice *device)
   {
+    debugLevel = MAX(debugLevel, device->debugLevel);
     candidates.push_back(device);
     matchCandidates();
-    printAll(device->debugLevel);
   }
 
   void osxPointingDeviceManager::removePointingDevice(osxPointingDevice *device)

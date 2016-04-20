@@ -73,8 +73,6 @@ include(../pointing-xorg/pointing-xorg.pri)
 macx {
   HEADERS += $$HERE/utils/osx/osxTimeUtils.h \
              $$HERE/utils/osx/osxPlistUtils.h \
-             $$HERE/input/osx/osxHIDInputDevice.h \ # TODO remove this
-             $$HERE/input/osx/osxHIDPointingDevice.h \ # TODO remove this
              $$HERE/input/osx/osxPointingDevice.h \
              $$HERE/input/osx/osxHIDUtils.h \
              $$HERE/input/osx/osxPrivateMultitouchDevice.h \
@@ -84,8 +82,6 @@ macx {
              $$HERE/output/osx/osxDisplayDeviceManager.h \
              $$HERE/transferfunctions/osx/osxSystemPointerAcceleration.h
   SOURCES += $$HERE/utils/osx/osxPlistUtils.cpp \
-             $$HERE/input/osx/osxHIDInputDevice.cpp \ # TODO remove this
-             $$HERE/input/osx/osxHIDPointingDevice.cpp \ # TODO remove this
              $$HERE/input/osx/osxPointingDevice.cpp \
              $$HERE/input/osx/osxHIDUtils.cpp \
              $$HERE/input/osx/osxPrivateMultitouchDevice.cpp \

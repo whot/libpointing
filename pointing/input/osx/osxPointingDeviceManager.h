@@ -51,15 +51,13 @@ namespace pointing
     };
 
     PointingList candidates;
-    bool printList;
+    int debugLevel;
 
     typedef std::map<IOHIDDeviceRef, PointingDeviceData *> devMap_t;
 
     void convertAnyCandidates();
     void matchCandidates();
     void processMatching(PointingDeviceData *pdd, osxPointingDevice *device);
-
-    void printAll(bool debugLevel);
 
     // Map is needed because we cannot find all the information about removed device
     devMap_t devMap;
