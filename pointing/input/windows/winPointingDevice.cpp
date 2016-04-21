@@ -83,11 +83,10 @@ namespace pointing {
 
         if (uri.scheme == "any")
         {
-          this->anyURI = uri;
-          this->uri = man->anyToSpecific(anyURI);
+          anyURI = uri;
+          uri = man->anyToSpecific(anyURI);
         }
-        else
-          this->uri = uri;
+        this->uri = uri;
 
         ATTRIB_FROM_URI(uri.query, handle);
         man->dispatcher->addPointingDevice((HANDLE)handle, this);

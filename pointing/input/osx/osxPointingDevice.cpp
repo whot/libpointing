@@ -93,28 +93,28 @@ namespace pointing {
   {
     if (devRef)
       return hidDeviceGetIntProperty(devRef, CFSTR(kIOHIDVendorIDKey));
-    return 0;
+    return OSX_DEFAULT_VENDOR_ID;
   }
 
   std::string osxPointingDevice::getVendor(void) const
   {
     if (devRef)
       return hidDeviceGetStringProperty(devRef, CFSTR(kIOHIDManufacturerKey));
-    return 0;
+    return "???";
   }
 
   int osxPointingDevice::getProductID(void) const
   {
     if (devRef)
       return hidDeviceGetIntProperty(devRef, CFSTR(kIOHIDProductIDKey));
-    return 0;
+    return OSX_DEFAULT_PRODUCT_ID;
   }
 
   std::string osxPointingDevice::getProduct(void) const
   {
     if (devRef)
       return hidDeviceGetStringProperty(devRef, CFSTR(kIOHIDProductKey));
-    return 0;
+    return "???";
   }
 
   double osxPointingDevice::getResolution(double *defval) const
