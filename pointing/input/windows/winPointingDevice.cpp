@@ -30,7 +30,8 @@ namespace pointing {
     URI uriForHandle(HANDLE h)
     {
         std::stringstream ss;
-        ss << "winhid:?handle=0x" << std::hex << std::noshowbase << PtrToUint(h);
+        ss << "winhid:?handle=0x" << std::hex
+           << std::noshowbase << PtrToUint(h);
         return URI(ss.str());
     }
 
@@ -75,9 +76,9 @@ namespace pointing {
         callback=NULL;
         callback_context=NULL;
 
-        ATTRIB_FROM_URI(uri.query,debugLevel);
-        ATTRIB_FROM_URI(uri.query,forced_cpi);
-        ATTRIB_FROM_URI(uri.query,forced_hz);
+        ATTRIB_FROM_URI(uri.query, debugLevel);
+        URI::getQueryArg(uri.query, "cpi", &forced_cpi);
+        URI::getQueryArg(uri.query, "hz", &forced_hz);
 
         winPointingDeviceManager *man = (winPointingDeviceManager *)PointingDeviceManager::get();
 
@@ -86,9 +87,10 @@ namespace pointing {
           anyURI = uri;
           uri = man->anyToSpecific(anyURI);
         }
-        this->uri = uri;
 
         ATTRIB_FROM_URI(uri.query, handle);
+        this->uri = uriForHandle((HANDLE)handle);
+
         man->dispatcher->addPointingDevice((HANDLE)handle, this);
 
         if (debugLevel)
