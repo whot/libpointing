@@ -86,6 +86,9 @@ namespace pointing
 
         void callCallbackFunctions(PointingDeviceDescriptor &descriptor, bool wasAdded);
 
+        void addDevice(PointingDeviceDescriptor &descriptor);
+        void removeDevice(PointingDeviceDescriptor &descriptor);
+
     public:
 
         /**
@@ -111,7 +114,7 @@ namespace pointing
          * @param anyURI URI with any scheme
          * @return platform-specific URI
          */
-        const URI anyToSpecific(const URI &anyURI) const;
+        URI anyToSpecific(const URI &anyURI) const;
 
         //static void destroy();
 
@@ -128,10 +131,6 @@ namespace pointing
         PointingDescriptorIterator begin() { return descriptors.begin(); }
         PointingDescriptorIterator end() { return descriptors.end(); }
         //@}
-
-        // TODO: Make this protected
-        void addDevice(PointingDeviceDescriptor &descriptor);
-        void removeDevice(PointingDeviceDescriptor &descriptor);
     };
 }
 

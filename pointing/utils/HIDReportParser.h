@@ -21,18 +21,33 @@
 #include <iostream>
 #include <map>
 
-using namespace pointing;
-
-struct MouseReport;
-
-/**
- * @brief The HIDReportParser class is very specific HID Report parser
- * which attempts to find only button and relative mouse displacement positions
- * in a given HID descriptor and according to that descriptor outputs the found
- * values in given HID reports
- */
-class HIDReportParser
+namespace pointing
 {
+  /**
+   * @brief The HIDReportParser class is very specific HID Report parser
+   * which attempts to find only button and relative mouse displacement positions
+   * in a given HID descriptor and according to that descriptor outputs the found
+   * values in given HID reports
+   */
+  class HIDReportParser
+  {
+    struct MouseReport
+    {
+      int reportId;
+      int size;
+      int dxPos;
+      int dyPos;
+
+      // dMask is mask that can read bits which do not correspond to entire bytes
+      // for example: for 12 bits this will be 0xFFF
+      int dMask;
+      int min;
+      int max;
+      int buttonsPos;
+
+      MouseReport():reportId(0),size(0),dxPos(0),dyPos(0),dMask(0),min(0),max(0),buttonsPos(-1) {}
+    };
+
     unsigned int lastUsage, parentUsage, lastUsagePage;
     unsigned int lastRepCount, lastRepSize; // If one of them is not present, we pick the last available
     std::map<int, MouseReport> reportMap;
@@ -50,7 +65,12 @@ class HIDReportParser
     // Find the report which contains relative X and Y
     bool findCorrectReport();
 
-public:
+    // TODO Implement copy constructor which copies
+    // report and curRepInfo correctly
+    HIDReportParser(HIDReportParser const&);
+
+  public:
+    HIDReportParser();
     HIDReportParser(unsigned char *desc, int size, int debugLevel=0);
     ~HIDReportParser();
 
@@ -82,6 +102,6 @@ public:
      * @return True if read successfully False otherwise
      */
     bool getReportData(int *dx, int *dy, int *buttons) const;
-};
-
+  };
+}
 #endif // HID_REPORT_PARSER_H

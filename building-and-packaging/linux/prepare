@@ -21,6 +21,9 @@ SRC = "src"
 INC = "include"
 LIB = "lib"
 
+ECHOMOUSE = "pointing-echomouse"
+ECHOMOUSE_PATH = os.path.join(ROOT, ECHOMOUSE)
+
 CPPFLAGS = [
     "-I%s"%INC,
     "-fPIC",
@@ -153,6 +156,8 @@ def prepareFiles(dist):
         copyFile(os.path.join(ROOT, source), os.path.join(dist,os.path.join(SRC, source)))
     for source in SOURCES_XTRA:
         copyFile(os.path.join(ROOT, source), os.path.join(dist,os.path.join(SRC, source)))
+    shutil.rmtree(os.path.join(DIST, INC, ECHOMOUSE), ignore_errors=True)
+    shutil.copytree(ECHOMOUSE_PATH, os.path.join(DIST, INC, ECHOMOUSE))
     lib = os.path.join(dist, LIB)
     if not os.path.exists(lib): os.makedirs(lib)
     with open(os.path.join(dist,os.path.join(SRC,TEST_PROG_SOURCE)),"w") as fd: print >> fd, TEST_PROG
@@ -188,13 +193,15 @@ def generateMakefile(dist):
         print >> makefile, "distclean: clean\n\trm -f lib/$(LIBPOINTING)"
         print >> makefile, "install:"
         print >> makefile, "\tmkdir -p $(PREFIX)/include"
-        print >> makefile, "\tcp -r %s/pointing $(PREFIX)/include/pointing"%INC
-        print >> makefile, "\tcp -r %s/pointing $(PREFIX)/include/pointing-xorg"%INC
+        print >> makefile, "\tcp -r %s/pointing $(PREFIX)/include"%INC
+        print >> makefile, "\tcp -r %s/pointing-xorg $(PREFIX)/include"%INC
+        print >> makefile, "\tcp -r %s/pointing-echomouse $(PREFIX)/include"%INC
         print >> makefile, "\tmkdir -p $(PREFIX)/lib"
         print >> makefile, "\tcp -r lib $(PREFIX)"
         print >> makefile, "uninstall:"
         print >> makefile, "\trm -rf $(PREFIX)/include/pointing"
         print >> makefile, "\trm -rf $(PREFIX)/include/pointing-xorg"
+        print >> makefile, "\trm -rf $(PREFIX)/include/pointing-echomouse"
         print >> makefile, "\trm -f $(PREFIX)/lib/$(LIBPOINTING)"
         
 # --------------------------------------------------------------------------------

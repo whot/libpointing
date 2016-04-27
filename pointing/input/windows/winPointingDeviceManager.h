@@ -26,7 +26,7 @@ namespace pointing
         friend class winHIDDeviceDispatcher;
         bool ConvertDevice(HANDLE h, PointingDeviceDescriptor &desc);
 
-        void registerMouseDevice(HANDLE, RID_DEVICE_INFO&);
+        void registerMouseDevice(HANDLE);
         void unregisterMouseDevice(HANDLE h);
 
         winHIDDeviceDispatcher *dispatcher;

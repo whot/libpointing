@@ -184,7 +184,7 @@ namespace pointing {
       uri.scheme = "windows";
       uri.opaque = winVersion;
       std::stringstream q ;
-      q << "slider=" << sliderPosition << "&enhancePointerPrecision=" << enhancePointerPrecision;
+      q << "slider=" << sliderPosition << "&epp=" << enhancePointerPrecision;
       uri.query = q.str() ;
       std::cerr << uri.asString() << std::endl ; 
 #endif
@@ -226,6 +226,7 @@ namespace pointing {
         URI::getQueryArg(uri.query, "epp", &epp);
         subDir = "/pointing-echomouse/windows" + std::string(epp ? "/epp" : "/no-epp");
       }
+      uri.opaque = "";
       uri.path = modulePath + subDir;
       uri.scheme = "interp";
     }

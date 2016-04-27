@@ -201,7 +201,7 @@ namespace pointing {
       RID_DEVICE_INFO deviceinfo;
 
       // First get the device name ...
-      UINT pcbSize;
+      UINT pcbSize = 0;
       if( GetRawInputDeviceInfoA(h, RIDI_DEVICENAME, NULL, &pcbSize) != 0 ){
         throw std::runtime_error("Unable to retreive the size of the device name ");
       }

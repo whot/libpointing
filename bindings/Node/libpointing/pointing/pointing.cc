@@ -14,7 +14,6 @@
  */
 
 #include <node.h>
-#include <pointing/pointing.h>
 #include "ntransferfunction.h"
 #include "npointingdevicemanager.h"
 #include "ndisplaydevicemanager.h"
@@ -23,12 +22,14 @@
 
 #ifdef __APPLE__
 #include <uv.h>
+#include <pointing/input/PointingDevice.h>
 
 uv_idle_t idler;
 
 void perform_while_idle(uv_idle_t* handle)
 {
-  pointing::PointingDevice::idle(100);
+  while (1)
+    pointing::PointingDevice::idle(100);
   // uv_idle_stop(handle);
 }
 

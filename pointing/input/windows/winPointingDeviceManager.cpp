@@ -24,8 +24,8 @@ namespace pointing
     string uriStringFromHandle(HANDLE h)
     {
         stringstream uriStream;
-        uriStream << "winhid:?handle=0x"
-                  << hex << h << endl;
+        uriStream << "winhid:?handle=0x" 
+                  << hex << noshowbase << PtrToUint(h);
         return uriStream.str();
     }
 
@@ -49,7 +49,7 @@ namespace pointing
         removeDevice(desc);
     }
 
-    void winPointingDeviceManager::registerMouseDevice(HANDLE h, RID_DEVICE_INFO& /*deviceinfo*/)
+    void winPointingDeviceManager::registerMouseDevice(HANDLE h)
     {
         PointingDeviceDescriptor desc;
         if (ConvertDevice(h, desc))

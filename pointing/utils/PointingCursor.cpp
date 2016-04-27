@@ -49,7 +49,7 @@ namespace pointing {
     point.y = y ;
 
     CGEventRef mouseMoveEvent = CGEventCreateMouseEvent(NULL, kCGEventMouseMoved, point, kCGMouseButtonLeft) ;
-    CGEventPost(kCGSessionEventTap, mouseMoveEvent);
+    CGEventPost(kCGSessionEventTap, mouseMoveEvent) ;
     CFRelease(mouseMoveEvent) ;
 #endif
 #ifdef _WIN32

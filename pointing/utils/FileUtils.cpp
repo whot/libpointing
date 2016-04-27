@@ -19,6 +19,8 @@
 #include <iostream>
 #include <stdio.h>
 #include <cstring>
+#include <stdlib.h>
+#include <errno.h>
 
 #ifndef _MSC_VER // Not include it on Windows
 #include <unistd.h>
@@ -27,18 +29,25 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#ifdef __APPLE__
+#include <sys/syslimits.h>
+#endif
+
 #if defined(__APPLE__) || defined(__linux__)
 #include <dlfcn.h>
 #define SLASH '/'
+#endif
+
+#ifdef __linux__
+#include <limits.h>
 #endif
 
 #ifdef _WIN32
 #include <windows.h>
 #define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
 #define SLASH '\\'
+#define PATH_MAX 256
 #endif
-
-#define PATH_LENGTH 256
 
 namespace pointing {
 
@@ -92,7 +101,7 @@ namespace pointing {
   bool pointingDirExists(const char *path)
   {
     const char pointingDir[] = "/pointing";
-    char tmp[PATH_LENGTH];
+    char tmp[PATH_MAX];
     sprintf(tmp, "%s%s", path, pointingDir);
     struct stat sb;
     return stat(tmp, &sb) == 0 && S_ISDIR(sb.st_mode);
@@ -108,17 +117,36 @@ namespace pointing {
             (LPCSTR) &moduleHeadersPath,
             &hm))
     {
-        int ret = GetLastError();
-        fprintf(stderr, "GetModuleHandle returned %d\n", ret);
-        return false;
+      fprintf(stderr, "GetModuleHandle returned %d\n", GetLastError());
+      return false;
     }
-    GetModuleFileNameA(hm, path, PATH_LENGTH);
+    if (!GetModuleFileNameA(hm, path, PATH_MAX))
+    {
+      fprintf(stderr, "GetModuleFileName returned %d\n", GetLastError());
+      return false;
+    }
     return true;
 #else
     Dl_info info;
     if (dladdr((void *)moduleHeadersPath, &info))
     {
-      strcpy(path, info.dli_fname);
+      // If found path is relative
+      if (info.dli_fname[0] != '/')
+      {
+        char *real_path = realpath(info.dli_fname, NULL);
+        if (real_path)
+        {
+          strcpy(path, real_path);
+          free(real_path);
+        }
+        else
+        {
+          printf ("realpath function failed with error: %s\n", strerror(errno));
+          return false;
+        }
+      }
+      else
+        strcpy(path, info.dli_fname);
       return true;
     }
     return false;
@@ -127,10 +155,10 @@ namespace pointing {
 
   std::string moduleHeadersPath()
   {
-    char path[PATH_LENGTH];
+    char path[PATH_MAX];
     if (getModulePath(path))
     {
-      for (int i = 0; i < 5; i++) // Check 5 levels max
+      for (int i = 0; i < 7; i++) // Check 7 levels max
       {
         char *lastSlash = strrchr(path, SLASH);
         if (!lastSlash)

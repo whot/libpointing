@@ -102,7 +102,12 @@ namespace pointing
     string path = directory + "/" + replaceAlias(curAcc) + ".dat";
     ConfigDict accCfg;
     if (!accCfg.loadFrom(path))
-      cerr << "[WARNING]: Unable to open the interpolation data from " << path << endl;
+    {
+      cerr << "Unable to open the interpolation data from " << path << endl;
+      path = directory + "/" + cfg.get<string>("default-function") + ".dat";
+      if (accCfg.loadFrom(path))
+        cerr << "Loaded the default function from" << path << endl;
+    }
     loadTableFromConfig(accCfg);
   }
 
@@ -160,10 +165,21 @@ namespace pointing
     URI::getQueryArg(uri.query, "normalize", &normalize);
 
     directory = uri.opaque!="" ? uri.opaque : uri.path ;
-    if (cfg.loadFrom(directory + "/config.dict"))
+    string configDictPath = directory + "/config.dict";
+    if (cfg.loadFrom(configDictPath))
     {
-      originalInput = PointingDevice::create(cfg.get<string>("libpointing-input"));
-      originalOutput = DisplayDevice::create(cfg.get<string>("libpointing-output"));
+      string origInputURI = cfg.get<string>("libpointing-input");
+      string origOutputURI = cfg.get<string>("libpointing-output");
+      if (origInputURI.length() && origOutputURI.length())
+      {
+        originalInput = PointingDevice::create(origInputURI);
+        originalOutput = DisplayDevice::create(origOutputURI);
+      }
+      else
+      {
+        // Cannot normalize if original devices are not defined
+        normalize = false;
+      }
 
       system = cfg.get<string>("system");
       constructAccMap();
@@ -171,6 +187,8 @@ namespace pointing
         curAcc = cfg.get<string>("default-function");
       loadFromDirectory();
     }
+    else
+      cerr << "Unable to open the interpolation file " << configDictPath << endl;
     clearState();
   }
 

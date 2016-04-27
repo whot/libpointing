@@ -5,7 +5,7 @@
       'Release': {
         'msvs_settings': {
           'VCCLCompilerTool': {
-            'RuntimeLibrary': 2 # static release
+            'RuntimeLibrary': 2 # multi threaded DLL
           }
         }
       }

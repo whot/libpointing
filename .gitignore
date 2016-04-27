@@ -24,6 +24,8 @@ Makefile
 *.tlog
 *.log
 *.vs
+*.jar
+*pointing.node
 
 *node_modules*
 *build*
@@ -43,4 +45,9 @@ qrc_*.cpp
 apps/consoleExample/consoleExample
 apps/glutExample/glutExample
 apps/qtExample/qtExample
+bindings/Node/cache
 tests/interpolation/interpolation
+tests/subpixel/subpixel
+tests/hidreportparser/hidreportparser
+tests/*/target_wrapper.sh
+bindings/Node/cache

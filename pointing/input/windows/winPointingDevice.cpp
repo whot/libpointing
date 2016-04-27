@@ -30,7 +30,8 @@ namespace pointing {
     URI uriForHandle(HANDLE h)
     {
         std::stringstream ss;
-        ss << "winhid:?handle=0x" << std::hex << std::noshowbase << PtrToUint(h);
+        ss << "winhid:?handle=0x" << std::hex
+           << std::noshowbase << PtrToUint(h);
         return URI(ss.str());
     }
 
@@ -75,9 +76,9 @@ namespace pointing {
         callback=NULL;
         callback_context=NULL;
 
-        ATTRIB_FROM_URI(uri.query,debugLevel);
-        ATTRIB_FROM_URI(uri.query,forced_cpi);
-        ATTRIB_FROM_URI(uri.query,forced_hz);
+        ATTRIB_FROM_URI(uri.query, debugLevel);
+        URI::getQueryArg(uri.query, "cpi", &forced_cpi);
+        URI::getQueryArg(uri.query, "hz", &forced_hz);
 
         winPointingDeviceManager *man = (winPointingDeviceManager *)PointingDeviceManager::get();
 
@@ -86,9 +87,10 @@ namespace pointing {
           anyURI = uri;
           uri = man->anyToSpecific(anyURI);
         }
-        this->uri = uri;
 
         ATTRIB_FROM_URI(uri.query, handle);
+        this->uri = uriForHandle((HANDLE)handle);
+
         man->dispatcher->addPointingDevice((HANDLE)handle, this);
 
         if (debugLevel)
@@ -114,14 +116,16 @@ namespace pointing {
     }
 
     double
-    winPointingDevice::getResolution(double *defval) const {
+    winPointingDevice::getResolution(double *defval) const
+    {
       if (forced_cpi > 0)
         return forced_cpi;
       return defval ? *defval : WIN_DEFAULT_CPI ;
     }
 
     double
-    winPointingDevice::getUpdateFrequency(double *defval) const {
+    winPointingDevice::getUpdateFrequency(double *defval) const
+    {
       if (forced_hz > 0)
         return forced_hz;
       double estimated = estimatedUpdateFrequency();
@@ -131,15 +135,15 @@ namespace pointing {
     }
 
     void
-    winPointingDevice::setPointingCallback(PointingCallback cbck, void *ctx) {
-      // Thread-issue, to guarantee that the callback will be call with a not yet
-      // initialized context we first set the context then the callback.
+    winPointingDevice::setPointingCallback(PointingCallback cbck, void *ctx)
+    {
       callback_context = ctx ; 
       callback = cbck ;
     }
 
     URI
-    winPointingDevice::getURI(bool expanded, bool crossplatform) const {
+    winPointingDevice::getURI(bool expanded, bool crossplatform) const
+    {
       URI result;
 
       if (crossplatform)
@@ -156,15 +160,15 @@ namespace pointing {
       if (expanded || debugLevel)
           URI::addQueryArg(result.query, "debugLevel", debugLevel);
       if (expanded || forced_cpi > 0)
-          URI::addQueryArg(result.query, "cpi", forced_cpi);
+          URI::addQueryArg(result.query, "cpi", getResolution());
       if (expanded || forced_hz > 0)
-          URI::addQueryArg(result.query, "hz", forced_hz);
+          URI::addQueryArg(result.query, "hz", getUpdateFrequency());
 
       return result;
     }
 
-    bool
-    winPointingDevice::isActive(void) const {
+    bool winPointingDevice::isActive(void) const
+    {
         return active;
     }
 
@@ -188,7 +192,8 @@ namespace pointing {
         return this->product;
     }
 
-    winPointingDevice::~winPointingDevice(void) {
+    winPointingDevice::~winPointingDevice(void)
+    {
       winPointingDeviceManager *man = (winPointingDeviceManager *)PointingDeviceManager::get();
       man->dispatcher->removePointingDevice((HANDLE)handle, this);
       //DestroyWindow(msghwnd_);

@@ -1,4 +1,4 @@
-# tests/interpolation/interpolation.pro --
+# tests/hidreportparser/hidreportparser.pro --
 #
 # Initial software
 # Authors: Izzat Mukhanov
@@ -11,9 +11,9 @@ CONFIG   -= app_bundle
 QT -= gui
 QT += testlib
 
-TARGET = interpolation
+TARGET = hidreportparser
 
 POINTING = ../..
 include($$POINTING/pointing/pointing.pri)
 
-HEADERS   += interpolation.h
+HEADERS   += hidreportparser.h

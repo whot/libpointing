@@ -95,7 +95,7 @@ namespace pointing
     void applyd(int dxMickey, int dyMickey, double *dxPixel, double *dyPixel,
                 TimeStamp::inttime timestamp=TimeStamp::undef);
 
-    URI getURI(bool expanded=false) const ;
+    URI getURI(bool expanded=false) const;
   };
 }
 
