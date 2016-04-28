@@ -44,6 +44,7 @@ class NPointingDevice : public Nan::ObjectWrap
     static NAN_GETTER(getUpdateFrequency);
     static NAN_GETTER(getResolution);
     static NAN_GETTER(getURI);
+    static NAN_GETTER(getExpandedURI);
     static NAN_GETTER(isActive);
 
     static Nan::Persistent<v8::Function> constructor;

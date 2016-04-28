@@ -33,7 +33,9 @@ void NPointingDevice::callCallback(TimeStamp::inttime timestamp, int dx, int dy,
   };
   
   if (!callback.IsEmpty())
-  	callback.Call(4, argv);
+  {
+    callback.Call(4, argv);
+  }
 }
 
 void NPointingDevice::pointingCallback(void *context, TimeStamp::inttime timestamp, int dx, int dy, int buttons)
@@ -81,7 +83,6 @@ NPointingDevice::NPointingDevice(std::string uri)
   :input(0)
 {
   input = PointingDevice::create(uri);
-  input->setPointingCallback(pointingCallback, this);
 #ifndef __APPLE__
   uv_mutex_init(&pqueue_mutex);
   uv_loop_t *loop = uv_default_loop();
@@ -92,6 +93,7 @@ NPointingDevice::NPointingDevice(std::string uri)
 }
 
 NPointingDevice::~NPointingDevice() {
+  //std::cerr << "~NPointingDevice" << std::endl;
   delete input;
 }
 
@@ -111,6 +113,7 @@ NAN_MODULE_INIT(NPointingDevice::Init)
   Nan::SetAccessor(itpl, Nan::New("updateFrequency").ToLocalChecked(), getUpdateFrequency);
   Nan::SetAccessor(itpl, Nan::New("resolution").ToLocalChecked(), getResolution);
   Nan::SetAccessor(itpl, Nan::New("uri").ToLocalChecked(), getURI);
+  Nan::SetAccessor(itpl, Nan::New("expandedUri").ToLocalChecked(), getExpandedURI);
   Nan::SetAccessor(itpl, Nan::New("active").ToLocalChecked(), isActive);
 
   constructor.Reset(Nan::GetFunction(tpl).ToLocalChecked());
@@ -139,6 +142,18 @@ NAN_METHOD(NPointingDevice::setPointingCallback)
   NPointingDevice* self = ObjectWrap::Unwrap<NPointingDevice>(info.Holder());
 
   self->callback.SetFunction(info[0].As<Function>());
+  if (self->callback.IsEmpty())
+  {
+    self->input->setPointingCallback(NULL, NULL);
+    if (self->refs_) // Reference count with self->Ref()
+      self->Unref();
+  }
+  else
+  {
+    if (!self->refs_)
+      self->Ref();
+    self->input->setPointingCallback(pointingCallback, self);
+  }
   info.GetReturnValue().Set(info.Holder());
 }
 
@@ -189,6 +204,15 @@ NAN_GETTER(NPointingDevice::getURI)
   NPointingDevice* self = ObjectWrap::Unwrap<NPointingDevice>(info.Holder());
 
   URI result = self->input->getURI();
+
+  info.GetReturnValue().Set(Nan::New(result.asString()).ToLocalChecked());
+}
+
+NAN_GETTER(NPointingDevice::getExpandedURI)
+{
+  NPointingDevice* self = ObjectWrap::Unwrap<NPointingDevice>(info.Holder());
+
+  URI result = self->input->getURI(true);
 
   info.GetReturnValue().Set(Nan::New(result.asString()).ToLocalChecked());
 }

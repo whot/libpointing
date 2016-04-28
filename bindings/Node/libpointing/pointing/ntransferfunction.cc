@@ -21,13 +21,17 @@ using namespace pointing;
 Nan::Persistent<Function> NTransferFunction::constructor;
 
 NTransferFunction::NTransferFunction(std::string uri,
-  NPointingDevice *ninput, NDisplayDevice *noutput) : func(0)
+  NPointingDevice *ninput, NDisplayDevice *noutput)
+  :func(0)
 {
   func = new SubPixelFunction("subpixel:?isOn=false", uri, ninput->input, noutput->output);
 }
 
 NTransferFunction::~NTransferFunction()
 {
+  nInput.Reset();
+  nOutput.Reset();
+  //std::cerr << "~NTransferFunction" << std::endl;
   delete func;
 }
 
@@ -64,6 +68,9 @@ NAN_METHOD(NTransferFunction::New)
     NPointingDevice *ninput = ObjectWrap::Unwrap<NPointingDevice>(info[1]->ToObject());
     NDisplayDevice *noutput = ObjectWrap::Unwrap<NDisplayDevice>(info[2]->ToObject());
     NTransferFunction* obj = new NTransferFunction(uri, ninput, noutput);
+    
+    obj->nInput.Reset(info[1]);
+    obj->nOutput.Reset(info[2]);
     obj->Wrap(info.This());
 
     info.GetReturnValue().Set(info.This());

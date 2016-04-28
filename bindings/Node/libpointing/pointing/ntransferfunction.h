@@ -48,6 +48,8 @@ class NTransferFunction : public Nan::ObjectWrap
   	static Nan::Persistent<v8::Function> constructor;
 
   	pointing::SubPixelFunction *func;
+    Nan::Persistent<v8::Value> nInput;
+    Nan::Persistent<v8::Value> nOutput;
 };
 
 #endif // NTRANSFERFUNCTION_H
