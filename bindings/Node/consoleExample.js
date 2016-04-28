@@ -19,7 +19,3 @@ var manager = new pointing.PointingDeviceManager().addDeviceUpdateCallback(
 );
 var acc = new pointing.SystemPointerAcceleration();
 console.log("Current acceleration for mouse:", acc.get());
-
-setTimeout(function() {
-	console.log("Finished");
-}, 100000);

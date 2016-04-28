@@ -184,7 +184,7 @@ private slots:
       delete f;
     }
 
-    void twoByteInputValues()
+    void MoreThanOneByteInputValues()
     {
       // For devices where dx and dy more than 1 byte
       // We need to make sure that output values are correct

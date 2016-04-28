@@ -70,7 +70,8 @@ namespace pointing {
     winPointingDevice::winPointingDevice(URI uri) :
         debugLevel(WIN_DEFAULT_DEBUGLEVEL),forced_cpi(-1.),
         forced_hz(-1.),handle(WIN_DEFAULT_HANDLE),
-        active(0),vendorID(0),productID(0),buttons(0)
+        active(0),vendorID(0),productID(0),buttons(0),
+        lastX(-1),lastY(-1)
     {
       try {
         callback=NULL;

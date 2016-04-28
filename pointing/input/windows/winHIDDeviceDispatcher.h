@@ -57,6 +57,9 @@ namespace pointing {
 
     static LONG APIENTRY rawInputProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
     HWND rawInputInit();
+	
+	// True if the mouse has moved
+	bool relativeDisplacement(const PRAWMOUSE pmouse, winPointingDevice *dev, int *dx, int *dy);
 
   public:
 

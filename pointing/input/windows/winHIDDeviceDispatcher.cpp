@@ -132,6 +132,35 @@ namespace pointing {
     }
   }
 
+  bool winHIDDeviceDispatcher::relativeDisplacement(const PRAWMOUSE pmouse, winPointingDevice *dev, int *dx, int *dy)
+  {
+    if (pmouse->usFlags & MOUSE_MOVE_ABSOLUTE)
+    {
+      const bool virtualDesktop = pmouse->usFlags & MOUSEEVENTF_VIRTUALDESK;
+      const int width = GetSystemMetrics(virtualDesktop ? SM_CXVIRTUALSCREEN : SM_CXSCREEN);
+      const int height = GetSystemMetrics(virtualDesktop ? SM_CYVIRTUALSCREEN : SM_CYSCREEN);
+      const float dpx = USHRT_MAX / width; // One pixel displacement
+      const float dpy = USHRT_MAX / height;
+
+      if (dev->lastX > 0 || dev->lastY > 0)
+      {
+        *dx = roundf((pmouse->lLastX - dev->lastX) / dpx);
+        *dy = roundf((pmouse->lLastY - dev->lastY) / dpy);
+      }
+      // Save last values for the next callback
+      dev->lastX = pmouse->lLastX;
+      dev->lastY = pmouse->lLastY;
+      // Always return true for the virtual mouse
+      // Since in this case movement of a mouse for small displacements
+      // may produce 0, 0 because display is taken into account
+      // So at least we know that mouse has moved
+      return true;
+    }
+    *dx = pmouse->lLastX;
+    *dy = pmouse->lLastY;
+    return *dx || *dy;
+  }
+
   // Static function that process the rawinput events and let the others processed by the default processor.
   // hwnd field stores the window handler, uMsg is the event type, wParam and lParam are additional
   // parameters.
@@ -199,7 +228,8 @@ namespace pointing {
             // we verify that there is a button clicked or a displacement
             // Otherwise for some touchpads the callback is called even if you
             // hold your finger on the touchpad.
-            if (raw->data.mouse.usButtonFlags || raw->data.mouse.lLastX || raw->data.mouse.lLastY)
+            int dx = 0, dy = 0;
+            if (raw->data.mouse.usButtonFlags || self->relativeDisplacement(&raw->data.mouse, dev, &dx, &dy))
             {
               if(raw->data.mouse.usButtonFlags & RI_MOUSE_LEFT_BUTTON_DOWN)
                 dev->buttons |= 1 << 0;
@@ -217,8 +247,9 @@ namespace pointing {
                 dev->buttons &= ~(1 << 2);
 
               dev->registerTimestamp(now);
+
               if (dev->callback != NULL)
-                dev->callback(dev->callback_context, now, raw->data.mouse.lLastX, raw->data.mouse.lLastY, dev->buttons);
+                dev->callback(dev->callback_context, now, dx, dy, dev->buttons);
             }
           }
         }
