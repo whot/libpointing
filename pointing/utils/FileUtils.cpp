@@ -100,7 +100,7 @@ namespace pointing {
 
   bool pointingDirExists(const char *path)
   {
-    const char pointingDir[] = "/pointing";
+    const char pointingDir[] = "/pointing-echomouse";
     char tmp[PATH_MAX];
     sprintf(tmp, "%s%s", path, pointingDir);
     struct stat sb;
@@ -125,6 +125,9 @@ namespace pointing {
       fprintf(stderr, "GetModuleFileName returned %d\n", GetLastError());
       return false;
     }
+	// Remove \\?\ from the beginning on the VMWare
+	if (strncmp(path, "\\\\?\\", 4) == 0)
+		strcpy(path, path + 4);
     return true;
 #else
     Dl_info info;
@@ -158,7 +161,7 @@ namespace pointing {
     char path[PATH_MAX];
     if (getModulePath(path))
     {
-      for (int i = 0; i < 7; i++) // Check 7 levels max
+      for (int i = 0; i < 10; i++) // Check 10 levels max
       {
         char *lastSlash = strrchr(path, SLASH);
         if (!lastSlash)
