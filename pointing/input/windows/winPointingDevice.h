@@ -46,8 +46,8 @@ namespace pointing
 
         bool active;
 
-		// For absolute coordinates
-		int lastX, lastY;
+        // For absolute coordinates
+        int lastX, lastY;
 
     public:
 

@@ -125,9 +125,9 @@ namespace pointing {
       fprintf(stderr, "GetModuleFileName returned %d\n", GetLastError());
       return false;
     }
-	// Remove \\?\ from the beginning on the VMWare
-	if (strncmp(path, "\\\\?\\", 4) == 0)
-		strcpy(path, path + 4);
+    // Remove \\?\ from the beginning on VMWare
+    if (strncmp(path, "\\\\?\\", 4) == 0)
+      strcpy(path, path + 4);
     return true;
 #else
     Dl_info info;
