@@ -44,13 +44,13 @@ namespace pointing {
     XCloseDisplay(dpy);
 #endif
 #ifdef __APPLE__
-    CGPoint point;
-    point.x = x;
-    point.y = y;
+    CGPoint point ;
+    point.x = x ;
+    point.y = y ;
 
-    CGEventRef mouseMoveEvent = CGEventCreateMouseEvent(NULL, kCGEventMouseMoved, point, kCGMouseButtonLeft);
-    CGEventPost(kCGSessionEventTap, mouseMoveEvent);
-    CFRelease(mouseMoveEvent);
+    CGEventRef mouseMoveEvent = CGEventCreateMouseEvent(NULL, kCGEventMouseMoved, point, kCGMouseButtonLeft) ;
+    CGEventPost(kCGSessionEventTap, mouseMoveEvent) ;
+    CFRelease(mouseMoveEvent) ;
 #endif
 #ifdef _WIN32
 	SetCursorPos(x, y);

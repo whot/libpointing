@@ -24,8 +24,8 @@ namespace pointing
     string uriStringFromHandle(HANDLE h)
     {
         stringstream uriStream;
-        uriStream << "winhid:?handle=0x"
-                  << hex << h << endl;
+        uriStream << "winhid:?handle=0x" 
+                  << hex << noshowbase << PtrToUint(h);
         return uriStream.str();
     }
 
