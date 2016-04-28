@@ -71,7 +71,7 @@ namespace pointing
     std::string replaceAlias(std::string &curAcc);
 
     std::vector<float> tableAcc;
-    float valueFromTable(int index);
+    float valueFromTable(unsigned index);
 
     /**
      * @brief Interpolation::valueFromTable Makes subpoint interpolation

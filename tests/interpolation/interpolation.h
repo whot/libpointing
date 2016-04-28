@@ -184,6 +184,17 @@ private slots:
       delete f;
     }
 
+    void twoByteInputValues()
+    {
+      // For devices where dx and dy more than 1 byte
+      // We need to make sure that output values are correct
+      TransferFunction *f = TransferFunction::create("windows:?slider=2&epp=true", 0, 0);
+      int dxP, dyP;
+      f->applyi(13398, 44530, &dxP, &dyP);
+      QCOMPARE(dxP, 26796);
+      QCOMPARE(dyP, 89060);
+      delete f;
+    }
 
     void replacedWindowsWithArgsURI()
     {

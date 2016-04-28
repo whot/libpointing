@@ -206,17 +206,17 @@ namespace pointing
     return floor(Abs(num))*Sign(num);
   }
 
-  float Interpolation::valueFromTable(int index)
+  float Interpolation::valueFromTable(unsigned index)
   {
-    if (index < (int)tableAcc.size())
+    if (index < (unsigned)tableAcc.size())
       return tableAcc[index];
     return tableAcc.back();
   }
 
   double Interpolation::valueFromTable(double index)
   {
-    int prevI = floor(index);
-    int nextI = ceil(index);
+    unsigned prevI = floor(index);
+    unsigned nextI = ceil(index);
     double prevVal = valueFromTable(prevI);
     if (prevI >= nextI)
       return prevVal;
@@ -237,8 +237,8 @@ namespace pointing
       previousMouseRawY = mouseRawY;
     }
 
-    float index = floor(sqrt(float(mouseRawX * mouseRawX + mouseRawY * mouseRawY)));
-
+    float index = floor(sqrt(float(mouseRawX) * mouseRawX + float(mouseRawY) * mouseRawY));
+	
     if (normalize)
       index *= round(originalInput->getResolution()) / round(pointingDevice->getResolution());
 
