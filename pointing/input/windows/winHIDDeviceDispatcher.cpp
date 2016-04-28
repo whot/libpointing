@@ -18,9 +18,12 @@
 #include <pointing/input/windows/winHIDDeviceDispatcher.h>
 #include <pointing/input/windows/winPointingDeviceManager.h>
 
-#include <windows.h>
-
 namespace pointing {
+	
+	float roundf(float x)
+	{
+		 return x >= 0.0f ? floorf(x + 0.5f) : ceilf(x - 0.5f);
+	}
 
   void winHIDDeviceDispatcher::addPointingDevice(HANDLE h, winPointingDevice *device)
   {
