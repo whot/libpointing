@@ -26,6 +26,7 @@ Makefile
 *.vs
 *.jar
 *pointing.node
+*target_wrapper.bat
 
 *node_modules*
 *build*
@@ -51,3 +52,4 @@ tests/subpixel/subpixel
 tests/hidreportparser/hidreportparser
 tests/*/target_wrapper.sh
 bindings/Node/cache
+bindings/Node/nw

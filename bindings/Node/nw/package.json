@@ -2,7 +2,7 @@
   "main": "index.html",
   "name": "pointingserver",
   "description": "Pointing Server",
-  "version": "0.0.1",
+  "version": "0.9.5",
   "keywords": [ "libpointing", "nwjs", "HID", "transfer function" ],
   "window": {
     "title": "Pointing server",
@@ -16,7 +16,7 @@
     "min_height": 200,
     "max_width": 800,
     "max_height": 600,
-    "show": true
+    "show": false
   },
   "author": "Izzatbek Mukhanov",
   "license": "GPL",

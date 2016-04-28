@@ -39,7 +39,7 @@ Follow these instructions to build the nw-app for Windows:
 
 	* npm install nw -g
 	* npm install nw-gyp -g
-	* npm install nw-builder
+	* npm install nw-builder ncp
 
 1. In *libpointing*-folder run `npm install nan`
 
