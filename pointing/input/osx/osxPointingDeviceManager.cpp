@@ -78,7 +78,7 @@ namespace pointing {
   {
     pdd->pointingList.push_back(device);
     device->devRef = pdd->devRef;
-    // FIXME Possible look all the candidates for seize option
+    // FIXME Maybe look all the candidates for seize option
     // since only the first matching is used to establish the connection
     IOOptionBits inOptions = device->seize ? kIOHIDOptionsTypeSeizeDevice : kIOHIDOptionsTypeNone;
     if (IOHIDDeviceOpen(device->devRef, inOptions) != kIOReturnSuccess)

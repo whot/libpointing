@@ -71,17 +71,6 @@
 				"msvs_disabled_warnings": [ 4244, 4267 ],
 			}],
 		],
-    },
-    {
-      "target_name": "action_after_build",
-      "type": "none",
-      "dependencies": [ "pointing" ],
-      "copies": [
-        {
-          "files": [ "<(PRODUCT_DIR)/pointing.node" ],
-          "destination": "bin"
-        }
-      ]
     }
   ]
 }

@@ -58,7 +58,7 @@ io.on('connection', function(socket) {
 
   socket.on('error', function (err) {
     socket.emit('pointingError', err.message);
-    console.log(err.message);
+    console.log("Error:", err.message);
   });
 
   socket.on('pointingDeviceList', function() {
@@ -75,9 +75,7 @@ io.on('connection', function(socket) {
   socket.on('pointingDeviceCreate', function(uri, id) {
     var input = new pointing.PointingDevice(uri ? uri : "any:");
     objects[id] = input;
-    setTimeout(function() {
-      socket.emit('pointingObjectInfo', id, input);
-    }, 500);
+    socket.emit('pointingObjectInfo', id, input);
   });
 
   socket.on('displayDeviceCreate', function(uri, id) {

@@ -59,7 +59,6 @@ namespace pointing {
   {
     static int minThresholds[BUCKETS_SIZE] = {14000, 6000, 3000, 1500, 0};
     TimeStamp::inttime delta = (timestamp - lastTime) / TimeStamp::one_microsecond;
-    //std::cout << "tintin: " << delta << std::endl;
     lastTime = timestamp;
     for (int i = 0; i < BUCKETS_SIZE; i++)
     {
@@ -76,12 +75,9 @@ namespace pointing {
     static const int MIN_N = 25;
     static const double minPerc[BUCKETS_SIZE] = {0.5, 0.4, 0.3, 0.2, 0.1};
     unsigned long sum = 0;
-    //std::cerr << "Buckets: ";
     for (int i = 1; i < BUCKETS_SIZE; i++) {
-      //std::cerr << i << ": " << buckets[i] << " ";
       sum += buckets[i];
     }
-    std::cerr << std::endl;
     if (sum < MIN_N)
       return -1;
     if (double(buckets[FREQUENCY_1000]) / sum > minPerc[FREQUENCY_1000])

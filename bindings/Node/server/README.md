@@ -1,18 +1,14 @@
 # Pointing Server
 
----
-
-[Libpointing](http://libpointing.org) browser APIs
+[Libpointing](http://libpointing.org) server application
 
 ## Description
 
 Libpointing is an open-source cross-platform library to get raw events from pointing devices and master transfer functions.
 
-With this server you can use it in your browser
+With this server you can use it in your browser.
 
 ## Installation
-
----
 
 * Install [libpointing](http://libpointing.org)
 * npm install pointingserver -g
@@ -25,7 +21,7 @@ Note that, `pointingserver` with npm can be installed only on Mac OS and Linux.
 
 ## Usage
 
----
-
 * `pointingserver start` starts the server.
 * `pointingserver stop` stops it.
+
+Download [client-side libpointing](https://raw.githubusercontent.com/INRIA/libpointing/master/bindings/Node/client/pointing.js) and you can start using it. Read the [documentation](http://libpointing.org/user-guide/node/) to learn how to use it.
