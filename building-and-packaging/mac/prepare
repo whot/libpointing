@@ -38,13 +38,13 @@ CPPFLAGS = [
     "-I%s"%INC,
     ]
 CXXFLAGS = [
-    "-mmacosx-version-min=10.6"
+    "-mmacosx-version-min=10.7"
     ]
 
 LDFLAGS = [
     "-L%s"%LIB,
     "-F/System/Library/PrivateFrameworks",
-    "-mmacosx-version-min=10.6"
+    "-mmacosx-version-min=10.7"
     ]
 LIBS = [
     "-framework MultitouchSupport",
@@ -196,7 +196,7 @@ def generateMakefile():
         print >> makefile
         print >> makefile, "SOURCES =", " ".join(sources)
         print >> makefile
-        print >> makefile, "CXX      = g++"
+        print >> makefile, "CXX      = g++ -stdlib=libc++"
         print >> makefile, "CPPFLAGS =", " ".join(CPPFLAGS)
         print >> makefile, "CXXFLAGS =", " ".join(CXXFLAGS)
         print >> makefile, "LDFLAGS  =", " ".join(LDFLAGS)
