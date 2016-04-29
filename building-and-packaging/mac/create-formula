@@ -24,7 +24,7 @@ else:
 
 
 HOMEBREW_REPO = "libpointing-homebrew"
-HOMEBREW_REPO_FILE = HOMEBREW_REPO + "/Library/Formula/libpointing.rb"
+HOMEBREW_REPO_FILE = HOMEBREW_REPO + "/Formula/libpointing.rb"
 LIBPOINTING_FOLDER = "libpointing-%s"%VERSION
 
 print "Cloning homebrew script repo"

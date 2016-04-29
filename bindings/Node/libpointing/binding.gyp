@@ -23,7 +23,13 @@
 					'/usr/local/include',
 					"<!(node -e \"require('nan')\")"
 				],
-				"cflags": [ "-mmacosx-version-min=10.6" ],
+				'xcode_settings': {
+			        'MACOSX_DEPLOYMENT_TARGET': '10.7',
+
+			        'OTHER_CFLAGS': [
+			          "-stdlib=libc++"
+			        ],
+			    },
 			}],
 			['OS=="linux"', {
 				"link_settings": {
