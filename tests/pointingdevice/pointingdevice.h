@@ -8,9 +8,6 @@
 using namespace pointing;
 using namespace std;
 
-// TODO verify that v0.9.6 is working without mmacosx_min_version
-// Clean any URI
-
 class PointingDeviceTest : public QObject
 {
     Q_OBJECT
@@ -27,11 +24,12 @@ private slots:
 
     void anyUri()
     {
-      std::string uri = "any:?vendor=1";
+      string uri = "any:?vendor=1";
       PointingDevice *input = PointingDevice::create(uri);
       URI result = input->getURI(false, true);
       QCOMPARE(result.asString(), uri);
       result = input->getURI(false, false);
+      //std::cerr << result.asString() << std::endl;
       QCOMPARE(result.asString(), uri);
       result = input->getURI(true, false);
       int debugLevel = -1;

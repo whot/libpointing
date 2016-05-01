@@ -23,9 +23,9 @@ namespace pointing {
 #define OSX_DEFAULT_HZ            125.001
 
   osxPointingDevice::osxPointingDevice(URI uri)
-     :callback(NULL),callback_context(0),forced_cpi(-1.),
-      forced_hz(-1.),debugLevel(0),devRef(0),
-      vendorID(0),productID(0),seize(false)
+     :uri(uri),callback(NULL),callback_context(0),
+      forced_cpi(-1.),forced_hz(-1.),debugLevel(0),
+      devRef(0),vendorID(0),productID(0),seize(false)
   {
     URI::getQueryArg(uri.query, "cpi", &forced_cpi);
     URI::getQueryArg(uri.query, "hz", &forced_hz);
@@ -36,15 +36,12 @@ namespace pointing {
 
     if (uri.scheme == "any")
     {
-      anyURI = URI("any:");
+      anyURI = PointingDeviceManager::generalizeAny(uri);
       URI::getQueryArg(uri.query, "vendor", &vendorID);
       URI::getQueryArg(uri.query, "product", &productID);
     }
     else
-    {
-      this->uri = uri;
       this->uri.generalize();
-    }
 
     man->addPointingDevice(this);
   }
@@ -56,15 +53,20 @@ namespace pointing {
   URI osxPointingDevice::getURI(bool expanded, bool crossplatform) const
   {
     URI result = uri;
-    if (crossplatform || result.scheme == "any")
+    if (crossplatform)
     {
-      int vendorID = getVendorID();
-      if (vendorID)
-        URI::addQueryArg(result.query, "vendor", vendorID) ;
+      if (anyURI.scheme.size())
+        result = anyURI;
+      else
+      {
+        int vendorID = getVendorID();
+        if (vendorID)
+          URI::addQueryArg(result.query, "vendor", vendorID) ;
 
-      int productID = getProductID();
-      if (productID)
-        URI::addQueryArg(result.query, "product", productID) ;
+        int productID = getProductID();
+        if (productID)
+          URI::addQueryArg(result.query, "product", productID) ;
+      }
     }
 
     if (expanded || debugLevel)

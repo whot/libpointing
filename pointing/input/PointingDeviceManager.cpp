@@ -121,6 +121,20 @@ namespace pointing {
         return anyURI;
     }
 
+    URI PointingDeviceManager::generalizeAny(const URI &anyURI)
+    {
+      URI result = anyURI;
+      int vendorID = DEFAULT_VENDOR, productID = DEFAULT_PRODUCT;
+      URI::getQueryArg(anyURI.query, "vendor", &vendorID);
+      URI::getQueryArg(anyURI.query, "product", &productID);
+      result.generalize();
+      if (vendorID != DEFAULT_VENDOR)
+        URI::addQueryArg(result.query, "vendor", vendorID);
+      if (productID != DEFAULT_PRODUCT)
+        URI::addQueryArg(result.query, "product", productID);
+      return result;
+    }
+
     /*void PointingDeviceManager::destroy()
     {
         delete singleManager;

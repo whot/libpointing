@@ -30,8 +30,11 @@ namespace pointing {
     URI uriForHandle(HANDLE h)
     {
         std::stringstream ss;
-        ss << "winhid:?handle=0x" << std::hex
-           << std::noshowbase << PtrToUint(h);
+        if (h)
+            ss << "winhid:?handle=0x" << std::hex
+               << std::noshowbase << PtrToUint(h);
+        else
+            ss << "any:";
         return URI(ss.str());
     }
 
@@ -61,7 +64,7 @@ namespace pointing {
         {
           man->dispatcher->removePointingDevice((HANDLE)handle, this);
           this->uri = newUri;
-          ATTRIB_FROM_URI(uri.query, handle);
+          URI::getQueryArg(uri.query, "handle", &handle);
           man->dispatcher->addPointingDevice((HANDLE)handle, this);
         }
       }
@@ -77,7 +80,7 @@ namespace pointing {
         callback=NULL;
         callback_context=NULL;
 
-        ATTRIB_FROM_URI(uri.query, debugLevel);
+        URI::getQueryArg(uri.query, "debugLevel", &debugLevel);
         URI::getQueryArg(uri.query, "cpi", &forced_cpi);
         URI::getQueryArg(uri.query, "hz", &forced_hz);
 
@@ -85,12 +88,16 @@ namespace pointing {
 
         if (uri.scheme == "any")
         {
-          anyURI = uri;
-          uri = man->anyToSpecific(anyURI);
+          anyURI = PointingDeviceManager::generalizeAny(uri);
+          URI::getQueryArg(uri.query, "vendor", &vendorID);
+          URI::getQueryArg(uri.query, "product", &productID);
+          this->uri = man->anyToSpecific(uri);
         }
-
-        ATTRIB_FROM_URI(uri.query, handle);
-        this->uri = uriForHandle((HANDLE)handle);
+        if (this->uri.scheme != "any")
+        {
+          URI::getQueryArg(uri.query, "handle", &handle);
+          this->uri = uriForHandle((HANDLE)handle);
+        }
 
         man->dispatcher->addPointingDevice((HANDLE)handle, this);
 
@@ -145,18 +152,20 @@ namespace pointing {
     URI
     winPointingDevice::getURI(bool expanded, bool crossplatform) const
     {
-      URI result;
+      URI result = uri;
 
       if (crossplatform)
       {
-          result.scheme = "any";
-          if (vendorID)
-              URI::addQueryArg(result.query, "vendor", vendorID);
-          if (productID)
-              URI::addQueryArg(result.query, "product", productID);
+          if (anyURI.scheme.size())
+              result = anyURI;
+          else
+          {
+              if (vendorID)
+                  URI::addQueryArg(result.query, "vendor", vendorID);
+              if (productID)
+                  URI::addQueryArg(result.query, "product", productID);
+          }
       }
-      else
-          result = uri;
 
       if (expanded || debugLevel)
           URI::addQueryArg(result.query, "debugLevel", debugLevel);

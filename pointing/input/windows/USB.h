@@ -31,8 +31,6 @@
 #define RIDEV_EXINPUTSINK 0x00001000
 #endif //
 
-#define ATTRIB_FROM_URI(a,b) URI::getQueryArg(a, #b, &b)
-
 namespace pointing {
 
   /**

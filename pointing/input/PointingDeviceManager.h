@@ -116,6 +116,14 @@ namespace pointing
          */
         URI anyToSpecific(const URI &anyURI) const;
 
+        /**
+         * @brief generalizeAny Remove all arguments from the given any: URI
+         * except for vendor vendor and product arguments
+         * @param anyURI URI with any scheme
+         * @return URI with only vendor and product query arguments
+         */
+        static URI generalizeAny(const URI &anyURI);
+
         //static void destroy();
 
         /**
