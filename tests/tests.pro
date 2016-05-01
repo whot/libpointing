@@ -6,4 +6,4 @@
 
 TEMPLATE = subdirs
 
-SUBDIRS += interpolation subpixel hidreportparser
+SUBDIRS += interpolation subpixel hidreportparser pointingdevice

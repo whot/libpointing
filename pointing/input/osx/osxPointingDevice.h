@@ -38,6 +38,7 @@ namespace pointing {
     bool isBluetooth(void);
 
     IOHIDDeviceRef devRef;
+    int vendorID, productID;
     bool seize;
 
   public:

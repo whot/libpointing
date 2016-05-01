@@ -19,14 +19,13 @@
 
 namespace pointing {
 
-#define OSX_DEFAULT_VENDOR_ID     0
-#define OSX_DEFAULT_PRODUCT_ID    0
 #define OSX_DEFAULT_CPI           400.001
 #define OSX_DEFAULT_HZ            125.001
 
   osxPointingDevice::osxPointingDevice(URI uri)
      :callback(NULL),callback_context(0),forced_cpi(-1.),
-      forced_hz(-1.),debugLevel(0),devRef(0),seize(false)
+      forced_hz(-1.),debugLevel(0),devRef(0),
+      vendorID(0),productID(0),seize(false)
   {
     URI::getQueryArg(uri.query, "cpi", &forced_cpi);
     URI::getQueryArg(uri.query, "hz", &forced_hz);
@@ -36,7 +35,11 @@ namespace pointing {
     osxPointingDeviceManager *man = (osxPointingDeviceManager *)PointingDeviceManager::get();
 
     if (uri.scheme == "any")
-      this->anyURI = uri;
+    {
+      anyURI = URI("any:");
+      URI::getQueryArg(uri.query, "vendor", &vendorID);
+      URI::getQueryArg(uri.query, "product", &productID);
+    }
     else
     {
       this->uri = uri;
@@ -53,13 +56,8 @@ namespace pointing {
   URI osxPointingDevice::getURI(bool expanded, bool crossplatform) const
   {
     URI result = uri;
-
-    if (crossplatform)
+    if (crossplatform || result.scheme == "any")
     {
-      if (!anyURI.asString().empty())
-        return anyURI;
-
-      result.scheme = "any";
       int vendorID = getVendorID();
       if (vendorID)
         URI::addQueryArg(result.query, "vendor", vendorID) ;
@@ -93,7 +91,7 @@ namespace pointing {
   {
     if (devRef)
       return hidDeviceGetIntProperty(devRef, CFSTR(kIOHIDVendorIDKey));
-    return OSX_DEFAULT_VENDOR_ID;
+    return vendorID;
   }
 
   std::string osxPointingDevice::getVendor(void) const
@@ -107,7 +105,7 @@ namespace pointing {
   {
     if (devRef)
       return hidDeviceGetIntProperty(devRef, CFSTR(kIOHIDProductIDKey));
-    return OSX_DEFAULT_PRODUCT_ID;
+    return productID;
   }
 
   std::string osxPointingDevice::getProduct(void) const
