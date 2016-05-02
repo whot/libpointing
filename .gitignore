@@ -25,6 +25,7 @@ Makefile
 *.log
 *.vs
 *.jar
+*.dSYM
 *pointing.node
 *target_wrapper.bat
 
@@ -50,6 +51,7 @@ bindings/Node/cache
 tests/interpolation/interpolation
 tests/subpixel/subpixel
 tests/hidreportparser/hidreportparser
+tests/pointingdevice/pointingdevice
 tests/*/target_wrapper.sh
 bindings/Node/cache
 bindings/Node/nw

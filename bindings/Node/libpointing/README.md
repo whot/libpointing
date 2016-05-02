@@ -30,13 +30,10 @@ Note that, `libpointing` with npm can be installed only on Mac OS and Linux.
 	});
 
 	var manager = new pointing.PointingDeviceManager().addDeviceUpdateCallback(
-		function(deviceDescriptor, wasAdded)
-		{
+		function(deviceDescriptor, wasAdded) {
 			console.log(deviceDescriptor, wasAdded);
 		}
 	);
-	var acc = new pointing.SystemPointerAcceleration();
-	console.log("Current acceleration for mouse:", acc.get());
 
 ## License
 

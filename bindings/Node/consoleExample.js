@@ -17,5 +17,3 @@ var manager = new pointing.PointingDeviceManager().addDeviceUpdateCallback(
 		console.log(deviceDescriptor, wasAdded);
 	}
 );
-var acc = new pointing.SystemPointerAcceleration();
-console.log("Current acceleration for mouse:", acc.get());
