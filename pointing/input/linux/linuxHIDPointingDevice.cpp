@@ -165,10 +165,14 @@ namespace pointing {
     PointingDeviceManager *man = PointingDeviceManager::get();
 
     if (uri.scheme == "any")
+    {
+        URI::getQueryArg(uri.query, "vendor", &vendorID) ;
+        URI::getQueryArg(uri.query, "product", &productID) ;
         uri = man->anyToSpecific(uri);
+    }
  
     hid = -1 ;
-    this->uri = uri ;
+    this->uri = PointingDeviceManager::generalizeAny(uri) ;
 
     parser = new HIDReportParser(NULL, 0, debugLevel);
 
