@@ -10,7 +10,7 @@
  *
  */
 
-var pointing = function() {
+var pointing = new function() {
 
 	var socket = io.connect('http://localhost:3423');
 	this.pointingIsAvailable = true;
@@ -99,7 +99,7 @@ var pointing = function() {
 
 
 
-	var dispatcher = function() {
+	var dispatcher = new function() {
 
 		this.objects = {};
 		var that = this;
