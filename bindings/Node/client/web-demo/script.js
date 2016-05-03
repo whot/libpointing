@@ -127,17 +127,19 @@ var manager = new pointing.PointingDeviceManager();
 var output = new pointing.DisplayDevice("any:?");
 
 var tFuncs = [
-{name: "OS X Touchpad with default slider",
- uri: "osx:touchpad?setting=0.6875"}
-,{name: "OS X Mouse with slider at maximum",
- uri: "osx:mouse?setting=3.00"}
+{name: "OS X El Capitan with default slider",
+ uri: "osx:?setting=0.6875"}
+,{name: "OS X El Capitan with slider at maximum",
+ uri: "osx:?setting=3.00"}
+,{name: "OS X Yosemite with default slider",
+ uri: "osx:darwin-14"}
 ,{name: "Windows with default slider",
  uri: "windows:7?slider=0"}
 ,{name: "Windows with slider at maximum",
  uri: "windows:7?slider=5"}
 ,{name: "Windows with slider at minimum",
  uri: "windows:7?slider=-5"}
-,{name: "Linux 10.04 default transfer function",
+,{name: "Linux default transfer function",
  uri: "xorg:?"}
 ,{name: "Resolution-aware constant function",
  uri: "constant:?gain=1"}
