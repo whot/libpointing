@@ -63,13 +63,17 @@ window.onload = function() {
 		    	text += output.refreshRate + " Hz";
 		    	context.fillText(text, 15, 27);
 	    	});
-	    	for (var i = 0; i < mice.length; i++) {
+	    	var i;
+	    	for (i = 0; i < mice.length; i++) {
 	    		var input = mice[i].pointingDevice;
 	    		context.fillStyle = colors[i];
 	    		var y = 37 + 20*i;
 				context.fillText(input.vendor + " - " + input.product, 65, y + 12);
 	    		context.fillRect(15, y, 40, 15);
 	    	}
+	    	context.fillStyle = "#8A5E00"
+	    	context.fillText("Press [Enter] to switch transfer functions", 15, 75 + 20 *i++);
+	    	context.fillText("Press [Space] to reset pointers", 15, 75 + 20 *i++)
 	    	context.restore();
 	    }
 
