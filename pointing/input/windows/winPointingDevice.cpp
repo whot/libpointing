@@ -27,17 +27,6 @@ namespace pointing {
 #define WIN_DEFAULT_DEBUGLEVEL  0
 #define WIN_DEFAULT_HANDLE      0
 
-    URI uriForHandle(HANDLE h)
-    {
-        std::stringstream ss;
-        if (h)
-            ss << "winhid:?handle=0x" << std::hex
-               << std::noshowbase << PtrToUint(h);
-        else
-            ss << "any:";
-        return URI(ss.str());
-    }
-
     void winPointingDevice::setActive(HANDLE h, bool isActive)
     {
       if (h == (HANDLE)handle)
@@ -96,7 +85,7 @@ namespace pointing {
         if (this->uri.scheme != "any")
         {
           URI::getQueryArg(uri.query, "handle", &handle);
-          this->uri = uriForHandle((HANDLE)handle);
+          this->uri = winPointingDeviceManager::uriForHandle((HANDLE)handle);
         }
 
         man->dispatcher->addPointingDevice((HANDLE)handle, this);
@@ -107,9 +96,9 @@ namespace pointing {
           {
               PointingDeviceDescriptor desc = *it;
               unsigned curHandle = 0;
-              URI::getQueryArg(URI(desc.devURI).query, "handle", &curHandle);
+              URI::getQueryArg(desc.devURI.query, "handle", &curHandle);
               bool match = (handle == curHandle);
-              std::cout << (match ? "+ " : "  ") << desc.devURI
+              std::cout << (match ? "+ " : "  ") << desc.devURI.asString()
                    << " [" << std::hex << "vend:0x" << desc.vendorID
                    << ", prod:0x" << desc.productID
                    << std::dec << " - " << desc.name << " ]" << std::endl;

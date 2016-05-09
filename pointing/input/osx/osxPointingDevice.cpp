@@ -69,6 +69,8 @@ namespace pointing {
       }
     }
 
+    if (expanded || seize)
+        URI::addQueryArg(result.query, "seize", seize);
     if (expanded || debugLevel)
         URI::addQueryArg(result.query, "debugLevel", debugLevel);
     if (expanded || forced_cpi > 0)

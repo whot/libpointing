@@ -58,7 +58,7 @@ namespace pointing {
 
     bool PointingDeviceDescriptor::operator < (const PointingDeviceDescriptor& rhs) const
     {
-        return devURI < rhs.devURI;
+        return devURI.asString() < rhs.devURI.asString();
     }
 
     // To use the set of the CallbackInfos

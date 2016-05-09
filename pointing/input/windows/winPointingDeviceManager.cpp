@@ -21,12 +21,15 @@ using namespace std;
 
 namespace pointing
 {
-    string uriStringFromHandle(HANDLE h)
+    URI uriForHandle(HANDLE h)
     {
-        stringstream uriStream;
-        uriStream << "winhid:?handle=0x" 
-                  << hex << noshowbase << PtrToUint(h);
-        return uriStream.str();
+        std::stringstream ss;
+        if (h)
+            ss << "winhid:?handle=0x" << std::hex
+               << std::noshowbase << PtrToUint(h);
+        else
+            ss << "any:";
+        return URI(ss.str());
     }
 
     bool winPointingDeviceManager::ConvertDevice(HANDLE h, PointingDeviceDescriptor &desc)
@@ -39,7 +42,7 @@ namespace pointing
         if (productID != -1)
             desc.productID = productID;
         desc.name = vendor + " - " + product;
-        desc.devURI = uriStringFromHandle(h);
+        desc.devURI = uriForHandle(h);
         return result;
     }
 
