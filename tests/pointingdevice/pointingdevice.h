@@ -8,6 +8,10 @@
 using namespace pointing;
 using namespace std;
 
+// FIXME
+// There are random crashes on Linux
+// Possibly threading issue
+
 class PointingDeviceTest : public QObject
 {
     Q_OBJECT
@@ -18,7 +22,10 @@ private slots:
     {
       PointingDevice *input = PointingDevice::create();
       URI result = input->getURI(false, true);
-      QCOMPARE(result.asString(), string("any:?debugLevel=1"));
+      QCOMPARE(result.scheme, string("any"));
+      int debugLevel = -1;
+      URI::getQueryArg(result.query, "debugLevel", &debugLevel);
+      QCOMPARE(debugLevel, 1);
       delete input;
     }
 

@@ -44,6 +44,7 @@ namespace pointing {
                    char		*name,
                    Bool		only_extended)
   {
+
     XDeviceInfo	*devices;
     XDeviceInfo *found = NULL;
     int		loop;
@@ -157,7 +158,7 @@ namespace pointing {
     debugLevel = 0 ;
     URI::getQueryArg(uri.query, "debugLevel", &debugLevel) ;
     URI::getQueryArg(uri.query, "seize", &seizeDevice) ;
-    
+
     forced_cpi = forced_hz = -1.0 ;
     URI::getQueryArg(uri.query, "cpi", &forced_cpi) ;
     URI::getQueryArg(uri.query, "hz", &forced_hz) ;
@@ -170,7 +171,7 @@ namespace pointing {
         URI::getQueryArg(uri.query, "product", &productID) ;
         uri = man->anyToSpecific(uri);
     }
- 
+
     hid = -1 ;
     this->uri = PointingDeviceManager::generalizeAny(uri) ;
 
@@ -196,36 +197,39 @@ namespace pointing {
     int ret = pthread_create(&thread, NULL, eventloop, (void*)this) ;
     if (ret<0) {
       perror("linuxHIDPointingDevice::linuxHIDPointingDevice") ;
-      throw std::runtime_error("linuxHIDPointingDevice: pthread_create failed") ;    
+      throw std::runtime_error("linuxHIDPointingDevice: pthread_create failed") ;
     }
   }
 
   void linuxHIDPointingDevice::enableDevice(bool value)
   {
-    Display	*dpy = XOpenDisplay(0);
-    std::string fullName = vendor + " " + product;
-    XDeviceInfo *info = find_device_info(dpy, (char *)fullName.c_str(), False);
-    if (!info)
+    if (vendor.size() && product.size())
     {
-      fprintf(stderr, "unable to find the device\n");
-      return;
+      Display *dpy = XOpenDisplay(0);
+      std::string fullName = vendor + " " + product;
+      XDeviceInfo *info = find_device_info(dpy, (char *)fullName.c_str(), True);
+      if (!info)
+      {
+        fprintf(stderr, "unable to find the device\n");
+        return;
+      }
+
+      XDevice *dev = XOpenDevice(dpy, info->id);
+      if (!dev)
+      {
+        fprintf(stderr, "unable to open the device\n");
+        return;
+      }
+
+      Atom prop = XInternAtom(dpy, "Device Enabled", False);
+
+      unsigned char data = value;
+
+      XChangeDeviceProperty(dpy, dev, prop, XA_INTEGER, 8, PropModeReplace,
+                            &data, 1);
+      XCloseDevice(dpy, dev);
+      XCloseDisplay(dpy);
     }
-
-    XDevice *dev = XOpenDevice(dpy, info->id);
-    if (!dev)
-    {
-      fprintf(stderr, "unable to open the device\n");
-      return;
-    }
-
-    Atom prop = XInternAtom(dpy, "Device Enabled", False);
-
-    unsigned char data = value;
-
-    XChangeDeviceProperty(dpy, dev, prop, XA_INTEGER, 8, PropModeReplace,
-                          &data, 1);
-    XCloseDevice(dpy, dev);
-    XCloseDisplay(dpy);
   }
 
   bool
@@ -288,7 +292,7 @@ namespace pointing {
         URI::addQueryArg(result.query, "debugLevel", debugLevel) ;
     if (expanded || seizeDevice)
         URI::addQueryArg(result.query, "seize", seizeDevice) ;
-    
+
     if (expanded || forced_cpi > 0)
         URI::addQueryArg(result.query, "cpi", getResolution()) ;
     if (expanded || forced_hz > 0)
@@ -309,13 +313,14 @@ namespace pointing {
   }
 
   linuxHIDPointingDevice::~linuxHIDPointingDevice() {
+    if (seizeDevice)
+      enableDevice(true);
     if (pthread_cancel(thread)<0)
       perror("linuxHIDPointingDevice::~linuxHIDPointingDevice") ;
     if (hid!=-1) close(hid) ;
     udev_monitor_unref(monitor) ;
     udev_unref(udev) ;
     delete parser;
-    enableDevice(true);
   }
 
   // --------------------------------------------------------------------------
@@ -358,15 +363,15 @@ namespace pointing {
       FD_SET(monfd, &rfds) ;
       if (self->hid!=-1) FD_SET(self->hid, &rfds) ;
       int nfds = (monfd>self->hid ? monfd : self->hid) + 1 ;
-      // std::cerr << "linuxHIDPointingDevice::eventloop: calling select" << std::endl ;
+       std::cerr << "linuxHIDPointingDevice::eventloop: calling select" << std::endl ;
       int nbready = select(nfds,&rfds,&wfds,&efds,0) ;
-      // std::cerr << "linuxHIDPointingDevice::eventloop: pthread_cancel" << std::endl ;
+       std::cerr << "linuxHIDPointingDevice::eventloop: pthread_cancel" << std::endl ;
       pthread_testcancel() ;
       if (nbready==-1)
-	perror("linuxHIDPointingDevice::eventloop") ;
+    perror("linuxHIDPointingDevice::eventloop") ;
       else {
-	if (FD_ISSET(monfd, &rfds)) self->monitor_readable() ;
-	if (self->hid!=-1 && FD_ISSET(self->hid, &rfds)) self->hid_readable() ;
+    if (FD_ISSET(monfd, &rfds)) self->monitor_readable() ;
+    if (self->hid!=-1 && FD_ISSET(self->hid, &rfds)) self->hid_readable() ;
       }
     }
 
@@ -381,9 +386,9 @@ namespace pointing {
     if (dev) {
       const char *action = udev_device_get_action(dev) ;
       if (!strcmp(action,"add")) {
-	if (hid==-1) checkFoundDevice(dev) ;
+    if (hid==-1) checkFoundDevice(dev) ;
       } else if (!strcmp(action,"remove")) {
-	if (hid!=-1) checkLostDevice(dev) ;
+    if (hid!=-1) checkLostDevice(dev) ;
       }
       udev_device_unref(dev) ;
     }
@@ -447,15 +452,15 @@ namespace pointing {
       return ;
     } else {
       if (debugLevel>1) {
-	std::cerr << "  descriptor (" << descriptor.size << " bytes): " ;
-	std::string reportstring ;
-	reportstring.assign((const char *)descriptor.value, descriptor.size) ;
-	std::cerr << Base64::encode(reportstring) << std::endl ;
+    std::cerr << "  descriptor (" << descriptor.size << " bytes): " ;
+    std::string reportstring ;
+    reportstring.assign((const char *)descriptor.value, descriptor.size) ;
+    std::cerr << Base64::encode(reportstring) << std::endl ;
 #if 0
-	std::cerr << std::hex ;
-	for (unsigned i = 0; i < descriptor.size; ++i)
-	  std::cerr << " " << (int)descriptor.value[i] ;
-	std::cerr << std::dec << std::endl ;
+    std::cerr << std::hex ;
+    for (unsigned i = 0; i < descriptor.size; ++i)
+      std::cerr << " " << (int)descriptor.value[i] ;
+    std::cerr << std::dec << std::endl ;
 #endif
       }
     }
@@ -481,11 +486,11 @@ namespace pointing {
       perror("linuxHIDPointingDevice::checkFoundDevice");
     else if (debugLevel > 0) {
       std::cerr << "  raw info:" << std::endl
-		<< "    bustype: " << info.bustype << " (" << bustype2string(info.bustype) << ")" << std::endl
-		<< std::hex
-		<< "    vendor: " << info.vendor << std::endl
-		<< "    product: " << info.product << std::endl 
-		<< std::dec ;
+        << "    bustype: " << info.bustype << " (" << bustype2string(info.bustype) << ")" << std::endl
+        << std::hex
+        << "    vendor: " << info.vendor << std::endl
+        << "    product: " << info.product << std::endl
+        << std::dec ;
     }
 #endif
 
