@@ -8,6 +8,8 @@
 using namespace pointing;
 using namespace std;
 
+#define DELTA 0.0005
+
 /*
  * Unit tests for SubPixelFunction which is described in this paper:
  * http://interaction.lille.inria.fr/~roussel/publications/2012-UIST-subpixel.pdf
@@ -96,8 +98,9 @@ private slots:
     double firstDxP, secondDxP, dyP;
     TimeStamp::inttime now = TimeStamp::createAsInt();
     func->applyd(1, 0, &firstDxP, &dyP, now);
-    func->applyd(1, 0, &secondDxP, &dyP, now + 64 * TimeStamp::one_millisecond);
-    QCOMPARE(firstDxP + secondDxP, 0.35473110465116275);
+    func->applyd(1, 0, &secondDxP, &dyP, now + 16 * TimeStamp::one_millisecond);
+    double result = firstDxP + secondDxP;
+    QVERIFY(result < 0.163753 + DELTA && result > 0.163753 - DELTA);
   }
 
   void OutputEqualsInput()

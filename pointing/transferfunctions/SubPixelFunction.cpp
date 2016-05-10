@@ -99,7 +99,7 @@ namespace pointing
       std::cerr << "One pixel gain starts when input displacement is " << x << " or more" << std::endl;
 
     gPix = dxP / x * input->getResolution() / output->getResolution();
-    vPix = input->getUpdateFrequency() / 1000 / gPix;
+    vPix = input->getUpdateFrequency() / output->getResolution() / gPix;
     if (debugLevel)
       std::cerr << "One pixel gain Gpix: " << gPix << std::endl << "One pixel velocity Vpix: " << vPix << std::endl;
   }
@@ -179,7 +179,10 @@ namespace pointing
       double dt = double(timestamp - lastTime) / TimeStamp::one_second;
       lastTime = (timestamp == TimeStamp::undef) ? TimeStamp::createAsInt() : timestamp;
 
+      // inches
       double dd = sqrt(dxMickey * dxMickey + dyMickey * dyMickey) / input->getResolution();
+
+      // inches per sec
       double speed = dd / dt;
 
       double outDx = 0, outDy = 0;
