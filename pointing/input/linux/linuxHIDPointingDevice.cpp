@@ -363,9 +363,9 @@ namespace pointing {
       FD_SET(monfd, &rfds) ;
       if (self->hid!=-1) FD_SET(self->hid, &rfds) ;
       int nfds = (monfd>self->hid ? monfd : self->hid) + 1 ;
-       std::cerr << "linuxHIDPointingDevice::eventloop: calling select" << std::endl ;
+      // std::cerr << "linuxHIDPointingDevice::eventloop: calling select" << std::endl ;
       int nbready = select(nfds,&rfds,&wfds,&efds,0) ;
-       std::cerr << "linuxHIDPointingDevice::eventloop: pthread_cancel" << std::endl ;
+      // std::cerr << "linuxHIDPointingDevice::eventloop: pthread_cancel" << std::endl ;
       pthread_testcancel() ;
       if (nbready==-1)
     perror("linuxHIDPointingDevice::eventloop") ;

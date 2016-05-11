@@ -8,10 +8,6 @@
 using namespace pointing;
 using namespace std;
 
-// FIXME
-// There are random crashes on Linux
-// Possibly threading issue
-
 class PointingDeviceTest : public QObject
 {
     Q_OBJECT
