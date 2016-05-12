@@ -37,13 +37,13 @@ namespace pointing {
 
 #define MAX(X, Y)           (((X) > (Y)) ? (X) : (Y))
   
-    string uriStringFromDevice(struct udev_device *hiddev)
+    URI uriFromDevice(struct udev_device *hiddev)
     {
       const char *devnode = udev_device_get_devnode(hiddev);
       URI devUri;
       devUri.scheme = "hidraw";
       devUri.path = devnode;
-      return devUri.asString();
+      return devUri;
     }
     
     static inline string sysattr2string(struct udev_device *dev, const char *key, const char *defval=0)
@@ -77,6 +77,20 @@ namespace pointing {
 
       linuxPointingDeviceManager *self = (linuxPointingDeviceManager*)context ;
 
+      struct udev_enumerate *enumerate = udev_enumerate_new(self->udev);
+      udev_enumerate_add_match_subsystem(enumerate, "hidraw");
+      udev_enumerate_scan_devices(enumerate);
+
+      struct udev_list_entry *devices = udev_enumerate_get_list_entry(enumerate);
+      struct udev_list_entry *dev_list_entry;
+      udev_list_entry_foreach(dev_list_entry, devices) {
+        const char *path = udev_list_entry_get_name(dev_list_entry);
+        struct udev_device *dev = udev_device_new_from_syspath(self->udev, path);
+        self->checkFoundDevice(dev);
+        udev_device_unref(dev);
+      }
+      udev_enumerate_unref(enumerate);
+
       udev_monitor_enable_receiving(self->monitor) ;
       int monfd = udev_monitor_get_fd(self->monitor) ;
       while (true)
@@ -109,20 +123,6 @@ namespace pointing {
       if (!udev)
         throw runtime_error("linuxPointingDeviceManager: udev_new failed");
 
-      struct udev_enumerate *enumerate = udev_enumerate_new(udev);
-      udev_enumerate_add_match_subsystem(enumerate, "hidraw");
-      udev_enumerate_scan_devices(enumerate);
-      struct udev_list_entry *devices = udev_enumerate_get_list_entry(enumerate);
-      struct udev_list_entry *dev_list_entry;
-      udev_list_entry_foreach(dev_list_entry, devices) {
-        const char *path = udev_list_entry_get_name(dev_list_entry);
-        struct udev_device *dev = udev_device_new_from_syspath(udev, path);
-        //cerr << uriStringFromDevice(dev) << endl;
-        checkFoundDevice(dev);
-        udev_device_unref(dev);
-      }
-      udev_enumerate_unref(enumerate);
-
       monitor = udev_monitor_new_from_netlink(udev, "udev");
       udev_monitor_filter_add_match_subsystem_devtype(monitor, "hidraw", NULL);
 
@@ -151,7 +151,7 @@ namespace pointing {
   
     void linuxPointingDeviceManager::fillDescriptorInfo(struct udev_device *hiddev, struct udev_device *usbdev, PointingDeviceDescriptor &desc)
     {
-      desc.devURI = URI(uriStringFromDevice(hiddev));
+      desc.devURI = uriFromDevice(hiddev);
       desc.vendor = sysattr2string(usbdev, "product", "????");
       desc.product = sysattr2string(usbdev, "manufacturer", "????");
       desc.vendorID = sysattr2int(usbdev, "idVendor");
@@ -181,7 +181,7 @@ namespace pointing {
           linuxPointingDevice *device = *i;
           // Found matching device
           // Move it from candidates to devMap
-          if (pdd->desc.devURI == device->uri.asString())
+          if (pdd->desc.devURI == device->uri)
           {
             candidates.erase(i++);
             processMatching(pdd, device);
@@ -207,7 +207,7 @@ namespace pointing {
       int descSize = 0;
       int res = ioctl(devID, HIDIOCGRDESCSIZE, &descSize);
       if (res < 0) {
-        std::cerr << "linuxPointingDevice::checkFoundDevice: unable to open HID device" << std::endl ;
+        std::cerr << "linuxPointingDeviceManager::checkFoundDevice: unable to open HID device" << std::endl ;
         return 0;
       }
       if (debugLevel > 0)
@@ -216,9 +216,9 @@ namespace pointing {
       descriptor.size = descSize ;
       res = ioctl(devID, HIDIOCGRDESC, &descriptor) ;
       if (!parser->setDescriptor(descriptor.value, descSize))
-        std::cerr << "linuxPointingDevice::checkFoundDevice: unable to parse the HID report descriptor" << std::endl;
+        std::cerr << "linuxPointingDeviceManager::readHIDDescriptor: unable to parse the HID report descriptor" << std::endl;
       if (res < 0) {
-        perror("linuxPointingDevice::checkFoundDevice") ;
+        perror("linuxPointingDeviceManager::checkFoundDevice") ;
         return 0;
       } else {
         if (debugLevel > 1) {
@@ -254,7 +254,7 @@ namespace pointing {
       int ret = pthread_create(&pdd->thread, NULL, checkReports, pdd);
       if (ret < 0)
       {
-        perror("linuxPointingDeviceManager::linuxPointingDeviceManager") ;
+        perror("linuxPointingDeviceManager::checkFoundDevice") ;
         throw runtime_error("linuxPointingDeviceManager: pthread_create failed") ;
       }
 
@@ -285,13 +285,6 @@ namespace pointing {
       matchCandidates();
     }
 
-    void linuxPointingDeviceManager::addPointingDevice(linuxPointingDevice *device)
-    {
-      debugLevel = MAX(debugLevel, device->debugLevel);
-      candidates.push_back(device);
-      matchCandidates();
-    }
-
     void linuxPointingDeviceManager::hid_readable(PointingDeviceData *pdd)
     {
       TimeStamp::inttime now = TimeStamp::createAsInt() ;
@@ -314,13 +307,20 @@ namespace pointing {
       }
     }
 
+    void linuxPointingDeviceManager::addPointingDevice(linuxPointingDevice *device)
+    {
+      debugLevel = MAX(debugLevel, device->debugLevel);
+      candidates.push_back(device);
+      matchCandidates();
+    }
+
     void linuxPointingDeviceManager::removePointingDevice(linuxPointingDevice *device)
     {
-      URI uri = device->getURI();
+      URI uri = device->uri;
       for(devMap_t::iterator it = devMap.begin(); it != devMap.end(); it++)
       {
         PointingDeviceData *pdd = it->second;
-        if (pdd->desc.devURI == uri.asString())
+        if (pdd->desc.devURI == uri)
         {
           pdd->pointingList.remove(device);
           break;

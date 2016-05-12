@@ -173,7 +173,7 @@ namespace pointing {
 
   void osxPointingDeviceManager::removePointingDevice(osxPointingDevice *device)
   {
-    URI uri = device->getURI();
+    URI uri = device->uri;
     for(devMap_t::iterator it = devMap.begin(); it != devMap.end(); it++)
     {
       PointingDeviceData *pdd = it->second;

@@ -102,9 +102,9 @@ namespace pointing {
   // --------------------------------------------------------------------------
 */
   linuxPointingDevice::linuxPointingDevice(URI uri):
-    uri(uri),vendorID(0),productID(0),seize(0),debugLevel(0),
-    callback(NULL),callback_context(NULL),active(false),
-    forced_cpi(-1.), forced_hz(-1.)
+    uri(uri),forced_cpi(-1.),forced_hz(-1.),
+    vendorID(0),productID(0),seize(0),debugLevel(0),
+    callback(NULL),callback_context(NULL),active(false)
   {
     URI::getQueryArg(uri.query, "cpi", &forced_cpi);
     URI::getQueryArg(uri.query, "hz", &forced_hz);
@@ -235,5 +235,7 @@ namespace pointing {
 
   linuxPointingDevice::~linuxPointingDevice()
   {
+    linuxPointingDeviceManager *man = (linuxPointingDeviceManager *)PointingDeviceManager::get();
+    man->removePointingDevice(this);
   }
 }
