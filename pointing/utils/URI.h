@@ -144,6 +144,8 @@ namespace pointing {
     void debug(std::ostream& out) const ;
 
   } ;
+
+  std::ostream &operator<<(std::ostream &os, URI const &uri) ;
   
 }
 

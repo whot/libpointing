@@ -100,6 +100,11 @@ namespace pointing {
     return !(*this == other);
   }
 
+  std::ostream &
+  operator<<(std::ostream &os, URI const &uri) {
+    return os << uri.asString();
+  }
+
   bool
   URI::resemble(const URI &other) const {
     if (scheme!=other.scheme) return false ;
