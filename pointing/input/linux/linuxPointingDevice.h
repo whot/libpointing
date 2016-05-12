@@ -35,8 +35,6 @@ namespace pointing {
     void *callback_context;
 
     std::string vendor, product;
-
-    void enableDevice(bool value);
     bool active;
 
   public:
