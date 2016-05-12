@@ -47,6 +47,7 @@ namespace pointing {
       HIDReportParser parser;
       int devID;
       int reportLength;
+      pthread_t thread;
     };
 
     PointingList candidates;
@@ -65,7 +66,8 @@ namespace pointing {
      * @brief This static function works in another thread.
      * It queries for added or removed devices.
      */
-    static void *eventloop(void *self) ;
+    static void *eventloop(void *self);
+    static void *checkReports(void *self);
 
     void monitor_readable();
     void hid_readable(PointingDeviceData *pdd);

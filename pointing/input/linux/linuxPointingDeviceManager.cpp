@@ -83,11 +83,22 @@ namespace pointing {
       {
         if (checkDev(monfd))
           self->monitor_readable();
-        for(devMap_t::iterator it = self->devMap.begin(); it != self->devMap.end(); it++)
-        {
-          if (checkDev(it->second->devID))
-            self->hid_readable(it->second);
-        }
+      }
+      return 0 ;
+    }
+
+    void *linuxPointingDeviceManager::checkReports(void *context)
+    {
+      pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL) ;
+      pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL) ;
+
+      PointingDeviceData *pdd = (PointingDeviceData *)context;
+      linuxPointingDeviceManager *self = (linuxPointingDeviceManager *)PointingDeviceManager::get();
+
+      while (true)
+      {
+        if (checkDev(pdd->devID))
+          self->hid_readable(pdd);
       }
       return 0 ;
     }
@@ -239,6 +250,14 @@ namespace pointing {
       matchCandidates();
 
       pdd->reportLength = readHIDDescriptor(devID, &pdd->parser);
+
+      int ret = pthread_create(&pdd->thread, NULL, checkReports, pdd);
+      if (ret < 0)
+      {
+        perror("linuxPointingDeviceManager::linuxPointingDeviceManager") ;
+        throw runtime_error("linuxPointingDeviceManager: pthread_create failed") ;
+      }
+
       //if (self->debugLevel > 0)
       //  printDevice(devRef, pdd->pointingList.size());
     }
@@ -250,11 +269,13 @@ namespace pointing {
       if (it != devMap.end())
       {
         PointingDeviceData *pdd = it->second;
+        if (pthread_cancel(pdd->thread) < 0)
+          perror("linuxPointingDeviceManager::checkLostDevice");
         removeDevice(pdd->desc);
         close(pdd->devID);
-        for (PointingList::iterator it = pdd->pointingList.begin(); it != pdd->pointingList.end(); it++)
+        for (PointingList::iterator i = pdd->pointingList.begin(); i != pdd->pointingList.end(); i++)
         {
-          linuxPointingDevice *device = *it;
+          linuxPointingDevice *device = *i;
           device->active = false;
           candidates.push_back(device);
         }
@@ -312,6 +333,7 @@ namespace pointing {
     {
       if (pthread_cancel(thread) < 0)
         perror("linuxPointingDeviceManager::~linuxPointingDeviceManager");
+      // TODO cancel all threads
       udev_monitor_unref(monitor);
       udev_unref(udev);
     }
