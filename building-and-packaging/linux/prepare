@@ -74,7 +74,7 @@ HEADERS = [
     # --------------------------------------------------------------
     # Linux specifics
     # --------------------------------------------------------------
-    "pointing/input/linux/linuxHIDPointingDevice.h",
+    "pointing/input/linux/linuxPointingDevice.h",
     "pointing/output/linux/xorgDisplayDevice.h",
     "pointing/transferfunctions/linux/xorgSystemPointerAcceleration.h",
     "pointing/input/linux/linuxPointingDeviceManager.h",
@@ -110,7 +110,7 @@ SOURCES = [
     # --------------------------------------------------------------
     # Linux specifics
     # --------------------------------------------------------------
-    "pointing/input/linux/linuxHIDPointingDevice.cpp",
+    "pointing/input/linux/linuxPointingDevice.cpp",
     "pointing/output/linux/xorgDisplayDevice.cpp",
     "pointing/transferfunctions/linux/xorgSystemPointerAcceleration.cpp",
     "pointing/input/linux/linuxPointingDeviceManager.cpp",
