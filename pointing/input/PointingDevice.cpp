@@ -30,7 +30,7 @@
 #endif
 
 #ifdef __linux__
-#include <pointing/input/linux/linuxHIDPointingDevice.h>
+#include <pointing/input/linux/linuxPointingDevice.h>
 #endif
 
 #include <stdexcept>
@@ -130,7 +130,7 @@ namespace pointing {
 
 #ifdef __linux__
     if (anywilldo || uri.scheme=="hidraw")
-      return new linuxHIDPointingDevice(uri);
+      return new linuxPointingDevice(uri);
 #endif
 
     if (uri.scheme=="dummy")

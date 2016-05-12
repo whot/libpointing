@@ -36,20 +36,26 @@ function uriIsOK(deviceDescriptor) {
   return true;
 }
 
-function logDevice(desc, wasAdded) {
+function logPointingDevice(desc, wasAdded) {
+  console.log(new Date().toString() + ': device ' + (wasAdded ? 'added' : 'removed'));
+  console.log('\twith URI: ' + desc.devURI);
+  console.log('\twith vendor: ' + desc.vendor + ' and product: ' + desc.product);
+  console.log('\twith vendorID: ' + desc.vendorID + ' and productID: ' + desc.productID);
+}
+
+function logDisplayDevice(desc, wasAdded) {
   console.log(new Date().toString() + ': device ' + (wasAdded ? 'added' : 'removed'));
   console.log('\twith name: ' + desc.name + ' and URI: ' + desc.devURI);
-  console.log('\twith vendorID: ' + desc.vendorID + ' and productID: ' + desc.productID);
 }
 
 manager.addDeviceUpdateCallback(function(desc, wasAdded) {
   io.emit('deviceUpdateCallback', desc, wasAdded);
-  logDevice(desc, wasAdded);
+  logPointingDevice(desc, wasAdded);
 });
 
 dManager.addDeviceUpdateCallback(function(desc, wasAdded) {
   io.emit('displayUpdateCallback', desc, wasAdded);
-  logDevice(desc, wasAdded);
+  logDisplayDevice(desc, wasAdded);
 });
 
 io.on('connection', function(socket) {

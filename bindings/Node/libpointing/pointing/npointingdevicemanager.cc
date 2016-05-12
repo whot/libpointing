@@ -43,8 +43,9 @@ static callbackMap_t callbackMap = callbackMap_t();
 
 void createDescObject(Local<Object> &descObj, const PointingDeviceDescriptor &pdd)
 {
-  Nan::Set(descObj, Nan::New("devURI").ToLocalChecked(), Nan::New(pdd.devURI).ToLocalChecked());
-  Nan::Set(descObj, Nan::New("name").ToLocalChecked(), Nan::New(pdd.name).ToLocalChecked());
+  Nan::Set(descObj, Nan::New("devURI").ToLocalChecked(), Nan::New(pdd.devURI.asString()).ToLocalChecked());
+  Nan::Set(descObj, Nan::New("vendor").ToLocalChecked(), Nan::New(pdd.vendor).ToLocalChecked());
+  Nan::Set(descObj, Nan::New("product").ToLocalChecked(), Nan::New(pdd.product).ToLocalChecked());
   Nan::Set(descObj, Nan::New("vendorID").ToLocalChecked(), Nan::New(pdd.vendorID));
   Nan::Set(descObj, Nan::New("productID").ToLocalChecked(), Nan::New(pdd.productID));
 }

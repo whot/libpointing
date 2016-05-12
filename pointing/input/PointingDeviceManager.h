@@ -24,16 +24,16 @@ namespace pointing
 {
     struct PointingDeviceDescriptor
     {
-        std::string devURI;
-        std::string name;
-        //std::string vendor;
-        //std::string product;
+        URI devURI;
 
         int vendorID;
         int productID;
 
-        PointingDeviceDescriptor(std::string devURI = "", std::string name = "")
-            :devURI(devURI),name(name),vendorID(0),productID(0)//,vendor("???"),product("???")
+        std::string vendor;
+        std::string product;
+
+        PointingDeviceDescriptor()
+            :vendorID(0),productID(0),vendor("???"),product("???")
         { }
 
         // To use set of PointingDeviceDescriptors

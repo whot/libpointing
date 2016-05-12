@@ -21,12 +21,15 @@ using namespace std;
 
 namespace pointing
 {
-    string uriStringFromHandle(HANDLE h)
+    URI winPointingDeviceManager::uriForHandle(HANDLE h)
     {
-        stringstream uriStream;
-        uriStream << "winhid:?handle=0x" 
-                  << hex << noshowbase << PtrToUint(h);
-        return uriStream.str();
+        std::stringstream ss;
+        if (h)
+            ss << "winhid:?handle=0x" << std::hex
+               << std::noshowbase << PtrToUint(h);
+        else
+            ss << "any:";
+        return URI(ss.str());
     }
 
     bool winPointingDeviceManager::ConvertDevice(HANDLE h, PointingDeviceDescriptor &desc)
@@ -38,14 +41,16 @@ namespace pointing
             desc.vendorID = vendorID;
         if (productID != -1)
             desc.productID = productID;
-        desc.name = vendor + " - " + product;
-        desc.devURI = uriStringFromHandle(h);
+        desc.vendor = vendor;
+        desc.product = product;
+        desc.devURI = uriForHandle(h);
         return result;
     }
 
     void winPointingDeviceManager::unregisterMouseDevice(HANDLE h)
     {
-        PointingDeviceDescriptor desc(uriStringFromHandle(h));
+        PointingDeviceDescriptor desc;
+        desc.devURI = uriForHandle(h);
         removeDevice(desc);
     }
 

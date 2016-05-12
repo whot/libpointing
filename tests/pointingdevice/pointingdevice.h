@@ -62,13 +62,23 @@ private slots:
       QCOMPARE(productID, 2);
       delete input;
     }
-
+		
     void isNotActive()
     {
       std::string uri = "any:?vendor=1&product=2";
       PointingDevice *input = PointingDevice::create(uri);
       QCOMPARE(input->isActive(), false);
       delete input;
+    }
+
+    void multipleAny()
+    {
+      PointingDevice *input = PointingDevice::create("any:");
+      PointingDevice *input2 = PointingDevice::create("any:");
+      PointingDevice *input3 = PointingDevice::create("any:");
+      delete input3;
+      delete input;
+      delete input2;
     }
 };
 

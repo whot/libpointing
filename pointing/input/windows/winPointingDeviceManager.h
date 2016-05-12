@@ -29,6 +29,8 @@ namespace pointing
         void registerMouseDevice(HANDLE);
         void unregisterMouseDevice(HANDLE h);
 
+        static URI uriForHandle(HANDLE h);
+
         winHIDDeviceDispatcher *dispatcher;
 
         friend class PointingDeviceManager;

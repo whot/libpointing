@@ -94,12 +94,12 @@ macx {
 }
 
 unix:!macx {
-  HEADERS += $$HERE/input/linux/linuxHIDPointingDevice.h \
+  HEADERS += $$HERE/input/linux/linuxPointingDevice.h \
              $$HERE/output/linux/xorgDisplayDevice.h \
              $$HERE/transferfunctions/linux/xorgSystemPointerAcceleration.h \
              $$HERE/input/linux/linuxPointingDeviceManager.h \
              $$HERE/output/linux/xorgDisplayDeviceManager.h
-  SOURCES += $$HERE/input/linux/linuxHIDPointingDevice.cpp \
+  SOURCES += $$HERE/input/linux/linuxPointingDevice.cpp \
              $$HERE/output/linux/xorgDisplayDevice.cpp \
              $$HERE/transferfunctions/linux/xorgSystemPointerAcceleration.cpp \
              $$HERE/input/linux/linuxPointingDeviceManager.cpp \

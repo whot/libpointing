@@ -27,8 +27,9 @@ namespace pointing {
 
   void fillDescriptorInfo(IOHIDDeviceRef devRef, PointingDeviceDescriptor &desc)
   {
-    desc.devURI = hidDeviceURI(devRef).asString();
-    desc.name = hidDeviceName(devRef);
+    desc.devURI = hidDeviceURI(devRef);
+    desc.vendor = hidDeviceGetStringProperty(devRef, CFSTR(kIOHIDManufacturerKey));
+    desc.product = hidDeviceGetStringProperty(devRef, CFSTR(kIOHIDProductKey));
     desc.vendorID = hidDeviceGetIntProperty(devRef, CFSTR(kIOHIDVendorIDKey));
     desc.productID = hidDeviceGetIntProperty(devRef, CFSTR(kIOHIDProductIDKey));
   }
@@ -63,7 +64,7 @@ namespace pointing {
         osxPointingDevice *device = *i;
         // Found matching device
         // Move it from candidates to devMap
-        if (pdd->desc.devURI == device->uri.asString())
+        if (pdd->desc.devURI == device->uri)
         {
           candidates.erase(i++);
           processMatching(pdd, device);
@@ -172,11 +173,11 @@ namespace pointing {
 
   void osxPointingDeviceManager::removePointingDevice(osxPointingDevice *device)
   {
-    URI uri = device->getURI();
+    URI uri = device->uri;
     for(devMap_t::iterator it = devMap.begin(); it != devMap.end(); it++)
     {
       PointingDeviceData *pdd = it->second;
-      if (pdd->desc.devURI == uri.asString())
+      if (pdd->desc.devURI == uri)
       {
         pdd->pointingList.remove(device);
         break;
