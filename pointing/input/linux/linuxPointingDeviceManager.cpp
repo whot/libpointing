@@ -28,6 +28,9 @@
 #include <sys/ioctl.h>
 #include <fcntl.h>
 
+#include <X11/Xatom.h>
+#include <X11/extensions/XInput.h>
+
 #include <iostream>
 #include <stdexcept>
 
@@ -36,7 +39,7 @@ using namespace std;
 namespace pointing {
 
 #define MAX(X, Y)           (((X) > (Y)) ? (X) : (Y))
-  
+
     URI uriFromDevice(struct udev_device *hiddev)
     {
       const char *devnode = udev_device_get_devnode(hiddev);
@@ -45,7 +48,7 @@ namespace pointing {
       devUri.path = devnode;
       return devUri;
     }
-    
+
     static inline string sysattr2string(struct udev_device *dev, const char *key, const char *defval=0)
     {
       const char *value = udev_device_get_sysattr_value(dev, key);
@@ -68,6 +71,78 @@ namespace pointing {
       if (nbready == -1)
         perror("linuxPointingDevice::eventloop");
       return FD_ISSET(devID, &rfds);
+    }
+
+
+    XDeviceInfo*
+    find_device_info(Display	*display,
+                     char		*name,
+                     Bool		only_extended)
+    {
+      XDeviceInfo	*devices;
+      XDeviceInfo *found = NULL;
+      int		loop;
+      int		num_devices;
+      int		len = strlen(name);
+      Bool	is_id = True;
+      XID		id = (XID)-1;
+
+      for(loop=0; loop<len; loop++) {
+        if (!isdigit(name[loop])) {
+          is_id = False;
+          break;
+        }
+      }
+
+      if (is_id) {
+        id = atoi(name);
+      }
+
+      devices = XListInputDevices(display, &num_devices);
+
+      for(loop=0; loop<num_devices; loop++) {
+        if ((!only_extended || (devices[loop].use >= IsXExtensionDevice)) &&
+            ((!is_id && strcmp(devices[loop].name, name) == 0) ||
+             (is_id && devices[loop].id == id))) {
+          if (found) {
+            fprintf(stderr,
+                    "Warning: There are multiple devices named '%s'.\n"
+                    "To ensure the correct one is selected, please use "
+                    "the device ID instead.\n\n", name);
+            return NULL;
+          } else {
+            found = &devices[loop];
+          }
+        }
+      }
+      return found;
+    }
+
+    void linuxPointingDeviceManager::enableDevice(bool value, std::string fullName)
+    {
+      Display	*dpy = XOpenDisplay(0);
+      XDeviceInfo *info = find_device_info(dpy, (char *)fullName.c_str(), False);
+      if (!info)
+      {
+        fprintf(stderr, "unable to find the device\n");
+        return;
+      }
+
+      XDevice *dev = XOpenDevice(dpy, info->id);
+      if (!dev)
+      {
+        fprintf(stderr, "unable to open the device\n");
+        return;
+      }
+
+      Atom prop = XInternAtom(dpy, "Device Enabled", False);
+
+      unsigned char data = value;
+
+      XChangeDeviceProperty(dpy, dev, prop, XA_INTEGER, 8, PropModeReplace,
+                            &data, 1);
+      XCloseDevice(dpy, dev);
+      XCloseDisplay(dpy);
     }
 
     void *linuxPointingDeviceManager::eventloop(void *context)
@@ -148,7 +223,7 @@ namespace pointing {
           udev_device_unref(dev) ;
         }
     }
-  
+
     void linuxPointingDeviceManager::fillDescriptorInfo(struct udev_device *hiddev, struct udev_device *usbdev, PointingDeviceDescriptor &desc)
     {
       desc.devURI = uriFromDevice(hiddev);
@@ -200,6 +275,8 @@ namespace pointing {
       device->vendorID = pdd->desc.vendorID;
       device->vendor = pdd->desc.vendor;
       device->product = pdd->desc.product;
+      if (device->seize)
+        enableDevice(false, device->vendor + " " + device->product);
     }
 
     int linuxPointingDeviceManager::readHIDDescriptor(int devID, HIDReportParser *parser)
@@ -251,15 +328,22 @@ namespace pointing {
 
       pdd->reportLength = readHIDDescriptor(devID, &pdd->parser);
 
+      if (debugLevel > 0)
+      {
+        bool match = pdd->pointingList.size();
+        std::cout << (match ? "+ " : "  ") << pdd->desc.devURI
+             << " [" << std::hex << "vend:0x" << pdd->desc.vendorID
+             << ", prod:0x" << pdd->desc.productID
+             << std::dec << " - " << pdd->desc.vendor
+             << " " << pdd->desc.product << "]" << std::endl;
+      }
+
       int ret = pthread_create(&pdd->thread, NULL, checkReports, pdd);
       if (ret < 0)
       {
         perror("linuxPointingDeviceManager::checkFoundDevice") ;
         throw runtime_error("linuxPointingDeviceManager: pthread_create failed") ;
       }
-
-      //if (self->debugLevel > 0)
-      //  printDevice(devRef, pdd->pointingList.size());
     }
 
     void linuxPointingDeviceManager::checkLostDevice(struct udev_device *hiddev)
@@ -276,6 +360,8 @@ namespace pointing {
         for (PointingList::iterator i = pdd->pointingList.begin(); i != pdd->pointingList.end(); i++)
         {
           linuxPointingDevice *device = *i;
+          if (device->seize)
+            enableDevice(true, device->vendor + " " + device->product);
           device->active = false;
           candidates.push_back(device);
         }

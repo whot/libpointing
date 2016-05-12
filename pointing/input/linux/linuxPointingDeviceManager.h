@@ -69,6 +69,8 @@ namespace pointing {
     static void *eventloop(void *self);
     static void *checkReports(void *self);
 
+    void enableDevice(bool value, std::string fullName);
+
     void monitor_readable();
     void hid_readable(PointingDeviceData *pdd);
 

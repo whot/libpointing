@@ -99,9 +99,10 @@ namespace pointing {
               URI::getQueryArg(desc.devURI.query, "handle", &curHandle);
               bool match = (handle == curHandle);
               std::cout << (match ? "+ " : "  ") << desc.devURI.asString()
-                   << " [" << std::hex << "vend:0x" << desc.vendorID
+                   << " [ " << std::hex << "vend:0x" << desc.vendorID
                    << ", prod:0x" << desc.productID
-                   << std::dec << " - " << desc.name << " ]" << std::endl;
+                   << std::dec << " - " << desc.vendor
+                   << " - " << desc.product << " ]" << std::endl;
           }
         }
 

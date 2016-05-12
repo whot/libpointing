@@ -21,7 +21,7 @@ using namespace std;
 
 namespace pointing
 {
-    URI uriForHandle(HANDLE h)
+    URI winPointingDeviceManager::uriForHandle(HANDLE h)
     {
         std::stringstream ss;
         if (h)
@@ -41,14 +41,16 @@ namespace pointing
             desc.vendorID = vendorID;
         if (productID != -1)
             desc.productID = productID;
-        desc.name = vendor + " - " + product;
+        desc.vendor = vendor;
+        desc.product = product;
         desc.devURI = uriForHandle(h);
         return result;
     }
 
     void winPointingDeviceManager::unregisterMouseDevice(HANDLE h)
     {
-        PointingDeviceDescriptor desc(uriStringFromHandle(h));
+        PointingDeviceDescriptor desc;
+        desc.devURI = uriForHandle(h);
         removeDevice(desc);
     }
 

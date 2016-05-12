@@ -15,92 +15,12 @@
 
 #include <pointing/input/linux/linuxPointingDevice.h>
 #include <pointing/input/linux/linuxPointingDeviceManager.h>
-//#include <unistd.h>
-
-/*
-#include <X11/Xatom.h>
-#include <X11/extensions/XInput.h>
-
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <sstream>
-#include <linux/input.h>
-#include <linux/hidraw.h>
-#include <sys/ioctl.h>
-#include <fcntl.h>
-
-#include <iostream>
-#include <stdexcept>
-*/
 
 namespace pointing {
 
   #define XORG_DEFAULT_CPI       400.0
   #define XORG_DEFAULT_HZ        125.0
-/*
-  XDeviceInfo*
-  find_device_info(Display	*display,
-                   char		*name,
-                   Bool		only_extended)
-  {
-    XDeviceInfo	*devices;
-    XDeviceInfo *found = NULL;
-    int		loop;
-    int		num_devices;
-    int		len = strlen(name);
-    Bool	is_id = True;
-    XID		id = (XID)-1;
 
-    for(loop=0; loop<len; loop++) {
-      if (!isdigit(name[loop])) {
-        is_id = False;
-        break;
-      }
-    }
-
-    if (is_id) {
-      id = atoi(name);
-    }
-
-    devices = XListInputDevices(display, &num_devices);
-
-    for(loop=0; loop<num_devices; loop++) {
-      if ((!only_extended || (devices[loop].use >= IsXExtensionDevice)) &&
-          ((!is_id && strcmp(devices[loop].name, name) == 0) ||
-           (is_id && devices[loop].id == id))) {
-        if (found) {
-          fprintf(stderr,
-                  "Warning: There are multiple devices named '%s'.\n"
-                  "To ensure the correct one is selected, please use "
-                  "the device ID instead.\n\n", name);
-          return NULL;
-        } else {
-          found = &devices[loop];
-        }
-      }
-    }
-    return found;
-  }
-
-  static inline int str16ToInt(std::string value)
-  {
-      std::stringstream ss;
-      ss << std::hex << value;
-      int result;
-      ss >> result;
-      return result;
-  }
-
-  static inline std::string
-  bustype2string(int bustype) {
-    const char *names[] = {"???", "PCI", "ISAPNP", "USB", "HIL", "BLUETOOTH", "VIRTUAL"} ;
-    if (bustype<0 || bustype>BUS_VIRTUAL) return names[0] ;
-    return names[bustype] ;
-  }
-
-  // --------------------------------------------------------------------------
-*/
   linuxPointingDevice::linuxPointingDevice(URI uri):
     uri(uri),forced_cpi(-1.),forced_hz(-1.),
     vendorID(0),productID(0),seize(0),debugLevel(0),
@@ -124,35 +44,6 @@ namespace pointing {
 
     man->addPointingDevice(this);
   }
-/*
-  void linuxPointingDevice::enableDevice(bool value)
-  {
-    Display	*dpy = XOpenDisplay(0);
-    std::string fullName = vendor + " " + product;
-    XDeviceInfo *info = find_device_info(dpy, (char *)fullName.c_str(), False);
-    if (!info)
-    {
-      fprintf(stderr, "unable to find the device\n");
-      return;
-    }
-
-    XDevice *dev = XOpenDevice(dpy, info->id);
-    if (!dev)
-    {
-      fprintf(stderr, "unable to open the device\n");
-      return;
-    }
-
-    Atom prop = XInternAtom(dpy, "Device Enabled", False);
-
-    unsigned char data = value;
-
-    XChangeDeviceProperty(dpy, dev, prop, XA_INTEGER, 8, PropModeReplace,
-                          &data, 1);
-    XCloseDevice(dpy, dev);
-    XCloseDisplay(dpy);
-  }
-*/
 
   bool linuxPointingDevice::isActive(void) const {
     return active;
