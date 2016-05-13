@@ -14,7 +14,7 @@
  */
 
 #include <pointing/input/windows/winPointingDeviceManager.h>
-#include <pointing/input/windows/winHIDDeviceDispatcher.h>
+#include <pointing/input/windows/winPointingDevice.h>
 #include <pointing/input/windows/USB.h>
 
 using namespace std;

@@ -142,8 +142,8 @@
     <ClInclude Include="input\DummyPointingDevice.h" />
     <ClInclude Include="input\PointingDevice.h" />
     <ClInclude Include="input\PointingDeviceManager.h" />
+    <ClInclude Include="input\SystemPointingDevice.h" />
     <ClInclude Include="input\windows\USB.h" />
-    <ClInclude Include="input\windows\winHIDDeviceDispatcher.h" />
     <ClInclude Include="input\windows\winPointingDevice.h" />
     <ClInclude Include="input\windows\winPointingDeviceManager.h" />
     <ClInclude Include="output\DisplayDevice.h" />
@@ -178,8 +178,8 @@
     <ClCompile Include="input\DummyPointingDevice.cpp" />
     <ClCompile Include="input\PointingDevice.cpp" />
     <ClCompile Include="input\PointingDeviceManager.cpp" />
+    <ClCompile Include="input\SystemPointingDevice.cpp" />
     <ClCompile Include="input\windows\USB.cpp" />
-    <ClCompile Include="input\windows\winHIDDeviceDispatcher.cpp" />
     <ClCompile Include="input\windows\winPointingDevice.cpp" />
     <ClCompile Include="input\windows\winPointingDeviceManager.cpp" />
     <ClCompile Include="output\DisplayDevice.cpp" />

@@ -144,9 +144,6 @@
     <ClInclude Include="input\windows\USB.h">
       <Filter>Header Files\input\windows</Filter>
     </ClInclude>
-    <ClInclude Include="input\windows\winHIDDeviceDispatcher.h">
-      <Filter>Header Files\input\windows</Filter>
-    </ClInclude>
     <ClInclude Include="input\windows\winPointingDevice.h">
       <Filter>Header Files\input\windows</Filter>
     </ClInclude>
@@ -170,6 +167,9 @@
     </ClInclude>
     <ClInclude Include="utils\PointingCursor.h">
       <Filter>Header Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="input\SystemPointingDevice.h">
+      <Filter>Header Files\input</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -239,9 +239,6 @@
     <ClCompile Include="transferfunctions\TransferFunction.cpp">
       <Filter>Source Files\transferfunctions</Filter>
     </ClCompile>
-    <ClCompile Include="input\windows\winHIDDeviceDispatcher.cpp">
-      <Filter>Source Files\input\windows</Filter>
-    </ClCompile>
     <ClCompile Include="input\windows\winPointingDevice.cpp">
       <Filter>Source Files\input\windows</Filter>
     </ClCompile>
@@ -268,6 +265,9 @@
     </ClCompile>
     <ClCompile Include="utils\PointingCursor.cpp">
       <Filter>Source Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="input\SystemPointingDevice.cpp">
+      <Filter>Source Files\input</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
