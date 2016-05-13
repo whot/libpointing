@@ -38,8 +38,6 @@ using namespace std;
 
 namespace pointing {
 
-#define MAX(X, Y)           (((X) > (Y)) ? (X) : (Y))
-
   URI uriFromDevice(struct udev_device *hiddev)
   {
     const char *devnode = udev_device_get_devnode(hiddev);
@@ -181,7 +179,7 @@ namespace pointing {
     pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL) ;
     pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL) ;
 
-    PointingDeviceData *pdd = (PointingDeviceData *)context;
+    linuxPointingDeviceData *pdd = (linuxPointingDeviceData *)context;
     linuxPointingDeviceManager *self = (linuxPointingDeviceManager *)PointingDeviceManager::get();
 
     while (true)
@@ -233,50 +231,11 @@ namespace pointing {
     desc.productID = sysattr2int(usbdev, "idProduct");
   }
 
-  void linuxPointingDeviceManager::convertAnyCandidates()
+  void linuxPointingDeviceManager::processMatching(PointingDeviceData *, SystemPointingDevice *device)
   {
-    for (PointingList::iterator it = candidates.begin(); it != candidates.end(); it++)
-    {
-      linuxPointingDevice *device = *it;
-      if (!device->anyURI.asString().empty())
-        device->uri = anyToSpecific(device->anyURI);
-    }
-  }
-
-  void linuxPointingDeviceManager::matchCandidates()
-  {
-    convertAnyCandidates();
-    for(devMap_t::iterator it = devMap.begin(); it != devMap.end(); it++)
-    {
-      PointingDeviceData *pdd = it->second;
-
-      PointingList::iterator i = candidates.begin();
-      while (i != candidates.end())
-      {
-        linuxPointingDevice *device = *i;
-        // Found matching device
-        // Move it from candidates to devMap
-        if (pdd->desc.devURI == device->uri)
-        {
-          candidates.erase(i++);
-          processMatching(pdd, device);
-        }
-        else
-          i++;
-      }
-    }
-  }
-
-  void linuxPointingDeviceManager::processMatching(PointingDeviceData *pdd, linuxPointingDevice *device)
-  {
-    pdd->pointingList.push_back(device);
-    device->active = true;
-    device->productID = pdd->desc.productID;
-    device->vendorID = pdd->desc.vendorID;
-    device->vendor = pdd->desc.vendor;
-    device->product = pdd->desc.product;
-    if (device->seize)
-      enableDevice(false, device->vendor + " " + device->product);
+    linuxPointingDevice *dev = static_cast<linuxPointingDevice *>(device);
+    if (dev->seize)
+      enableDevice(false, dev->vendor + " " + dev->product);
   }
 
   int linuxPointingDeviceManager::readHIDDescriptor(int devID, HIDReportParser *parser)
@@ -319,24 +278,12 @@ namespace pointing {
       std::cerr << "linuxPointingDeviceManager::checkFoundDevice: unable to open HID device" << std::endl ;
       return ;
     }
-    PointingDeviceData *pdd = new PointingDeviceData;
-    devMap[devnode] = pdd;
+    linuxPointingDeviceData *pdd = new linuxPointingDeviceData;
     pdd->devID = devID;
     fillDescriptorInfo(hiddev, usbdev, pdd->desc);
-    addDevice(pdd->desc);
-    matchCandidates();
+    registerDevice(devnode, pdd);
 
     pdd->reportLength = readHIDDescriptor(devID, &pdd->parser);
-
-    if (debugLevel > 0)
-    {
-      bool match = pdd->pointingList.size();
-      std::cout << (match ? "+ " : "  ") << pdd->desc.devURI
-           << " [" << std::hex << "vend:0x" << pdd->desc.vendorID
-           << ", prod:0x" << pdd->desc.productID
-           << std::dec << " - " << pdd->desc.vendor
-           << " " << pdd->desc.product << "]" << std::endl;
-    }
 
     int ret = pthread_create(&pdd->thread, NULL, checkReports, pdd);
     if (ret < 0)
@@ -349,29 +296,19 @@ namespace pointing {
   void linuxPointingDeviceManager::checkLostDevice(struct udev_device *hiddev)
   {
     const char *devnode = udev_device_get_devnode(hiddev);
-    devMap_t::iterator it = devMap.find(devnode);
+    auto it = devMap.find(devnode);
     if (it != devMap.end())
     {
-      PointingDeviceData *pdd = it->second;
+      linuxPointingDeviceData *pdd = static_cast<linuxPointingDeviceData *>(it->second);
       if (pthread_cancel(pdd->thread) < 0)
         perror("linuxPointingDeviceManager::checkLostDevice");
-      removeDevice(pdd->desc);
       close(pdd->devID);
-      for (PointingList::iterator i = pdd->pointingList.begin(); i != pdd->pointingList.end(); i++)
-      {
-        linuxPointingDevice *device = *i;
-        if (device->seize)
-          enableDevice(true, device->vendor + " " + device->product);
-        device->active = false;
-        candidates.push_back(device);
-      }
-      delete pdd;
-      devMap.erase(it);
+      enableDevice(true, pdd->desc.vendor + " " + pdd->desc.product);
     }
-    matchCandidates();
+    unregisterDevice(devnode);
   }
 
-  void linuxPointingDeviceManager::hid_readable(PointingDeviceData *pdd)
+  void linuxPointingDeviceManager::hid_readable(linuxPointingDeviceData *pdd)
   {
     TimeStamp::inttime now = TimeStamp::createAsInt() ;
     unsigned char *report = new unsigned char[pdd->reportLength];
@@ -383,36 +320,14 @@ namespace pointing {
     {
       int dx=0, dy=0, buttons=0;
       pdd->parser.getReportData(&dx, &dy, &buttons);
-      for (PointingList::iterator it = pdd->pointingList.begin(); it != pdd->pointingList.end(); it++)
+      for (SystemPointingDevice *device : pdd->pointingList)
       {
-        linuxPointingDevice *device = *it;
-        device->registerTimestamp(now);
-        if (device->callback)
-          device->callback(device->callback_context, now, dx, dy, buttons);
+        linuxPointingDevice *dev = static_cast<linuxPointingDevice *>(device);
+        dev->registerTimestamp(now);
+        if (dev->callback)
+          dev->callback(dev->callback_context, now, dx, dy, buttons);
       }
     }
-  }
-
-  void linuxPointingDeviceManager::addPointingDevice(linuxPointingDevice *device)
-  {
-    debugLevel = MAX(debugLevel, device->debugLevel);
-    candidates.push_back(device);
-    matchCandidates();
-  }
-
-  void linuxPointingDeviceManager::removePointingDevice(linuxPointingDevice *device)
-  {
-    URI uri = device->uri;
-    for(devMap_t::iterator it = devMap.begin(); it != devMap.end(); it++)
-    {
-      PointingDeviceData *pdd = it->second;
-      if (pdd->desc.devURI == uri)
-      {
-        pdd->pointingList.remove(device);
-        break;
-      }
-    }
-    candidates.remove(device);
   }
 
   linuxPointingDeviceManager::~linuxPointingDeviceManager()

@@ -22,15 +22,15 @@
 #include <pointing/input/DummyPointingDevice.h>
 
 #ifdef __APPLE__
+#include <CoreFoundation/CoreFoundation.h>
 #include <pointing/input/osx/osxPointingDevice.h>
 #endif
-
-#ifdef _WIN32
-#include <pointing/input/windows/winPointingDevice.h>
-#endif
-
 #ifdef __linux__
 #include <pointing/input/linux/linuxPointingDevice.h>
+#endif
+#ifdef _WIN32
+#include <windows.h>
+#include <pointing/input/windows/winPointingDevice.h>
 #endif
 
 #include <stdexcept>
@@ -120,17 +120,15 @@ namespace pointing {
 
 #ifdef __APPLE__
     if (anywilldo || uri.scheme=="osxhid")
-      return new osxPointingDevice(uri) ;
+      return new osxPointingDevice(uri);
 #endif
-
 #ifdef _WIN32
     if (anywilldo || uri.scheme=="winhid")
       return new winPointingDevice(uri) ;
-#endif 
-
+#endif
 #ifdef __linux__
     if (anywilldo || uri.scheme=="hidraw")
-      return new linuxPointingDevice(uri);
+      return new linuxPointingDevice(uri) ;
 #endif
 
     if (uri.scheme=="dummy")

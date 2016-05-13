@@ -16,51 +16,26 @@
 #ifndef osxPointingDevice_h
 #define osxPointingDevice_h
 
-#include <pointing/input/PointingDevice.h>
-#include <IOKit/hid/IOHIDManager.h>
+#include <pointing/input/SystemPointingDevice.h>
 
 namespace pointing {
 
-  class osxPointingDevice : public PointingDevice
+  class osxPointingDevice : public SystemPointingDevice
   {
-    URI uri, anyURI;
-
     friend class osxPointingDeviceManager;
+    double cpi = -1., hz = -1.;
+    bool seize = false;
 
-    PointingCallback callback;
-    void *callback_context;
-
-    double forced_cpi, forced_hz;
-
-    int debugLevel;
+  public:
+    osxPointingDevice(URI device_uri);
 
     bool isUSB(void);
     bool isBluetooth(void);
 
-    IOHIDDeviceRef devRef;
-    int vendorID, productID;
-    bool seize;
+    double getResolution(double *defval=0) const override;
+    double getUpdateFrequency(double *defval=0) const override;
 
-  public:
-    osxPointingDevice(URI uri);
-
-    bool isActive(void) const;
-
-    int getVendorID(void) const;
-    std::string getVendor(void) const;
-    int getProductID(void) const;
-    std::string getProduct(void) const;
-
-    double getResolution(double *defval=0) const;
-    double getUpdateFrequency(double *defval=0) const;
-
-    URI getURI(bool expanded=false, bool crossplatform=false) const;
-
-    void setPointingCallback(PointingCallback callback, void *context=0);
-    void setDebugLevel(int level);
-
-    ~osxPointingDevice(void);
-
+    URI getURI(bool expanded, bool crossplatform) const override;
   };
 }
 

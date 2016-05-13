@@ -12,6 +12,7 @@
  * the GNU General Public License version 2 or any later version.
  *
  */
+
 #ifndef WINPOINTINGDEVICEMANAGER_H
 #define WINPOINTINGDEVICEMANAGER_H
 
@@ -23,18 +24,35 @@ namespace pointing
 {
     class winPointingDeviceManager : public PointingDeviceManager
     {
-        friend class winHIDDeviceDispatcher;
-        bool ConvertDevice(HANDLE h, PointingDeviceDescriptor &desc);
-
-        void registerMouseDevice(HANDLE);
-        void unregisterMouseDevice(HANDLE h);
-
-        static URI uriForHandle(HANDLE h);
-
-        winHIDDeviceDispatcher *dispatcher;
-
         friend class PointingDeviceManager;
         friend class winPointingDevice;
+
+        typedef enum
+        {
+            THREAD_UNDEFINED=0,
+            THREAD_RUNNING,
+            THREAD_TERMINATING,
+            THREAD_HALTED
+        } ThreadState;
+
+        ThreadState run = THREAD_UNDEFINED; // for the Loop thread
+        HANDLE hThreads[1];
+        DWORD dwThreadId;
+        static DWORD WINAPI Loop(LPVOID lpvThreadParam);
+        void processMessage(MSG *msg);
+        HWND msghwnd_;
+
+        static LONG APIENTRY rawInputProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+        HWND rawInputInit();
+
+        bool fillDescriptorInfo(HANDLE h, PointingDeviceDescriptor &desc);
+
+        // True if the mouse has moved
+        bool relativeDisplacement(const PRAWMOUSE pmouse, winPointingDevice *dev, int *dx, int *dy);
+
+        void processMatching(PointingDeviceData *, SystemPointingDevice *);
+
+        virtual URI generalizeSpecific(const URI &uri) const override;
 
         winPointingDeviceManager();
         ~winPointingDeviceManager();

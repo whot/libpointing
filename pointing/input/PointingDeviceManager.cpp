@@ -29,10 +29,12 @@
 #include <iostream>
 #include <pointing/input/PointingDeviceManager.h>
 
-namespace pointing {
-
+namespace pointing
+    {
 #define  DEFAULT_VENDOR    0
 #define  DEFAULT_PRODUCT   0
+
+#define MAX(X, Y)           (((X) > (Y)) ? (X) : (Y))
 
     PointingDeviceManager *PointingDeviceManager::singleManager = 0;
 
@@ -40,18 +42,17 @@ namespace pointing {
     {
         if (singleManager == NULL)
         {
-        #ifdef __APPLE__
+#ifdef __APPLE__
             singleManager = new osxPointingDeviceManager();
-            //singleManager = new PointingDeviceManager();
-        #endif
+#endif
 
-        #ifdef _WIN32
+#ifdef _WIN32
             singleManager = new winPointingDeviceManager();
-        #endif
+#endif
 
-        #ifdef __linux__
+#ifdef __linux__
             singleManager = new linuxPointingDeviceManager();
-        #endif
+#endif
         }
         return singleManager;
     }
@@ -72,20 +73,19 @@ namespace pointing {
 
     void PointingDeviceManager::callCallbackFunctions(PointingDeviceDescriptor &descriptor, bool wasAdded)
     {
-        for (CallbackInfoIterator it = callbackInfos.begin(); it != callbackInfos.end(); it++)
+        for (const CallbackInfo &callbackInfo : callbackInfos)
         {
-            CallbackInfo callbackInfo = *it;
             callbackInfo.callbackFunc(callbackInfo.context, descriptor, wasAdded);
         }
     }
 
-    void PointingDeviceManager::addDevice(PointingDeviceDescriptor &descriptor)
+    void PointingDeviceManager::addDescriptor(PointingDeviceDescriptor &descriptor)
     {
         descriptors.insert(descriptor);
         callCallbackFunctions(descriptor, true);
     }
 
-    void PointingDeviceManager::removeDevice(PointingDeviceDescriptor &descriptor)
+    void PointingDeviceManager::removeDescriptor(PointingDeviceDescriptor &descriptor)
     {
         PointingDescriptorIterator it = descriptors.find(descriptor);
         if (it != descriptors.end())
@@ -108,11 +108,10 @@ namespace pointing {
         URI::getQueryArg(anyURI.query, "vendor", &vendorID);
         URI::getQueryArg(anyURI.query, "product", &productID);
 
-        for (PointingDescriptorIterator it = descriptors.begin(); it != descriptors.end(); it++)
+        for (const PointingDeviceDescriptor &pdd : descriptors)
         {
-            PointingDeviceDescriptor pdd = *it;
             if ((!vendorID || pdd.vendorID == vendorID)
-             && (!productID || pdd.productID == productID))
+                    && (!productID || pdd.productID == productID))
             {
                 return pdd.devURI;
             }
@@ -121,26 +120,33 @@ namespace pointing {
         return anyURI;
     }
 
-    URI PointingDeviceManager::generalizeAny(const URI &anyURI)
+    URI PointingDeviceManager::generalizeAny(const URI &anyURI) const
     {
-      URI result = anyURI;
-      int vendorID = DEFAULT_VENDOR, productID = DEFAULT_PRODUCT;
-      URI::getQueryArg(anyURI.query, "vendor", &vendorID);
-      URI::getQueryArg(anyURI.query, "product", &productID);
-      result.generalize();
-      if (vendorID != DEFAULT_VENDOR)
-        URI::addQueryArg(result.query, "vendor", vendorID);
-      if (productID != DEFAULT_PRODUCT)
-        URI::addQueryArg(result.query, "product", productID);
-      return result;
+        URI result = anyURI;
+        int vendorID = DEFAULT_VENDOR, productID = DEFAULT_PRODUCT;
+        URI::getQueryArg(anyURI.query, "vendor", &vendorID);
+        URI::getQueryArg(anyURI.query, "product", &productID);
+        result.generalize();
+        if (vendorID != DEFAULT_VENDOR)
+            URI::addQueryArg(result.query, "vendor", vendorID);
+        if (productID != DEFAULT_PRODUCT)
+            URI::addQueryArg(result.query, "product", productID);
+        return result;
+    }
+
+    URI PointingDeviceManager::generalizeSpecific(const URI &uri) const
+    {
+        URI result = uri;
+        result.generalize();
+        return result;
     }
 
     /*void PointingDeviceManager::destroy()
-    {
-        delete singleManager;
-        singleManager = NULL;
-    }
-    */
+  {
+      delete singleManager;
+      singleManager = NULL;
+  }
+  */
 
     void PointingDeviceManager::addDeviceUpdateCallback(DeviceUpdateCallback callback, void *context)
     {
@@ -153,5 +159,123 @@ namespace pointing {
         CallbackInfo info(callback, context);
         callbackInfos.erase(info);
     }
-}
+
+    void PointingDeviceManager::convertAnyCandidates()
+    {
+        for (SystemPointingDevice *device : candidates)
+        {
+            if (!device->anyURI.asString().empty())
+                device->uri = anyToSpecific(device->anyURI);
+        }
+    }
+
+    void PointingDeviceManager::matchCandidates()
+    {
+        convertAnyCandidates();
+        for(auto &kv : devMap)
+        {
+            PointingDeviceData *pdd = kv.second;
+
+            PointingList::iterator i = candidates.begin();
+            while (i != candidates.end())
+            {
+                SystemPointingDevice *device = *i;
+                // Found matching device
+                // Move it from candidates to devMap
+                if (pdd->desc.devURI == device->uri)
+                {
+                    candidates.erase(i++);
+                    activateDevice(device, pdd);
+                    processMatching(pdd, device);
+                }
+                else
+                    i++;
+            }
+        }
+    }
+
+    void PointingDeviceManager::activateDevice(SystemPointingDevice *device, PointingDeviceData *pdd)
+    {
+        pdd->pointingList.push_back(device);
+        device->active = true;
+        device->productID = pdd->desc.productID;
+        device->vendorID = pdd->desc.vendorID;
+        device->vendor = pdd->desc.vendor;
+        device->product = pdd->desc.product;
+    }
+
+    void PointingDeviceManager::printDeviceInfo(PointingDeviceData *pdd, bool add)
+    {
+        bool match = pdd->pointingList.size();
+        std::cerr << (add ? (match ? "+ " : "  ") : "- ") << pdd->desc.devURI
+                  << " [" << std::hex << "vend:0x" << pdd->desc.vendorID
+                  << ", prod:0x" << pdd->desc.productID
+                  << std::dec << " - " << pdd->desc.vendor
+                  << " " << pdd->desc.product << "]" << std::endl;
+        /*
+    if (match)
+      std::cerr << ", " << pdd->pointingList.front()->getResolution() << " CPI"
+                << ", " << pdd->pointingList.front()->getUpdateFrequency() << " Hz";
+    */
+    }
+
+    void PointingDeviceManager::registerDevice(identifier key, PointingDeviceData *pdd)
+    {
+        devMap[key] = pdd;
+        addDescriptor(pdd->desc);
+        matchCandidates();
+
+        if (debugLevel > 0) printDeviceInfo(pdd, true);
+    }
+
+    bool PointingDeviceManager::unregisterDevice(identifier key)
+    {
+        auto it = devMap.find(key);
+        if (it != devMap.end())
+        {
+            PointingDeviceData *pdd = it->second;
+            removeDescriptor(pdd->desc);
+            for (SystemPointingDevice *device : pdd->pointingList)
+            {
+                device->active = false;
+                candidates.push_back(device);
+            }
+            if (debugLevel > 0) printDeviceInfo(pdd, false);
+            delete pdd;
+            devMap.erase(it);
+            matchCandidates();
+            return true;
+        }
+        return false;
+    }
+
+    void PointingDeviceManager::addPointingDevice(SystemPointingDevice *device)
+    {
+        candidates.push_back(device);
+        matchCandidates();
+        if (!debugLevel && device->debugLevel)
+        {
+            // This happens once at the beginning
+            // To print devices which are already registered
+            for (auto &kv : devMap)
+                printDeviceInfo(kv.second, true);
+        }
+        debugLevel = MAX(debugLevel, device->debugLevel);
+    }
+
+    void PointingDeviceManager::removePointingDevice(SystemPointingDevice *device)
+    {
+        URI uri = device->uri;
+        for(auto &kv : devMap)
+        {
+            PointingDeviceData *pdd = kv.second;
+            if (pdd->desc.devURI == uri)
+            {
+                pdd->pointingList.remove(device);
+                break;
+            }
+        }
+        candidates.remove(device);
+    }
+    }
 

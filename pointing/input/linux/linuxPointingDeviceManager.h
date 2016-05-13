@@ -20,12 +20,7 @@
 #include <pointing/input/linux/linuxPointingDevice.h>
 #include <pthread.h>
 #include <libudev.h>
-#include <string>
-#include <map>
-#include <list>
 #include <pointing/utils/HIDReportParser.h>
-
-// TODO remove includes
 
 namespace pointing {
 
@@ -38,24 +33,13 @@ namespace pointing {
     friend class PointingDeviceManager;
     friend class linuxPointingDevice;
 
-    typedef std::list<linuxPointingDevice *> PointingList;
-
-    struct PointingDeviceData
+    struct linuxPointingDeviceData : PointingDeviceData
     {
-      PointingDeviceDescriptor desc;
-      PointingList pointingList;
       HIDReportParser parser;
       int devID;
       int reportLength;
       pthread_t thread;
     };
-
-    PointingList candidates;
-    int debugLevel;
-
-    typedef std::map<std::string, PointingDeviceData *> devMap_t;
-
-    devMap_t devMap;
 
     struct udev *udev ;
     struct udev_monitor *monitor ;
@@ -72,20 +56,15 @@ namespace pointing {
     void enableDevice(bool value, std::string fullName);
 
     void monitor_readable();
-    void hid_readable(PointingDeviceData *pdd);
+    void hid_readable(linuxPointingDeviceData *pdd);
 
     int readHIDDescriptor(int devID, HIDReportParser *parser);
     void fillDescriptorInfo(struct udev_device *hiddev, struct udev_device *usbdev, PointingDeviceDescriptor &desc);
 
-    void processMatching(PointingDeviceData *pdd, linuxPointingDevice *device);
-    void convertAnyCandidates();
-    void matchCandidates();
+    void processMatching(PointingDeviceData *, SystemPointingDevice *device);
 
     void checkFoundDevice(struct udev_device *device) ;
     void checkLostDevice(struct udev_device *device) ;
-
-    void addPointingDevice(linuxPointingDevice *device);
-    void removePointingDevice(linuxPointingDevice *device);
 
     linuxPointingDeviceManager();
     ~linuxPointingDeviceManager();

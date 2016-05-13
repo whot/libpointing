@@ -16,51 +16,19 @@
 #ifndef linuxPointingDevice_h
 #define linuxPointingDevice_h
 
-#include <pointing/input/PointingDevice.h>
+#include <pointing/input/SystemPointingDevice.h>
 
 namespace pointing {
 
-  class linuxPointingDevice : public PointingDevice
+  class linuxPointingDevice : public SystemPointingDevice
   {
     friend class linuxPointingDeviceManager;
-    URI uri, anyURI;
-    
-    double forced_cpi, forced_hz;
-
-    int vendorID, productID;
-    bool seize;
-
-    int debugLevel;
-    PointingCallback callback;
-    void *callback_context;
-
-    std::string vendor, product;
-    bool active;
+    bool seize = false;
 
   public:
-  
-    linuxPointingDevice(URI uri) ;
-
-    bool isActive(void) const;
-
-    int getVendorID(void) const;
-    std::string getVendor(void) const;
-    int getProductID(void) const;
-    std::string getProduct(void) const;
-
-    double getResolution(double *defval=0) const;
-    double getUpdateFrequency(double *defval=0) const;
-
-    URI getURI(bool expanded=false, bool crossplatform=false) const;
-
-    void setPointingCallback(PointingCallback callback, void *context=0);
-
-    void setDebugLevel(int level);
-
-    ~linuxPointingDevice();
-
-  } ;
-
+    linuxPointingDevice(URI device_uri);
+    URI getURI(bool expanded, bool crossplatform) const override;
+  };
 }
 
 #endif
