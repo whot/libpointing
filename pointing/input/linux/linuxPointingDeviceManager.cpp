@@ -78,7 +78,7 @@ namespace pointing {
                    Bool		only_extended)
   {
     XDeviceInfo	*devices;
-    XDeviceInfo *found = NULL;
+    //XDeviceInfo *found = NULL;
     int		loop;
     int		num_devices;
     int		len = strlen(name);
@@ -102,18 +102,20 @@ namespace pointing {
       if ((!only_extended || (devices[loop].use >= IsXExtensionDevice)) &&
           ((!is_id && strcmp(devices[loop].name, name) == 0) ||
            (is_id && devices[loop].id == id))) {
-        if (found) {
-          fprintf(stderr,
-                  "Warning: There are multiple devices named '%s'.\n"
-                  "To ensure the correct one is selected, please use "
-                  "the device ID instead.\n\n", name);
-          return NULL;
-        } else {
-          found = &devices[loop];
-        }
+        //if (found) {
+        //  fprintf(stderr,
+        //          "Warning: There are multiple devices named '%s'.\n"
+        //          "To ensure the correct one is selected, please use "
+        //          "the device ID instead.\n\n", name);
+        //  return NULL;
+        //} else {
+          //found = &devices[loop];
+          //return found;
+          return &devices[loop];
+        //}
       }
     }
-    return found;
+    return NULL;//return found;
   }
 
   void linuxPointingDeviceManager::enableDevice(bool value, std::string fullName)
@@ -225,8 +227,8 @@ namespace pointing {
   void linuxPointingDeviceManager::fillDescriptorInfo(struct udev_device *hiddev, struct udev_device *usbdev, PointingDeviceDescriptor &desc)
   {
     desc.devURI = uriFromDevice(hiddev);
-    desc.vendor = sysattr2string(usbdev, "product", "????");
-    desc.product = sysattr2string(usbdev, "manufacturer", "????");
+    desc.vendor = sysattr2string(usbdev, "manufacturer", "???");
+    desc.product = sysattr2string(usbdev, "product", "???");
     desc.vendorID = sysattr2int(usbdev, "idVendor");
     desc.productID = sysattr2int(usbdev, "idProduct");
   }
@@ -234,8 +236,7 @@ namespace pointing {
   void linuxPointingDeviceManager::processMatching(PointingDeviceData *, SystemPointingDevice *device)
   {
     linuxPointingDevice *dev = static_cast<linuxPointingDevice *>(device);
-    if (dev->seize)
-      enableDevice(false, dev->vendor + " " + dev->product);
+    enableDevice(!dev->seize, dev->vendor + " " + dev->product);
   }
 
   int linuxPointingDeviceManager::readHIDDescriptor(int devID, HIDReportParser *parser)
