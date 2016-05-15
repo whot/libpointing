@@ -39,6 +39,8 @@ namespace pointing {
       int devID;
       int reportLength;
       pthread_t thread;
+      std::string evDevNode;
+      int evDevId = -1;
     };
 
     struct udev *udev ;
@@ -61,7 +63,7 @@ namespace pointing {
     int readHIDDescriptor(int devID, HIDReportParser *parser);
     void fillDescriptorInfo(struct udev_device *hiddev, struct udev_device *usbdev, PointingDeviceDescriptor &desc);
 
-    void processMatching(PointingDeviceData *, SystemPointingDevice *device);
+    void processMatching(PointingDeviceData *pdd, SystemPointingDevice *device);
 
     void checkFoundDevice(struct udev_device *device) ;
     void checkLostDevice(struct udev_device *device) ;
