@@ -14,12 +14,15 @@
  */
 
 #include <pointing/input/linux/linuxPointingDevice.h>
+#include <pointing/input/linux/linuxPointingDeviceManager.h>
 
 namespace pointing {
 
   linuxPointingDevice::linuxPointingDevice(URI device_uri):SystemPointingDevice(device_uri)
   {
     URI::getQueryArg(device_uri.query, "seize", &seize);
+    linuxPointingDeviceManager *man = static_cast<linuxPointingDeviceManager *>(PointingDeviceManager::get());
+    man->addPointingDevice(this);
   }
 
   URI linuxPointingDevice::getURI(bool expanded, bool crossplatform) const

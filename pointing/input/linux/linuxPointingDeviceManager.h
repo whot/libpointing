@@ -41,6 +41,7 @@ namespace pointing {
       pthread_t thread;
       std::string evDevNode;
       int evDevId = -1;
+      int seizeCount = 0;
     };
 
     struct udev *udev ;
@@ -65,8 +66,11 @@ namespace pointing {
 
     void processMatching(PointingDeviceData *pdd, SystemPointingDevice *device);
 
-    void checkFoundDevice(struct udev_device *device) ;
-    void checkLostDevice(struct udev_device *device) ;
+    void checkFoundDevice(struct udev_device *device);
+    void checkLostDevice(struct udev_device *device);
+
+    void unSeizeDevice(linuxPointingDeviceData *data);
+    virtual void removePointingDevice(SystemPointingDevice *device) override;
 
     linuxPointingDeviceManager();
     ~linuxPointingDeviceManager();

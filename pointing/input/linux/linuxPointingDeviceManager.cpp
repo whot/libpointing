@@ -35,10 +35,6 @@ using namespace std;
 
 namespace pointing {
 
-// TODO
-// Handle the case when device was seized
-// And then deleted
-
 #define EVENT_DEV "/dev/input/event"
 
   URI uriFromDevice(struct udev_device *hiddev)
@@ -223,14 +219,19 @@ namespace pointing {
   {
     linuxPointingDevice *dev = static_cast<linuxPointingDevice *>(device);
     linuxPointingDeviceData *pdd = static_cast<linuxPointingDeviceData *>(data);
-    if (dev->seize && pdd->evDevId < 0)
+
+    if (dev->seize)
     {
-      pdd->evDevId = open(pdd->evDevNode.c_str(), O_RDONLY);
-      if (pdd->evDevId == -1)
-        std::cerr << "linuxPointingDeviceManager::processMatching: failed to open evDevNode" << std::endl;
-      int result = ioctl(pdd->evDevId, EVIOCGRAB, 1);
-      if (result != 0)
-        std::cerr << "linuxPointingDeviceManager::processMatching: could not seize the device" << std::endl;
+      if (pdd->evDevId < 0)
+      {
+        pdd->evDevId = open(pdd->evDevNode.c_str(), O_RDONLY);
+        if (pdd->evDevId == -1)
+          std::cerr << "linuxPointingDeviceManager::processMatching: failed to open evDevNode" << std::endl;
+        int result = ioctl(pdd->evDevId, EVIOCGRAB, 1);
+        if (result != 0)
+          std::cerr << "linuxPointingDeviceManager::processMatching: could not seize the device" << std::endl;
+      }
+      pdd->seizeCount++;
     }
   }
 
@@ -309,14 +310,30 @@ namespace pointing {
       if (pthread_cancel(pdd->thread) < 0)
         perror("linuxPointingDeviceManager::checkLostDevice");
       close(pdd->devID);
-      if (pdd->evDevId > 0)
-      {
-        ioctl(pdd->evDevId, EVIOCGRAB, 0);
-        close(pdd->evDevId);
-        pdd->evDevId = -1;
-      }
+      unSeizeDevice(pdd);
     }
     unregisterDevice(devnode);
+  }
+
+  void linuxPointingDeviceManager::removePointingDevice(SystemPointingDevice *device)
+  {
+    linuxPointingDeviceData *pdd = static_cast<linuxPointingDeviceData *>(findDataForDevice(device));
+    pdd->seizeCount--;
+    if (!pdd->seizeCount)
+      unSeizeDevice(pdd);
+    PointingDeviceManager::removePointingDevice(device);
+  }
+
+  void linuxPointingDeviceManager::unSeizeDevice(linuxPointingDeviceData *pdd)
+  {
+    if (pdd->evDevId > 0)
+    {
+      ioctl(pdd->evDevId, EVIOCGRAB, 0);
+      close(pdd->evDevId);
+      pdd->evDevId = -1;
+      pdd->evDevNode = "";
+      pdd->seizeCount = 0;
+    }
   }
 
   void linuxPointingDeviceManager::hid_readable(linuxPointingDeviceData *pdd)

@@ -127,6 +127,7 @@ namespace pointing
 
         void printDeviceInfo(PointingDeviceData *pdd, bool add);
 
+        PointingDeviceData *findDataForDevice(SystemPointingDevice *device);
         virtual void addPointingDevice(SystemPointingDevice *device);
         virtual void removePointingDevice(SystemPointingDevice *device);
 

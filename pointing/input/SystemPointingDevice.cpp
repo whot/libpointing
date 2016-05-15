@@ -37,8 +37,6 @@ namespace pointing {
     }
     else
       this->uri = man->generalizeSpecific(uri);
-
-    man->addPointingDevice(this);
   }
 
   bool SystemPointingDevice::isActive(void) const

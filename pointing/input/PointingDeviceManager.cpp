@@ -30,7 +30,7 @@
 #include <pointing/input/PointingDeviceManager.h>
 
 namespace pointing
-    {
+{
 #define  DEFAULT_VENDOR    0
 #define  DEFAULT_PRODUCT   0
 
@@ -77,6 +77,18 @@ namespace pointing
         {
             callbackInfo.callbackFunc(callbackInfo.context, descriptor, wasAdded);
         }
+    }
+
+    PointingDeviceManager::PointingDeviceData *PointingDeviceManager::findDataForDevice(SystemPointingDevice *device)
+    {
+      URI uri = device->uri;
+      for(auto &kv : devMap)
+      {
+          PointingDeviceData *pdd = kv.second;
+          if (pdd->desc.devURI == uri)
+            return pdd;
+      }
+      return NULL;
     }
 
     void PointingDeviceManager::addDescriptor(PointingDeviceDescriptor &descriptor)
@@ -265,17 +277,9 @@ namespace pointing
 
     void PointingDeviceManager::removePointingDevice(SystemPointingDevice *device)
     {
-        URI uri = device->uri;
-        for(auto &kv : devMap)
-        {
-            PointingDeviceData *pdd = kv.second;
-            if (pdd->desc.devURI == uri)
-            {
-                pdd->pointingList.remove(device);
-                break;
-            }
-        }
-        candidates.remove(device);
+      PointingDeviceData *pdd = findDataForDevice(device);
+      if (pdd)
+        pdd->pointingList.remove(device);
     }
-    }
+}
 
