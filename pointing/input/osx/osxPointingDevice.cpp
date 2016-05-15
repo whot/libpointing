@@ -14,12 +14,15 @@
  */
 
 #include <pointing/input/osx/osxPointingDevice.h>
+#include <pointing/input/osx/osxPointingDeviceManager.h>
 
 namespace pointing {
 
-  osxPointingDevice::osxPointingDevice(URI device_uri):SystemPointingDevice(device_uri)
+  osxPointingDevice::osxPointingDevice(URI device_uri) : SystemPointingDevice(device_uri)
   {
     URI::getQueryArg(device_uri.query, "seize", &seize);
+    osxPointingDeviceManager *man = static_cast<osxPointingDeviceManager *>(PointingDeviceManager::get());
+    man->addPointingDevice(this);
   }
 
   bool osxPointingDevice::isUSB(void)

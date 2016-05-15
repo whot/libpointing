@@ -18,7 +18,7 @@
 
 namespace pointing {
 
-  linuxPointingDevice::linuxPointingDevice(URI device_uri):SystemPointingDevice(device_uri)
+  linuxPointingDevice::linuxPointingDevice(URI device_uri) : SystemPointingDevice(device_uri)
   {
     URI::getQueryArg(device_uri.query, "seize", &seize);
     linuxPointingDeviceManager *man = static_cast<linuxPointingDeviceManager *>(PointingDeviceManager::get());

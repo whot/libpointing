@@ -16,10 +16,13 @@
 
 
 #include <pointing/input/windows/winPointingDevice.h>
+#include <pointing/input/windows/winPointingDeviceManager.h>
 
 namespace pointing
 {
     winPointingDevice::winPointingDevice(URI uri) : SystemPointingDevice(uri)
     {
+      winPointingDeviceManager *man = static_cast<winPointingDeviceManager *>(PointingDeviceManager::get());
+      man->addPointingDevice(this);
     }
 }
