@@ -33,14 +33,20 @@ namespace pointing {
     friend class PointingDeviceManager;
     friend class linuxPointingDevice;
 
+    // Add linux-specific data
     struct linuxPointingDeviceData : PointingDeviceData
     {
       HIDReportParser parser;
       int devID;
       int reportLength;
       pthread_t thread;
+
+      // To seize a given device
       std::string evDevNode;
       int evDevId = -1;
+      // If there are several PointingDevice objects with seize
+      // corresponding to the same physical device
+      // Seize the device until all of them are deleted
       int seizeCount = 0;
     };
 

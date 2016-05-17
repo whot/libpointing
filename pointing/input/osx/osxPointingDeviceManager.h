@@ -39,6 +39,7 @@ namespace pointing
     friend class PointingDeviceManager;
     friend class osxPointingDevice;
 
+    // Add osx-specific data
     struct osxPointingDeviceData : PointingDeviceData
     {
       HIDReportParser parser;

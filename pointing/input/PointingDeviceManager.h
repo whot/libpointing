@@ -90,6 +90,9 @@ namespace pointing
     protected:
 
         typedef std::list<SystemPointingDevice *> PointingList;
+
+        // This struct can be extended in subclasses to add
+        // platform-specific data
         struct PointingDeviceData
         {
           PointingDeviceDescriptor desc;
@@ -118,18 +121,33 @@ namespace pointing
         void convertAnyCandidates();
 
         void matchCandidates();
+
+        // Should be implemented by a subclass
         virtual void processMatching(PointingDeviceData *pdd, SystemPointingDevice *device)=0;
 
         void activateDevice(SystemPointingDevice *device, PointingDeviceData *pdd);
 
+        /**
+         * @brief Called from subclasses
+         * @param key platform-specific unique identifier
+         */
+        //@{
         void registerDevice(identifier key, PointingDeviceData *pdd);
         bool unregisterDevice(identifier);
+        //@}
 
         void printDeviceInfo(PointingDeviceData *pdd, bool add);
 
         PointingDeviceData *findDataForDevice(SystemPointingDevice *device);
+
+        /**
+         * @brief Whenever there is a PointingDevice is created or deleted
+         * those methods are called internally from a SystemPointingDevice
+         */
+        //@{
         virtual void addPointingDevice(SystemPointingDevice *device);
         virtual void removePointingDevice(SystemPointingDevice *device);
+        //@}
 
     public:
 
