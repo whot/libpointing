@@ -230,6 +230,8 @@ namespace pointing {
         int result = ioctl(pdd->evDevId, EVIOCGRAB, 1);
         if (result != 0)
           std::cerr << "linuxPointingDeviceManager::processMatching: could not seize the device" << std::endl;
+        if (dev->debugLevel > 1)
+        	std::cerr << "    " << dev->uri << " corresponds to " << pdd->evDevNode << std::endl;
       }
       pdd->seizeCount++;
     }
