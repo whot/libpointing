@@ -35,19 +35,17 @@ namespace pointing {
 
     struct linuxPointingDeviceData : PointingDeviceData
     {
-      HIDReportParser parser;
-      int devID;
-      int reportLength;
+      int devID = -1;
       pthread_t thread;
-      std::string evDevNode;
+      std::string evDevPath;
       int evDevId = -1;
       int seizeCount = 0;
     };
 
-    struct udev *udev ;
-    struct udev_monitor *monitor ;
+    struct udev *udev;
+    struct udev_monitor *monitor;
 
-    pthread_t thread ;
+    pthread_t thread;
 
     /**
      * @brief This static function works in another thread.
@@ -59,15 +57,16 @@ namespace pointing {
     void enableDevice(bool value, std::string fullName);
 
     void monitor_readable();
-    void hid_readable(linuxPointingDeviceData *pdd);
+    void readable(linuxPointingDeviceData *pdd);
 
     int readHIDDescriptor(int devID, HIDReportParser *parser);
-    void fillDescriptorInfo(struct udev_device *hiddev, struct udev_device *usbdev, PointingDeviceDescriptor &desc);
+    void fillExternalDescInfo(udev_device *hiddev, udev_device *usbdev, PointingDeviceDescriptor &desc);
+    void fillEmbeddedDescInfo(udev_device *hiddev, PointingDeviceDescriptor &desc);
 
     void processMatching(PointingDeviceData *pdd, SystemPointingDevice *device);
 
-    void checkFoundDevice(struct udev_device *device);
-    void checkLostDevice(struct udev_device *device);
+    void checkFoundDevice(udev_device *device);
+    void checkLostDevice(udev_device *device);
 
     void unSeizeDevice(linuxPointingDeviceData *data);
     virtual void removePointingDevice(SystemPointingDevice *device) override;

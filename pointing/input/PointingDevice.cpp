@@ -127,7 +127,7 @@ namespace pointing {
       return new winPointingDevice(uri) ;
 #endif
 #ifdef __linux__
-    if (anywilldo || uri.scheme=="hidraw")
+    if (anywilldo || uri.scheme=="input")
       return new linuxPointingDevice(uri) ;
 #endif
 
