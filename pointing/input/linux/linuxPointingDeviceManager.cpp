@@ -37,7 +37,7 @@
 // TODO:
 // 1. Unblock the touchpad
 // 2. Determine frequency
-// 3.
+// 3. Look EVIOCGREP and others
 
 using namespace std;
 
@@ -290,9 +290,11 @@ namespace pointing {
   void linuxPointingDeviceManager::checkFoundDevice(udev_device *hiddev)
   {
     const char *name = udev_device_get_sysname(hiddev);
+    if (!name)
+      return;
     if (strncmp(name, "mouse", 5) == 0)
     {
-      //udevDebugDevice(hiddev, std::cerr);
+      udevDebugDevice(hiddev, std::cerr);
       const char *devnode = udev_device_get_devnode(hiddev);
       int devID = open(devnode, O_RDONLY);
       if (devID == -1) {
@@ -332,6 +334,8 @@ namespace pointing {
   void linuxPointingDeviceManager::checkLostDevice(udev_device *hiddev)
   {
     const char *devnode = udev_device_get_devnode(hiddev);
+    if (!devnode)
+      return;
     auto it = devMap.find(devnode);
     if (it != devMap.end())
     {
@@ -340,8 +344,8 @@ namespace pointing {
         perror("linuxPointingDeviceManager::checkLostDevice");
       close(pdd->devID);
       unSeizeDevice(pdd);
+      unregisterDevice(devnode);
     }
-    unregisterDevice(devnode);
   }
 
   void linuxPointingDeviceManager::removePointingDevice(SystemPointingDevice *device)
