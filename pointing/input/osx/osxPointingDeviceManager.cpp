@@ -17,13 +17,11 @@
 
 #include <pointing/utils/osx/osxPlistUtils.h>
 #include <pointing/input/osx/osxHIDUtils.h>
-
 #include <stdexcept>
 
 namespace pointing {
 
 #define USE_CURRENT_RUNLOOP 0
-#define MAX(X, Y)           (((X) > (Y)) ? (X) : (Y))
 
   void fillDescriptorInfo(IOHIDDeviceRef devRef, PointingDeviceDescriptor &desc)
   {
