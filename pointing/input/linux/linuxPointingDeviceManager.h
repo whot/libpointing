@@ -38,8 +38,7 @@ namespace pointing {
     {
       int devID = -1;
       pthread_t thread;
-      std::string evDevPath;
-      int evDevId = -1;
+      udev_device *evDev = NULL;
       // If there are several PointingDevice objects with seize
       // corresponding to the same physical device
       // Seize the device until all of them are deleted

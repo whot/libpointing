@@ -100,14 +100,13 @@ namespace pointing {
     return FD_ISSET(devID, &rfds);
   }
 
-  std::string findEvDevPath(udev* udev, udev_device* dev)
+  udev_device* findEvDev(udev* udev, udev_device* dev)
   {
     // This function finds the associated event devnode
     // For a given "mouse" devnode
-    std::string result;
     dev = udev_device_get_parent(dev);
     if (!dev)
-      return result;
+      return NULL;
 
     udev_enumerate *enumerate = udev_enumerate_new(udev);
 
@@ -125,14 +124,13 @@ namespace pointing {
       if (devnode && strncmp(devnode, EVENT_DEV, strlen(EVENT_DEV)) == 0)
       {
         // Found corresponding event devnode
-        result = devnode;
-        udev_device_unref(child);
-        break;
+        // Need to unref it at the end
+        return child;
       }
       udev_device_unref(child);
     }
     udev_enumerate_unref(enumerate);
-    return result;
+    return NULL;
   }
 
   void *linuxPointingDeviceManager::eventloop(void *context)
@@ -240,18 +238,11 @@ namespace pointing {
 
     if (dev->seize)
     {
-      if (pdd->evDevId < 0)
-      {
-        pdd->evDevId = open(pdd->evDevPath.c_str(), O_RDONLY);
-        if (pdd->evDevId == -1)
-          std::cerr << "linuxPointingDeviceManager::processMatching: failed to open evDevNode" << std::endl;
-        int result = ioctl(pdd->evDevId, EVIOCGRAB, 1);
-        if (result != 0)
-          std::cerr << "linuxPointingDeviceManager::processMatching: could not seize the device" << std::endl;
-        if (dev->debugLevel > 1)
-          std::cerr << "    " << dev->uri << " corresponds to " << pdd->evDevPath << std::endl;
-      }
-      pdd->seizeCount++;
+      int result = ioctl(pdd->devID, EVIOCGRAB, 1);
+      if (result != 0)
+        std::cerr << "linuxPointingDeviceManager::processMatching: could not seize the device" << std::endl;
+      else
+        pdd->seizeCount++;
     }
   }
 
@@ -292,18 +283,15 @@ namespace pointing {
     const char *name = udev_device_get_sysname(hiddev);
     if (!name)
       return;
-    if (strncmp(name, "mouse", 5) == 0)
+    bool matchMouse = strncmp(name, "mouse", 5) == 0;
+    bool matchMice = strcmp(name, "mice") == 0;
+    if (!matchMouse && !matchMice)
+      return;
+    //udevDebugDevice(hiddev, std::cerr);
+    linuxPointingDeviceData *pdd = new linuxPointingDeviceData;
+    const char *devnode = NULL;
+    if (matchMouse)
     {
-      udevDebugDevice(hiddev, std::cerr);
-      const char *devnode = udev_device_get_devnode(hiddev);
-      int devID = open(devnode, O_RDONLY);
-      if (devID == -1) {
-        std::cerr << "linuxPointingDeviceManager::checkFoundDevice: unable to open " << devnode << std::endl;
-        return;
-      }
-
-      linuxPointingDeviceData *pdd = new linuxPointingDeviceData;
-      pdd->devID = devID;
       udev_device *usbdev = udev_device_get_parent_with_subsystem_devtype(hiddev, "usb", "usb_device");
       // If there is no usbdev, most probably the embedded touchpad was found
       if (usbdev)
@@ -314,20 +302,33 @@ namespace pointing {
       {
         fillEmbeddedDescInfo(hiddev, pdd->desc);
       }
-
-      pdd->evDevPath = findEvDevPath(udev, hiddev);
-      registerDevice(devnode, pdd);
-
-      int ret = pthread_create(&pdd->thread, NULL, checkReports, pdd);
-      if (ret < 0)
-      {
-        perror("linuxPointingDeviceManager::checkFoundDevice");
-        throw runtime_error("linuxPointingDeviceManager: pthread_create failed");
-      }
+      pdd->evDev = findEvDev(udev, hiddev);
+      devnode = udev_device_get_devnode(pdd->evDev);
     }
-    else if (strcmp(name, "mice") == 0)
+    else // matchMice
     {
-      // TODO
+      pdd->desc.devURI = uriFromDevice(hiddev);
+      pdd->desc.product = "Mice";
+      pdd->desc.vendor = "Virtual";
+      devnode = udev_device_get_devnode(hiddev);
+    }
+
+    pdd->devID = open(devnode, O_RDONLY);
+    if (pdd->devID == -1) {
+      std::cerr << "linuxPointingDeviceManager::checkFoundDevice: unable to open " << devnode << std::endl;
+      if (pdd->evDev)
+          udev_device_unref(pdd->evDev);
+      delete pdd;
+      return;
+    }
+
+    registerDevice(devnode, pdd);
+
+    int ret = pthread_create(&pdd->thread, NULL, checkReports, pdd);
+    if (ret < 0)
+    {
+      perror("linuxPointingDeviceManager::checkFoundDevice");
+      throw runtime_error("linuxPointingDeviceManager: pthread_create failed");
     }
   }
 
@@ -342,8 +343,11 @@ namespace pointing {
       linuxPointingDeviceData *pdd = static_cast<linuxPointingDeviceData *>(it->second);
       if (pthread_cancel(pdd->thread) < 0)
         perror("linuxPointingDeviceManager::checkLostDevice");
-      close(pdd->devID);
       unSeizeDevice(pdd);
+      if (pdd->devID > -1)
+        close(pdd->devID);
+      if (pdd->evDev)
+        udev_device_unref(pdd->evDev) ;
       unregisterDevice(devnode);
     }
   }
@@ -351,7 +355,9 @@ namespace pointing {
   void linuxPointingDeviceManager::removePointingDevice(SystemPointingDevice *device)
   {
     linuxPointingDeviceData *pdd = static_cast<linuxPointingDeviceData *>(findDataForDevice(device));
-    pdd->seizeCount--;
+    linuxPointingDevice *dev = static_cast<linuxPointingDevice *>(device);
+    if (dev->seize)
+      pdd->seizeCount--;
     if (!pdd->seizeCount)
       unSeizeDevice(pdd);
     PointingDeviceManager::removePointingDevice(device);
@@ -359,12 +365,9 @@ namespace pointing {
 
   void linuxPointingDeviceManager::unSeizeDevice(linuxPointingDeviceData *pdd)
   {
-    if (pdd->evDevId > 0)
+    if (pdd->devID > 0)
     {
-      ioctl(pdd->evDevId, EVIOCGRAB, 0);
-      close(pdd->evDevId);
-      pdd->evDevId = -1;
-      pdd->evDevPath = "";
+      ioctl(pdd->devID, EVIOCGRAB, 0);
       pdd->seizeCount = 0;
     }
   }
@@ -374,6 +377,10 @@ namespace pointing {
     TimeStamp::inttime now = TimeStamp::createAsInt();
     input_event ie;
     int result = read(pdd->devID, &ie, sizeof(input_event));
+
+    std::cerr << "Type: " << std::hex << ie.type << std::endl;
+    std::cerr << "Code: " << std::hex << ie.code << std::endl;
+    std::cerr << "Value: " << std::hex << ie.value << std::endl;
 
     if (result != -1)
     {
