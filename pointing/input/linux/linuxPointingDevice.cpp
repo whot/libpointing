@@ -25,6 +25,17 @@ namespace pointing {
     man->addPointingDevice(this);
   }
 
+  double linuxPointingDevice::getUpdateFrequency(double *defval) const
+  {
+    if (forced_hz > 0)
+      return forced_hz;
+
+    if (hz > 0)
+      return hz;
+
+    return SystemPointingDevice::getUpdateFrequency(defval);
+  }
+
   URI linuxPointingDevice::getURI(bool expanded, bool crossplatform) const
   {
     URI result = SystemPointingDevice::getURI(expanded, crossplatform);

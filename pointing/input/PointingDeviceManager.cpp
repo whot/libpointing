@@ -280,6 +280,7 @@ namespace pointing
       PointingDeviceData *pdd = findDataForDevice(device);
       if (pdd)
         pdd->pointingList.remove(device);
+      candidates.remove(device);
     }
 }
 

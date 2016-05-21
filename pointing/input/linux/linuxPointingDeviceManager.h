@@ -36,13 +36,14 @@ namespace pointing {
     // Add linux-specific data
     struct linuxPointingDeviceData : PointingDeviceData
     {
-      int devID = -1;
+      int fd = -1;
       pthread_t thread;
       udev_device *evDev = NULL;
       // If there are several PointingDevice objects with seize
       // corresponding to the same physical device
       // Seize the device until all of them are deleted
       int seizeCount = 0;
+      int buttons = 0;
     };
 
     struct udev *udev;

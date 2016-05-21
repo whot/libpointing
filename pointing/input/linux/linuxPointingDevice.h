@@ -24,9 +24,12 @@ namespace pointing {
   {
     friend class linuxPointingDeviceManager;
     bool seize = false;
+    double hz = -1.;
 
   public:
     linuxPointingDevice(URI device_uri);
+
+    double getUpdateFrequency(double *defval=0) const override;
     URI getURI(bool expanded, bool crossplatform) const override;
   };
 }
