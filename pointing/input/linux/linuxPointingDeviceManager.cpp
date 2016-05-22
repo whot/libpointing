@@ -37,9 +37,8 @@
 // TODO:
 // 1. Unblock the touchpad
 // 2. Any not working with vendor = 0
-// 3. Check device capabilities
-// 4. Try to change the device mode
-// 5. Rate from touchpad
+// 3. Try to change the device mode
+// 4. Mutex
 
 using namespace std;
 
@@ -214,13 +213,51 @@ namespace pointing {
       }
   }
 
+  bool linuxPointingDeviceManager::outputsRelative(udev_device *dev)
+  {
+    udev_device *parent = udev_device_get_parent(dev);
+    if (!parent)
+      return false;
+    if (sysattr2int(parent, "capabilities/abs"))
+      return false;
+    if (!sysattr2int(parent, "capabilities/rel"))
+      return false;
+    return true;
+  }
+
+  void linuxPointingDeviceManager::fillDevInfo(udev_device *hiddev, linuxPointingDeviceData *pdd)
+  {
+    udev_device *usbdev = udev_device_get_parent_with_subsystem_devtype(hiddev, "usb", "usb_device");
+    // If there is no usbdev, most probably the embedded touchpad was found
+    if (usbdev)
+    {
+      pdd->desc.vendor = sysattr2string(usbdev, "manufacturer", "???");
+      pdd->desc.product = sysattr2string(usbdev, "product", "???");
+      pdd->desc.vendorID = sysattr2int(usbdev, "idVendor");
+      pdd->desc.productID = sysattr2int(usbdev, "idProduct");
+    }
+    else
+    {
+      udev_device *dev = udev_device_get_parent(hiddev);
+      if (!dev)
+        return;
+      pdd->desc.vendorID = sysattr2int(dev, "id/vendor");
+      pdd->desc.productID = sysattr2int(dev, "id/product");
+      pdd->desc.product = sysattr2string(dev, "name", "???");
+    }
+    udev_device *evDev = findEvDev(udev, hiddev);
+    if ((usbdev || outputsRelative(hiddev)) && evDev)
+    {
+      pdd->evDev = evDev;
+      pdd->desc.devURI = uriFromDevice(pdd->evDev);
+    }
+    else
+      pdd->desc.devURI = uriFromDevice(hiddev);
+  }
+/*
   void linuxPointingDeviceManager::fillExternalDescInfo(udev_device *hiddev, udev_device *usbdev, PointingDeviceDescriptor &desc)
   {
     desc.devURI = uriFromDevice(hiddev);
-    desc.vendor = sysattr2string(usbdev, "manufacturer", "???");
-    desc.product = sysattr2string(usbdev, "product", "???");
-    desc.vendorID = sysattr2int(usbdev, "idVendor");
-    desc.productID = sysattr2int(usbdev, "idProduct");
   }
 
   void linuxPointingDeviceManager::fillEmbeddedDescInfo(udev_device *hiddev, PointingDeviceDescriptor &desc)
@@ -233,7 +270,7 @@ namespace pointing {
     desc.productID = sysattr2int(dev, "id/product");
     desc.product = sysattr2string(dev, "name", "???");
   }
-
+*/
   void linuxPointingDeviceManager::processMatching(PointingDeviceData *data, SystemPointingDevice *device)
   {
     linuxPointingDevice *dev = static_cast<linuxPointingDevice *>(device);
@@ -245,9 +282,12 @@ namespace pointing {
         std::cerr << "linuxPointingDeviceManager::processMatching: could not seize the device" << std::endl;
     }
     udev_device *par = udev_device_get_parent_with_subsystem_devtype(pdd->evDev, "usb", "usb_interface");
-    int ms = sysattr2int(par, "ep_81/bInterval");
-    if (ms)
-      dev->hz = 1000.0 / ms;
+    if (par)
+    {
+      int ms = sysattr2int(par, "ep_81/bInterval");
+      if (ms)
+        dev->hz = 1000.0 / ms;
+    }
   }
 
   void linuxPointingDeviceManager::checkFoundDevice(udev_device *hiddev)
@@ -259,31 +299,18 @@ namespace pointing {
     bool matchMice = strcmp(name, "mice") == 0;
     if (!matchMouse && !matchMice)
       return;
-    udevDebugDevice(hiddev, std::cerr);
+    if (debugLevel > 1)
+      udevDebugDevice(hiddev, std::cerr);
     linuxPointingDeviceData *pdd = new linuxPointingDeviceData;
-    const char *devnode = NULL;
     if (matchMouse)
-    {
-      udev_device *usbdev = udev_device_get_parent_with_subsystem_devtype(hiddev, "usb", "usb_device");
-      // If there is no usbdev, most probably the embedded touchpad was found
-      if (usbdev)
-      {
-        fillExternalDescInfo(hiddev, usbdev, pdd->desc);
-      }
-      else
-      {
-        fillEmbeddedDescInfo(hiddev, pdd->desc);
-      }
-      pdd->evDev = findEvDev(udev, hiddev);
-      devnode = udev_device_get_devnode(pdd->evDev);
-    }
+      fillDevInfo(hiddev, pdd);
     else // matchMice
     {
       pdd->desc.devURI = uriFromDevice(hiddev);
       pdd->desc.product = "Mice";
       pdd->desc.vendor = "Virtual";
-      devnode = udev_device_get_devnode(hiddev);
     }
+    const char *devnode = udev_device_get_devnode(pdd->evDev ? pdd->evDev : hiddev);
 
     pdd->fd = open(devnode, O_RDONLY);
     // Non blocking
@@ -358,21 +385,33 @@ namespace pointing {
 
     while (read(pdd->fd, &ie, sizeof(input_event)) > 0)
     {
-      if (ie.type == EV_REL)
+      // Read event file descriptor
+      if (pdd->evDev)
       {
-        if (ie.code == REL_X)
-          dx = ie.value;
-        else if (ie.code == REL_Y)
-          dy = ie.value;
+        if (ie.type == EV_REL)
+        {
+          if (ie.code == REL_X)
+            dx = ie.value;
+          else if (ie.code == REL_Y)
+            dy = ie.value;
+        }
+        else if (ie.type == EV_KEY)
+        {
+          if (ie.code == BTN_LEFT)
+            pdd->buttons = ie.value ? (pdd->buttons | (1 << 0)) : (pdd->buttons & ~(1 << 0));
+          else if (ie.code == BTN_RIGHT)
+            pdd->buttons = ie.value ? (pdd->buttons | (1 << 1)) : (pdd->buttons & ~(1 << 1));
+          else if (ie.code == BTN_MIDDLE)
+            pdd->buttons = ie.value ? (pdd->buttons | (1 << 2)) : (pdd->buttons & ~(1 << 2));
+        }
       }
-      else if (ie.type == EV_KEY)
+      // Read mouse file descriptor
+      else
       {
-        if (ie.code == BTN_LEFT)
-          pdd->buttons = ie.value ? (pdd->buttons | (1 << 0)) : (pdd->buttons & ~(1 << 0));
-        else if (ie.code == BTN_RIGHT)
-          pdd->buttons = ie.value ? (pdd->buttons | (1 << 1)) : (pdd->buttons & ~(1 << 1));
-        else if (ie.code == BTN_MIDDLE)
-          pdd->buttons = ie.value ? (pdd->buttons | (1 << 2)) : (pdd->buttons & ~(1 << 2));
+        unsigned char *ptr = (unsigned char*)&ie;
+        pdd->buttons = ptr[0] & 7; // 3 bits only
+        dx = (char)ptr[1];
+        dy = (char)ptr[2];
       }
     }
 

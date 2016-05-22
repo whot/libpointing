@@ -110,8 +110,8 @@ namespace pointing {
 
   void SystemPointingDevice::setPointingCallback(PointingCallback cbck, void *ctx)
   {
-    callback = cbck;
     callback_context = ctx;
+    callback = cbck;
   }
 
   void SystemPointingDevice::setDebugLevel(int level)

@@ -63,9 +63,10 @@ namespace pointing {
     void monitor_readable();
     void readable(linuxPointingDeviceData *pdd);
 
+    bool outputsRelative(udev_device *dev);
+
     int readHIDDescriptor(int devID, HIDReportParser *parser);
-    void fillExternalDescInfo(udev_device *hiddev, udev_device *usbdev, PointingDeviceDescriptor &desc);
-    void fillEmbeddedDescInfo(udev_device *hiddev, PointingDeviceDescriptor &desc);
+    void fillDevInfo(udev_device *hiddev, linuxPointingDeviceData *pdd);
 
     void processMatching(PointingDeviceData *pdd, SystemPointingDevice *device);
 
