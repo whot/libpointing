@@ -94,14 +94,17 @@ XDeviceInfo* find_device_info(Display	*display,
   void enableSynapticsTouchpad()
   {
     Display	*dpy = XOpenDisplay(0);
-    XDeviceInfo *info = find_device_info(dpy, "SynPS/2 Synaptics TouchPad", False);
-    if (info)
+    if (dpy)
     {
-      executeCommand(dpy, info, "Synaptics Grab Event Device", 0);
-      // Need to restart the device to apply changes
-      executeCommand(dpy, info, "Device Enabled", 0);
-      executeCommand(dpy, info, "Device Enabled", 1);
+      XDeviceInfo *info = find_device_info(dpy, "SynPS/2 Synaptics TouchPad", False);
+      if (info)
+      {
+        executeCommand(dpy, info, "Synaptics Grab Event Device", 0);
+        // Need to restart the device to apply changes
+        executeCommand(dpy, info, "Device Enabled", 0);
+        executeCommand(dpy, info, "Device Enabled", 1);
+      }
+      XCloseDisplay(dpy);
     }
-    XCloseDisplay(dpy);
   }
 }
