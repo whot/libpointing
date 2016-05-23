@@ -31,9 +31,6 @@
 
 namespace pointing
 {
-#define  DEFAULT_VENDOR    0
-#define  DEFAULT_PRODUCT   0
-
 #define MAX(X, Y)           (((X) > (Y)) ? (X) : (Y))
 
     PointingDeviceManager *PointingDeviceManager::singleManager = 0;
@@ -115,15 +112,15 @@ namespace pointing
             std::cerr << "PointingDeviceManager::anyToSpecific: URI scheme must be \"any\"" << std::endl;
             return anyURI;
         }
-        int vendorID = DEFAULT_VENDOR;
-        int productID = DEFAULT_PRODUCT;
+        int vendorID = -1;
+        int productID = -1;
         URI::getQueryArg(anyURI.query, "vendor", &vendorID);
         URI::getQueryArg(anyURI.query, "product", &productID);
 
         for (const PointingDeviceDescriptor &pdd : descriptors)
         {
-            if ((!vendorID || pdd.vendorID == vendorID)
-                    && (!productID || pdd.productID == productID))
+            if ((vendorID == -1 || pdd.vendorID == vendorID)
+            && (productID == -1 || pdd.productID == productID))
             {
                 return pdd.devURI;
             }
@@ -135,13 +132,13 @@ namespace pointing
     URI PointingDeviceManager::generalizeAny(const URI &anyURI) const
     {
         URI result = anyURI;
-        int vendorID = DEFAULT_VENDOR, productID = DEFAULT_PRODUCT;
+        int vendorID = -1, productID = -1;
         URI::getQueryArg(anyURI.query, "vendor", &vendorID);
         URI::getQueryArg(anyURI.query, "product", &productID);
         result.generalize();
-        if (vendorID != DEFAULT_VENDOR)
+        if (vendorID != -1)
             URI::addQueryArg(result.query, "vendor", vendorID);
-        if (productID != DEFAULT_PRODUCT)
+        if (productID != -1)
             URI::addQueryArg(result.query, "product", productID);
         return result;
     }

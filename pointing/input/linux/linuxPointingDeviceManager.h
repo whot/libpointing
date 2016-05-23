@@ -44,12 +44,15 @@ namespace pointing {
       // Seize the device until all of them are deleted
       int seizeCount = 0;
       int buttons = 0;
+      std::string devnode;
     };
 
     struct udev *udev;
     struct udev_monitor *monitor;
 
     pthread_t thread;
+
+    static void cleanup_handler(void *arg);
 
     /**
      * @brief This static function works in another thread.

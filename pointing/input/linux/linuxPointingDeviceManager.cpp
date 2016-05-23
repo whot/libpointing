@@ -14,17 +14,10 @@
  */
 
 #include <pointing/input/linux/linuxPointingDeviceManager.h>
-
-#include <pointing/utils/Base64.h>
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-
-#include <X11/Xatom.h>
-#include <X11/extensions/XInput.h>
-
 #include <pointing/utils/URI.h>
+
+#include <unistd.h>
+#include <pointing/input/linux/XInputHelper.cpp>
 
 #include <linux/input.h>
 #include <linux/hidraw.h>
@@ -33,12 +26,6 @@
 
 #include <iostream>
 #include <stdexcept>
-
-// TODO:
-// 1. Unblock the touchpad
-// 2. Any not working with vendor = 0
-// 3. Try to change the device mode
-// 4. Mutex
 
 using namespace std;
 
@@ -94,7 +81,8 @@ namespace pointing {
     fd_set rfds;
     FD_ZERO(&rfds);
     FD_SET(devID, &rfds);
-    int nbready = select(devID + 1, &rfds, NULL, NULL, 0);
+
+    int nbready = select(devID + 1, &rfds, NULL, NULL, 0);;
     pthread_testcancel();
     if (nbready == -1)
       perror("linuxPointingDevice::eventloop");
@@ -165,6 +153,18 @@ namespace pointing {
     return 0 ;
   }
 
+  void linuxPointingDeviceManager::cleanup_handler(void *arg)
+  {
+      printf("Called clean-up handler\n");
+      linuxPointingDeviceData *pdd = static_cast<linuxPointingDeviceData *>(arg);
+      linuxPointingDeviceManager *self = (linuxPointingDeviceManager *)PointingDeviceManager::get();
+      if (pdd->fd > -1)
+        close(pdd->fd);
+      if (pdd->evDev)
+        udev_device_unref(pdd->evDev) ;
+      self->unregisterDevice(pdd->devnode);
+  }
+
   void *linuxPointingDeviceManager::checkReports(void *context)
   {
     pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL) ;
@@ -172,17 +172,22 @@ namespace pointing {
 
     linuxPointingDeviceData *pdd = (linuxPointingDeviceData *)context;
     linuxPointingDeviceManager *self = (linuxPointingDeviceManager *)PointingDeviceManager::get();
+    pthread_cleanup_push(self->cleanup_handler, pdd);
 
     while (true)
     {
       if (checkDev(pdd->fd))
         self->readable(pdd);
     }
+    pthread_cleanup_pop(0);
     return 0 ;
   }
 
   linuxPointingDeviceManager::linuxPointingDeviceManager()
   {
+    // Unblock Synaptics Touchpad if there is one
+    // Since it is usually grabbed by XServer
+    enableSynapticsTouchpad();
     udev = udev_new();
     if (!udev)
       throw runtime_error("linuxPointingDeviceManager: udev_new failed");
@@ -254,23 +259,7 @@ namespace pointing {
     else
       pdd->desc.devURI = uriFromDevice(hiddev);
   }
-/*
-  void linuxPointingDeviceManager::fillExternalDescInfo(udev_device *hiddev, udev_device *usbdev, PointingDeviceDescriptor &desc)
-  {
-    desc.devURI = uriFromDevice(hiddev);
-  }
 
-  void linuxPointingDeviceManager::fillEmbeddedDescInfo(udev_device *hiddev, PointingDeviceDescriptor &desc)
-  {
-    desc.devURI = uriFromDevice(hiddev);
-    udev_device *dev = udev_device_get_parent(hiddev);
-    if (!dev)
-      return;
-    desc.vendorID = sysattr2int(dev, "id/vendor");
-    desc.productID = sysattr2int(dev, "id/product");
-    desc.product = sysattr2string(dev, "name", "???");
-  }
-*/
   void linuxPointingDeviceManager::processMatching(PointingDeviceData *data, SystemPointingDevice *device)
   {
     linuxPointingDevice *dev = static_cast<linuxPointingDevice *>(device);
@@ -310,21 +299,21 @@ namespace pointing {
       pdd->desc.product = "Mice";
       pdd->desc.vendor = "Virtual";
     }
-    const char *devnode = udev_device_get_devnode(pdd->evDev ? pdd->evDev : hiddev);
+    pdd->devnode = udev_device_get_devnode(pdd->evDev ? pdd->evDev : hiddev);
 
-    pdd->fd = open(devnode, O_RDONLY);
+    pdd->fd = open(pdd->devnode.c_str(), O_RDONLY);
     // Non blocking
     int flags = fcntl(pdd->fd, F_GETFL, 0);
     fcntl(pdd->fd, F_SETFL, flags | O_NONBLOCK);
     if (pdd->fd == -1) {
-      std::cerr << "linuxPointingDeviceManager::checkFoundDevice: unable to open " << devnode << std::endl;
+      std::cerr << "linuxPointingDeviceManager::checkFoundDevice: unable to open " << pdd->devnode << std::endl;
       if (pdd->evDev)
           udev_device_unref(pdd->evDev);
       delete pdd;
       return;
     }
 
-    registerDevice(devnode, pdd);
+    registerDevice(pdd->devnode, pdd);
 
     int ret = pthread_create(&pdd->thread, NULL, checkReports, pdd);
     if (ret < 0)
@@ -343,14 +332,9 @@ namespace pointing {
     if (it != devMap.end())
     {
       linuxPointingDeviceData *pdd = static_cast<linuxPointingDeviceData *>(it->second);
-      if (pthread_cancel(pdd->thread) < 0)
+      if (pthread_cancel(pdd->thread) != 0)
         perror("linuxPointingDeviceManager::checkLostDevice");
       unSeizeDevice(pdd);
-      if (pdd->fd > -1)
-        close(pdd->fd);
-      if (pdd->evDev)
-        udev_device_unref(pdd->evDev) ;
-      unregisterDevice(devnode);
     }
   }
 
@@ -383,6 +367,7 @@ namespace pointing {
 
     int dx = 0, dy = 0;
 
+    int hasRead = 0;
     while (read(pdd->fd, &ie, sizeof(input_event)) > 0)
     {
       // Read event file descriptor
@@ -413,14 +398,18 @@ namespace pointing {
         dx = (char)ptr[1];
         dy = (char)ptr[2];
       }
+      hasRead++;
     }
 
-    for (SystemPointingDevice *device : pdd->pointingList)
+    if (hasRead)
     {
-      linuxPointingDevice *dev = static_cast<linuxPointingDevice *>(device);
-      dev->registerTimestamp(now);
-      if (dev->callback)
-        dev->callback(dev->callback_context, now, dx, dy, pdd->buttons);
+      for (SystemPointingDevice *device : pdd->pointingList)
+      {
+        linuxPointingDevice *dev = static_cast<linuxPointingDevice *>(device);
+        dev->registerTimestamp(now);
+        if (dev->callback)
+          dev->callback(dev->callback_context, now, dx, dy, pdd->buttons);
+      }
     }
   }
 

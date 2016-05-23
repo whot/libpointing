@@ -105,8 +105,9 @@ unix:!macx {
              $$HERE/output/linux/xorgDisplayDevice.cpp \
              $$HERE/transferfunctions/linux/xorgSystemPointerAcceleration.cpp \
              $$HERE/input/linux/linuxPointingDeviceManager.cpp \
+             $$HERE/input/linux/XInputHelper.cpp \
              $$HERE/output/linux/xorgDisplayDeviceManager.cpp
-  LIBS    += -ludev -lpthread -lXrandr -lX11 -ldl
+  LIBS    += -ludev -lpthread -lXrandr -lX11 -ldl -lXi
 }
 
 windows {
