@@ -15,7 +15,24 @@
 
 #include <set>
 #include <string>
+#include <list>
+#include <map>
 #include <pointing/utils/URI.h>
+#include <pointing/input/SystemPointingDevice.h>
+
+#ifdef __APPLE__
+#include <IOKit/hid/IOHIDManager.h>
+#define identifier IOHIDDeviceRef
+#endif
+
+#ifdef __linux__
+#define identifier std::string
+#endif
+
+#ifdef _WIN32
+#include <windows.h>
+#define identifier HANDLE
+#endif
 
 #ifndef POINTINGDEVICEMANAGER_H
 #define POINTINGDEVICEMANAGER_H
@@ -26,15 +43,11 @@ namespace pointing
     {
         URI devURI;
 
-        int vendorID;
-        int productID;
+        int vendorID = 0;
+        int productID = 0;
 
-        std::string vendor;
-        std::string product;
-
-        PointingDeviceDescriptor()
-            :vendorID(0),productID(0),vendor("???"),product("???")
-        { }
+        std::string vendor = "???";
+        std::string product = "???";
 
         // To use set of PointingDeviceDescriptors
         bool operator < (const PointingDeviceDescriptor& rhs) const;
@@ -72,9 +85,23 @@ namespace pointing
      */
     class PointingDeviceManager
     {
+      friend class SystemPointingDevice;
+
     protected:
-        PointingDeviceManager():callback(NULL) {}
-        DeviceUpdateCallback callback;
+
+        typedef std::list<SystemPointingDevice *> PointingList;
+
+        // This struct can be extended in subclasses to add
+        // platform-specific data
+        struct PointingDeviceData
+        {
+          PointingDeviceDescriptor desc;
+          PointingList pointingList;
+        };
+
+        std::map<identifier, PointingDeviceData *> devMap;
+
+        DeviceUpdateCallback callback = NULL;
 
         virtual ~PointingDeviceManager(void) {}
         static PointingDeviceManager *singleManager;
@@ -82,12 +109,45 @@ namespace pointing
         PointingDescriptorSet descriptors;
 
         std::set<CallbackInfo> callbackInfos;
-        typedef std::set<CallbackInfo>::iterator CallbackInfoIterator;
 
         void callCallbackFunctions(PointingDeviceDescriptor &descriptor, bool wasAdded);
 
-        void addDevice(PointingDeviceDescriptor &descriptor);
-        void removeDevice(PointingDeviceDescriptor &descriptor);
+        void addDescriptor(PointingDeviceDescriptor &descriptor);
+        void removeDescriptor(PointingDeviceDescriptor &descriptor);
+
+        PointingList candidates;
+        int debugLevel = 0;
+
+        void convertAnyCandidates();
+
+        void matchCandidates();
+
+        // Should be implemented by a subclass
+        virtual void processMatching(PointingDeviceData *pdd, SystemPointingDevice *device)=0;
+
+        void activateDevice(SystemPointingDevice *device, PointingDeviceData *pdd);
+
+        /**
+         * @brief Called from subclasses
+         * @param key platform-specific unique identifier
+         */
+        //@{
+        void registerDevice(identifier key, PointingDeviceData *pdd);
+        bool unregisterDevice(identifier);
+        //@}
+
+        void printDeviceInfo(PointingDeviceData *pdd, bool add);
+
+        PointingDeviceData *findDataForDevice(SystemPointingDevice *device);
+
+        /**
+         * @brief Whenever there is a PointingDevice is created or deleted
+         * those methods are called internally from a SystemPointingDevice
+         */
+        //@{
+        virtual void addPointingDevice(SystemPointingDevice *device);
+        virtual void removePointingDevice(SystemPointingDevice *device);
+        //@}
 
     public:
 
@@ -122,7 +182,15 @@ namespace pointing
          * @param anyURI URI with any scheme
          * @return URI with only vendor and product query arguments
          */
-        static URI generalizeAny(const URI &anyURI);
+        URI generalizeAny(const URI &anyURI) const;
+
+        /**
+         * @brief generalizeSpecific Remove all arguments
+         * except for platform-specific required arguments
+         * @param URI
+         * @return plqtform specific URI
+         */
+        virtual URI generalizeSpecific(const URI &uri) const;
 
         //static void destroy();
 

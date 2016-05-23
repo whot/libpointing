@@ -20,12 +20,7 @@
 #include <pointing/input/linux/linuxPointingDevice.h>
 #include <pthread.h>
 #include <libudev.h>
-#include <string>
-#include <map>
-#include <list>
 #include <pointing/utils/HIDReportParser.h>
-
-// TODO remove includes
 
 namespace pointing {
 
@@ -38,29 +33,26 @@ namespace pointing {
     friend class PointingDeviceManager;
     friend class linuxPointingDevice;
 
-    typedef std::list<linuxPointingDevice *> PointingList;
-
-    struct PointingDeviceData
+    // Add linux-specific data
+    struct linuxPointingDeviceData : PointingDeviceData
     {
-      PointingDeviceDescriptor desc;
-      PointingList pointingList;
-      HIDReportParser parser;
-      int devID;
-      int reportLength;
+      int fd = -1;
       pthread_t thread;
+      udev_device *evDev = NULL;
+      // If there are several PointingDevice objects with seize
+      // corresponding to the same physical device
+      // Seize the device until all of them are deleted
+      int seizeCount = 0;
+      int buttons = 0;
+      std::string devnode;
     };
 
-    PointingList candidates;
-    int debugLevel;
+    struct udev *udev;
+    struct udev_monitor *monitor;
 
-    typedef std::map<std::string, PointingDeviceData *> devMap_t;
+    pthread_t thread;
 
-    devMap_t devMap;
-
-    struct udev *udev ;
-    struct udev_monitor *monitor ;
-
-    pthread_t thread ;
+    static void cleanup_handler(void *arg);
 
     /**
      * @brief This static function works in another thread.
@@ -72,20 +64,20 @@ namespace pointing {
     void enableDevice(bool value, std::string fullName);
 
     void monitor_readable();
-    void hid_readable(PointingDeviceData *pdd);
+    void readable(linuxPointingDeviceData *pdd);
+
+    bool outputsRelative(udev_device *dev);
 
     int readHIDDescriptor(int devID, HIDReportParser *parser);
-    void fillDescriptorInfo(struct udev_device *hiddev, struct udev_device *usbdev, PointingDeviceDescriptor &desc);
+    void fillDevInfo(udev_device *hiddev, linuxPointingDeviceData *pdd);
 
-    void processMatching(PointingDeviceData *pdd, linuxPointingDevice *device);
-    void convertAnyCandidates();
-    void matchCandidates();
+    void processMatching(PointingDeviceData *pdd, SystemPointingDevice *device);
 
-    void checkFoundDevice(struct udev_device *device) ;
-    void checkLostDevice(struct udev_device *device) ;
+    void checkFoundDevice(udev_device *device);
+    void checkLostDevice(udev_device *device);
 
-    void addPointingDevice(linuxPointingDevice *device);
-    void removePointingDevice(linuxPointingDevice *device);
+    void unSeizeDevice(linuxPointingDeviceData *data);
+    virtual void removePointingDevice(SystemPointingDevice *device) override;
 
     linuxPointingDeviceManager();
     ~linuxPointingDeviceManager();

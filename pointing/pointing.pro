@@ -33,6 +33,7 @@ HEADERS  = $$HERE/pointing.h \
            $$HERE/utils/PointingCursor.h \
            $$HERE/input/DummyPointingDevice.h \
            $$HERE/input/PointingDevice.h \
+           $$HERE/input/SystemPointingDevice.h \
            $$HERE/output/DisplayDevice.h \
            $$HERE/output/DummyDisplayDevice.h \
            $$HERE/transferfunctions/Composition.h \
@@ -55,6 +56,7 @@ SOURCES  = $$HERE/utils/Base64.cpp \
            $$HERE/utils/HIDReportParser.cpp \
            $$HERE/utils/PointingCursor.cpp \
            $$HERE/input/PointingDevice.cpp \
+           $$HERE/input/SystemPointingDevice.cpp \
            $$HERE/input/DummyPointingDevice.cpp \
            $$HERE/output/DisplayDevice.cpp \
            $$HERE/output/DummyDisplayDevice.cpp \
@@ -103,8 +105,9 @@ unix:!macx {
              $$HERE/output/linux/xorgDisplayDevice.cpp \
              $$HERE/transferfunctions/linux/xorgSystemPointerAcceleration.cpp \
              $$HERE/input/linux/linuxPointingDeviceManager.cpp \
+             $$HERE/input/linux/XInputHelper.cpp \
              $$HERE/output/linux/xorgDisplayDeviceManager.cpp
-  LIBS    += -ludev -lpthread -lXrandr -lX11 -lXi -ldl
+  LIBS    += -ludev -lpthread -lXrandr -lX11 -ldl -lXi
 }
 
 windows {
@@ -127,8 +130,7 @@ win32-msvc* {
              $$HERE/output/windows/winDisplayDeviceHelper.h \
              $$HERE/output/windows/winDisplayDeviceManager.h \
              $$HERE/transferfunctions/windows/winSystemPointerAcceleration.h \
-             $$HERE/input/windows/winPointingDeviceManager.h \
-             $$HERE/input/windows/winHIDDeviceDispatcher.h
+             $$HERE/input/windows/winPointingDeviceManager.h
 
   SOURCES += $$HERE/utils/windows/winGetTimeOfDay.cpp \
              $$HERE/input/windows/USB.cpp \
@@ -137,8 +139,7 @@ win32-msvc* {
              $$HERE/output/windows/winDisplayDeviceHelper.cpp \
              $$HERE/output/windows/winDisplayDeviceManager.cpp \
              $$HERE/transferfunctions/windows/winSystemPointerAcceleration.cpp \
-             $$HERE/input/windows/winPointingDeviceManager.cpp \
-             $$HERE/input/windows/winHIDDeviceDispatcher.cpp
+             $$HERE/input/windows/winPointingDeviceManager.cpp
 # TODO : Check those libraries:
   LIBS    += -L$$HERE/libs/windows -ldinput8 -ldxguid -lsetupapi -lgdi32 -lwbemuuid  -lAdvapi32 -luser32 -lHid# -lcomsupp
 }

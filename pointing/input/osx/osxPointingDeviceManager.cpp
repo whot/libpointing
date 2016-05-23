@@ -17,13 +17,11 @@
 
 #include <pointing/utils/osx/osxPlistUtils.h>
 #include <pointing/input/osx/osxHIDUtils.h>
-
 #include <stdexcept>
 
 namespace pointing {
 
 #define USE_CURRENT_RUNLOOP 0
-#define MAX(X, Y)           (((X) > (Y)) ? (X) : (Y))
 
   void fillDescriptorInfo(IOHIDDeviceRef devRef, PointingDeviceDescriptor &desc)
   {
@@ -34,70 +32,24 @@ namespace pointing {
     desc.productID = hidDeviceGetIntProperty(devRef, CFSTR(kIOHIDProductIDKey));
   }
 
-  void printDevice(IOHIDDeviceRef devRef, bool exists)
+  void osxPointingDeviceManager::processMatching(PointingDeviceData *data, SystemPointingDevice *device)
   {
-    std::cerr << (exists ? "+ " : "  ");
-    hidDebugDevice(devRef, std::cerr);
-    std::cerr << std::endl;
-  }
-
-  void osxPointingDeviceManager::convertAnyCandidates()
-  {
-    for (PointingList::iterator it = candidates.begin(); it != candidates.end(); it++)
-    {
-      osxPointingDevice *device = *it;
-      if (!device->anyURI.asString().empty())
-        device->uri = anyToSpecific(device->anyURI);
-    }
-  }
-
-  void osxPointingDeviceManager::matchCandidates()
-  {
-    convertAnyCandidates();
-    for(devMap_t::iterator it = devMap.begin(); it != devMap.end(); it++)
-    {
-      PointingDeviceData *pdd = it->second;
-
-      PointingList::iterator i = candidates.begin();
-      while (i != candidates.end())
-      {
-        osxPointingDevice *device = *i;
-        // Found matching device
-        // Move it from candidates to devMap
-        if (pdd->desc.devURI == device->uri)
-        {
-          candidates.erase(i++);
-          processMatching(pdd, device);
-        }
-        else
-          i++;
-      }
-    }
-  }
-
-  void osxPointingDeviceManager::processMatching(PointingDeviceData *pdd, osxPointingDevice *device)
-  {
-    pdd->pointingList.push_back(device);
-    device->devRef = pdd->devRef;
-    // FIXME Maybe look all the candidates for seize option
-    // since only the first matching is used to establish the connection
-    IOOptionBits inOptions = device->seize ? kIOHIDOptionsTypeSeizeDevice : kIOHIDOptionsTypeNone;
-    if (IOHIDDeviceOpen(device->devRef, inOptions) != kIOReturnSuccess)
+    osxPointingDevice *dev = static_cast<osxPointingDevice *>(device);
+    osxPointingDeviceData *pdd = static_cast<osxPointingDeviceData *>(data);
+    IOOptionBits inOptions = dev->seize ? kIOHIDOptionsTypeSeizeDevice : kIOHIDOptionsTypeNone;
+    dev->cpi = hidGetPointingResolution(pdd->devRef);
+    dev->hz = 1.0 / hidGetReportInterval(pdd->devRef);
+    if (IOHIDDeviceOpen(pdd->devRef, inOptions) != kIOReturnSuccess)
       throw std::runtime_error("IOHIDDeviceOpen failed");
   }
 
   void osxPointingDeviceManager::AddDevice(void *sender, IOReturn, void *, IOHIDDeviceRef devRef)
   {
     osxPointingDeviceManager *self = (osxPointingDeviceManager *)sender;
-    PointingDeviceData *pdd = new PointingDeviceData;
-    self->devMap[devRef] = pdd;
-    pdd->devRef = devRef;
+    osxPointingDeviceData *pdd = new osxPointingDeviceData;
     fillDescriptorInfo(devRef, pdd->desc);
-    self->addDevice(pdd->desc);
-    self->matchCandidates();
-
-    if (self->debugLevel > 0)
-      printDevice(devRef, pdd->pointingList.size());
+    pdd->devRef = devRef;
+    self->registerDevice(devRef, pdd);
 
     CFDataRef descriptor = (CFDataRef)IOHIDDeviceGetProperty(devRef, CFSTR(kIOHIDReportDescriptorKey));
     if (descriptor) {
@@ -122,26 +74,13 @@ namespace pointing {
   void osxPointingDeviceManager::RemoveDevice(void *sender, IOReturn, void *, IOHIDDeviceRef devRef)
   {
     osxPointingDeviceManager *self = (osxPointingDeviceManager *)sender;
-    devMap_t::iterator it = self->devMap.find(devRef);
-    if (it != self->devMap.end())
+    if (self->unregisterDevice(devRef))
     {
-      PointingDeviceData *pdd = it->second;
-      self->removeDevice(pdd->desc);
-      for (PointingList::iterator it = pdd->pointingList.begin(); it != pdd->pointingList.end(); it++)
-      {
-        osxPointingDevice *device = *it;
-        device->devRef = NULL;
-        IOHIDDeviceClose(devRef, kIOHIDOptionsTypeNone);
-        self->candidates.push_back(device);
-      }
-      delete pdd;
-      self->devMap.erase(it);
+      IOHIDDeviceClose(devRef, kIOHIDOptionsTypeNone);
     }
-    self->matchCandidates();
   }
 
   osxPointingDeviceManager::osxPointingDeviceManager()
-    :debugLevel(0)
   {
     manager = IOHIDManagerCreate(kCFAllocatorDefault, kIOHIDOptionsTypeNone);
     if (!manager)
@@ -164,50 +103,28 @@ namespace pointing {
     IOHIDManagerScheduleWithRunLoop(manager, runLoop, runLoopMode);
   }
 
-  void osxPointingDeviceManager::addPointingDevice(osxPointingDevice *device)
-  {
-    debugLevel = MAX(debugLevel, device->debugLevel);
-    candidates.push_back(device);
-    matchCandidates();
-  }
-
-  void osxPointingDeviceManager::removePointingDevice(osxPointingDevice *device)
-  {
-    URI uri = device->uri;
-    for(devMap_t::iterator it = devMap.begin(); it != devMap.end(); it++)
-    {
-      PointingDeviceData *pdd = it->second;
-      if (pdd->desc.devURI == uri)
-      {
-        pdd->pointingList.remove(device);
-        break;
-      }
-    }
-    candidates.remove(device);
-  }
-
   void osxPointingDeviceManager::hidReportCallback(void *context, IOReturn, void *dev, IOHIDReportType, uint32_t, uint8_t *report, CFIndex)
   {
     TimeStamp::inttime timestamp = TimeStamp::createAsInt();
 
-    osxPointingDeviceManager *self = (osxPointingDeviceManager*)context;
+    osxPointingDeviceManager *self = static_cast<osxPointingDeviceManager *>(context);
     IOHIDDeviceRef devRef = (IOHIDDeviceRef)dev;
 
-    devMap_t::iterator it = self->devMap.find(devRef);
+    auto it = self->devMap.find(devRef);
 
     if (it != self->devMap.end())
     {
-      PointingDeviceData *pdd = it->second;
+      osxPointingDeviceData *pdd = static_cast<osxPointingDeviceData *>(it->second);
       if (pdd->parser.setReport(report))
       {
         int dx = 0, dy = 0, buttons = 0;
         pdd->parser.getReportData(&dx, &dy, &buttons) ;
-        for (PointingList::iterator pit = pdd->pointingList.begin(); pit != pdd->pointingList.end(); pit++)
+        for (SystemPointingDevice *device : pdd->pointingList)
         {
-          osxPointingDevice *device = *pit;
-          device->registerTimestamp(timestamp);
-          if (device->callback)
-            device->callback(device->callback_context, timestamp, dx, dy, buttons);
+          osxPointingDevice *dev = static_cast<osxPointingDevice *>(device);
+          dev->registerTimestamp(timestamp);
+          if (dev->callback)
+            dev->callback(dev->callback_context, timestamp, dx, dy, buttons);
         }
       }
     }

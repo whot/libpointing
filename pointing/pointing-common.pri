@@ -12,6 +12,8 @@ macx {
   # QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.10
 }
 
+QMAKE_CXXFLAGS += -std=c++11
+
 # remove possible other optimization flags
 QMAKE_CXXFLAGS_RELEASE -= -O
 QMAKE_CXXFLAGS_RELEASE -= -O1
