@@ -71,6 +71,7 @@ HEADERS = [
     "pointing/transferfunctions/SubPixelFunction.h",
     "pointing/transferfunctions/Interpolation.h",
     "pointing/input/PointingDeviceManager.h",
+    "pointing/input/SystemPointingDevice.h",
     # --------------------------------------------------------------
     # Linux specifics
     # --------------------------------------------------------------
@@ -107,6 +108,7 @@ SOURCES = [
     "pointing/transferfunctions/SubPixelFunction.cpp",
     "pointing/transferfunctions/Interpolation.cpp",
     "pointing/input/PointingDeviceManager.cpp",
+    "pointing/input/SystemPointingDevice.cpp",
     # --------------------------------------------------------------
     # Linux specifics
     # --------------------------------------------------------------
@@ -115,6 +117,7 @@ SOURCES = [
     "pointing/transferfunctions/linux/xorgSystemPointerAcceleration.cpp",
     "pointing/input/linux/linuxPointingDeviceManager.cpp",
     "pointing/output/linux/xorgDisplayDeviceManager.cpp",
+    "pointing/input/linux/XInputHelper.cpp",
     ]
 
 SOURCES_XTRA = []

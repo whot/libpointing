@@ -83,6 +83,7 @@ HEADERS = [
     "pointing/transferfunctions/SubPixelFunction.h",
     "pointing/transferfunctions/Interpolation.h",
     "pointing/input/PointingDeviceManager.h",
+    "pointing/input/SystemPointingDevice.h",
     # --------------------------------------------------------------
     # OS X specifics
     # --------------------------------------------------------------
@@ -124,6 +125,7 @@ SOURCES = [
     "pointing/transferfunctions/SubPixelFunction.cpp",
     "pointing/transferfunctions/Interpolation.cpp",
     "pointing/input/PointingDeviceManager.cpp",
+    "pointing/input/SystemPointingDevice.cpp",
     # --------------------------------------------------------------
     # OS X specifics
     # --------------------------------------------------------------
