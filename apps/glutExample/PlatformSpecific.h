@@ -28,7 +28,7 @@
 #include <GL/glx.h>
 #endif
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <windows.h>
 #include <GL/gl.h>
 #include <GL/glut.h>
@@ -43,7 +43,7 @@ setSwapInterval(int n) {
   typedef void (*swapIntervalExtFunc) (int) ;
   swapIntervalExtFunc swapIntervalEXT = NULL ;
   char *extensions = (char*)glGetString(GL_EXTENSIONS) ;
-#ifdef WIN32
+#ifdef _WIN32
   if (strstr(extensions,"WGL_EXT_swap_control"))
     swapIntervalEXT = (swapIntervalExtFunc)wglGetProcAddress("wglSwapIntervalEXT") ;
 #endif

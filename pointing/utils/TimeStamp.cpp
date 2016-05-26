@@ -147,7 +147,7 @@ namespace pointing {
     memset(&aTm, 0, sizeof(aTm)) ;
     /*int nbitems = */ sscanf(s.c_str(),"%4d-%2d-%2dT%2d:%2d:%2d.%9lldZ",
 			      &aTm.tm_year,&aTm.tm_mon,&aTm.tm_mday,
-			      &aTm.tm_hour,&aTm.tm_min,&aTm.tm_sec,
+                  &aTm.tm_hour,&aTm.tm_min,&aTm.tm_sec,
 			      &frac) ;
 #if 0
     std::cerr << nbitems << " items parsed: "
@@ -232,7 +232,7 @@ namespace pointing {
 
   TimeStamp::inttime
   TimeStamp::getLocalUTCOffset(void) {
-#ifdef WIN32
+#ifdef _WIN32
     std::cerr << "Warning: TimeStamp::getLocalUTCOffset is not implemented" << std::endl ;
     return 0 ;
 #else

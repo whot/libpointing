@@ -12,8 +12,12 @@ macx {
   # QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.10
 }
 
-!win32-msvc* {
+unix {
     QMAKE_CXXFLAGS += -std=c++11
+}
+
+win32-g++ {
+    QMAKE_CXXFLAGS += -std=gnu++0x
 }
 
 # remove possible other optimization flags

@@ -37,7 +37,7 @@ GetCursorPosition(void) {
   CGPoint loc = CGEventGetLocation(CGEventCreate(NULL)) ;
   return QPoint(loc.x, loc.y) ;
 #endif
-#ifdef WIN32
+#ifdef _WIN32
   POINT loc;
   GetCursorPos(&loc) ;
   return QPoint(loc.x, loc.y) ;

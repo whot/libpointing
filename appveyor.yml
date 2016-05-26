@@ -1,11 +1,22 @@
 version: 0.9.{build}
-configuration:
-- Debug
-- Release
-platform:
-- x86
-- x64
-build:
-  project: pointing/pointing.vcxproj
-  parallel: true
-  verbosity: minimal
+
+init:
+  # Gather some basic build environment details.
+  - dir "%ProgramFiles(x86)%\Microsoft Visual Studio *" /b /o
+  - dir "%ProgramFiles%\Microsoft SDKs\Windows" /b /o
+  - dir "%SystemDrive%\Qt\5.*" /b /o
+
+install:
+  - set QTDIR=C:\Qt\5.6\msvc2015_64
+  - set PATH=%PATH%;%QTDIR%\bin
+
+build_script:
+  - cd pointing
+  - qmake pointing.pro
+  - nmake
+  - cd ..
+
+test_script:
+  - cd tests
+  - qmake tests.pro
+  - nmake check -s
