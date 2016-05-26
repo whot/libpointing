@@ -18,7 +18,7 @@ VPATH += ..
 include(pointing-common.pri)
 
 HERE = $$PWD
-    
+
 HEADERS  = $$HERE/pointing.h \
            $$HERE/utils/Base64.h \
            $$HERE/utils/ByteOrder.h \

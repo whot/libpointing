@@ -30,6 +30,9 @@
 #else
 #define timegm _mkgmtime
 #endif
+#ifndef timegm
+#define timegm(arg) (mktime(arg) - timezone)
+#endif
 
 
 namespace pointing {
@@ -126,12 +129,6 @@ namespace pointing {
 
   TimeStamp::inttime 
   TimeStamp::string2int(std::string s) {
-
-#ifdef __MINGW32__
-  (void)s; // Not used
-  std::cerr << "Warning: TimeStamp::string2int is not implemented" << std::endl ;
-  return 0 ;
-#else
     bool isPureInt = true ;
     inttime t = 0 ;
     for (unsigned int i=0; i<s.size(); ++i) {
@@ -167,16 +164,10 @@ namespace pointing {
     aTm.tm_mon-- ;
 
     return (inttime)timegm(&aTm)*one_second + frac ;
-#endif
   }
 
   std::string
   TimeStamp::int2string(TimeStamp::inttime t) {
-#ifdef __MINGW32__
-  (void)t; // Not used
-  std::cerr << "Warning: TimeStamp::int2string is not implemented" << std::endl ;
-  return "" ;
-#else
     time_t sec = (time_t)(t/one_second) ;
     inttime frac = t - (inttime)(sec)*one_second ;
     if (t<0 && frac!=0) {
@@ -217,7 +208,6 @@ namespace pointing {
 #endif
 
     return (inttime)timegm(&tm)*one_second + (inttime)frac ;
-#endif
   }
 
   void
