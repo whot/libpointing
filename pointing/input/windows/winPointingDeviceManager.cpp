@@ -16,6 +16,7 @@
 #include <pointing/input/windows/winPointingDeviceManager.h>
 #include <pointing/input/windows/winPointingDevice.h>
 #include <pointing/input/windows/USB.h>
+#include <math.h>
 
 using namespace std;
 
@@ -61,7 +62,7 @@ namespace pointing
 
     winPointingDeviceManager::winPointingDeviceManager()
     {
-        hThreads[0]=CreateThread(NULL, NULL, Loop, LPVOID(this), 0, &dwThreadId);
+        hThreads[0]=CreateThread(NULL, 0, Loop, LPVOID(this), 0, &dwThreadId);
         while(run==THREAD_UNDEFINED){Sleep(10);}
     }
 
@@ -238,7 +239,7 @@ namespace pointing
           PointingDeviceData *pdd = static_cast<PointingDeviceData *>(it->second);
           for (SystemPointingDevice *device : pdd->pointingList)
           {
-              winPointingDevice *dev = static_cast<winPointingDevice *>(device);
+            winPointingDevice *dev = static_cast<winPointingDevice *>(device);
             // To prevent calling the callback function for simple touchs
             // we verify that there is a button clicked or a displacement
             // Otherwise for some touchpads the callback is called even if you

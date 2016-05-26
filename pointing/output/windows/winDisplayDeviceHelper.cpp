@@ -207,10 +207,8 @@ namespace pointing {
     DWORD    cbSecurityDescriptor; // size of security descriptor
     FILETIME ftLastWriteTime;      // last write time
 
-    DWORD retCode;
-
     // Get the class name and the value count.
-    retCode = RegQueryInfoKey(
+    RegQueryInfoKey(
 			      hKey,                    // key handle
 			      achClass,                // buffer for class name
 			      &cchClassName,           // size of class string

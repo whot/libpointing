@@ -38,7 +38,7 @@ namespace pointing {
 
     DeviceId(unsigned int vid, unsigned int pid):vid(vid),pid(pid){}
 
-    bool DeviceId::operator < (const DeviceId& rhs) const
+    bool operator < (const DeviceId& rhs) const
     {
         if (vid < rhs.vid) return true;
         if (vid > rhs.vid) return false;
@@ -124,7 +124,7 @@ namespace pointing {
           GENERIC_WRITE,
           FILE_SHARE_READ|FILE_SHARE_WRITE,
           NULL, OPEN_EXISTING,
-          NULL, NULL);
+          0, NULL);
 
         free(piddd);
 

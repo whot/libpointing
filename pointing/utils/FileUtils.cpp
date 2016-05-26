@@ -46,7 +46,9 @@
 #include <windows.h>
 #define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
 #define SLASH '\\'
+#ifndef PATH_MAX
 #define PATH_MAX 256
+#endif
 #endif
 
 namespace pointing {
@@ -117,12 +119,12 @@ namespace pointing {
             (LPCSTR) &moduleHeadersPath,
             &hm))
     {
-      fprintf(stderr, "GetModuleHandle returned %d\n", GetLastError());
+      std::cerr << "GetModuleHandle returned " << GetLastError() << std::endl;
       return false;
     }
     if (!GetModuleFileNameA(hm, path, PATH_MAX))
     {
-      fprintf(stderr, "GetModuleFileName returned %d\n", GetLastError());
+      std::cerr << "GetModuleFileNameA returned " << GetLastError() << std::endl;
       return false;
     }
     // Remove \\?\ from the beginning on VMWare

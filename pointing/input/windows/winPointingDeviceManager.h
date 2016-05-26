@@ -18,6 +18,7 @@
 
 #include <pointing/input/PointingDeviceManager.h>
 #include <windows.h>
+#include <pointing/input/windows/winPointingDevice.h>
 #include <vector>
 
 namespace pointing

@@ -32,7 +32,7 @@ namespace pointing
   winDisplayDeviceManager::winDisplayDeviceManager():msgWndw(0)
   {
     scanDisplays();
-    loopThread = CreateThread(NULL, NULL, Loop, LPVOID(this), 0, &dwThreadId);
+    loopThread = CreateThread(NULL, 0, Loop, LPVOID(this), 0, &dwThreadId);
   }
 
   DWORD WINAPI winDisplayDeviceManager::Loop(LPVOID lpvThreadParam)

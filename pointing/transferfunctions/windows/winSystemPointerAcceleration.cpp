@@ -115,8 +115,8 @@ void winSystemPointerAcceleration::setTransferFunction(URI &funcURI)
     if (RegOpenKeyEx(HKEY_CURRENT_USER, TEXT("Control Panel\\Mouse"), 0, KEY_SET_VALUE,
                      &tableKey) == ERROR_SUCCESS)
     {
-        RegSetValueEx(tableKey, TEXT("SmoothMouseXCurve"), NULL, REG_BINARY, (const BYTE *)vRegIn, size);
-        RegSetValueEx(tableKey, TEXT("SmoothMouseYCurve"), NULL, REG_BINARY, (const BYTE *)vRegOut, size);
+        RegSetValueEx(tableKey, TEXT("SmoothMouseXCurve"), 0, REG_BINARY, (const BYTE *)vRegIn, size);
+        RegSetValueEx(tableKey, TEXT("SmoothMouseYCurve"), 0, REG_BINARY, (const BYTE *)vRegOut, size);
         RegCloseKey(tableKey);
     }
 
@@ -221,12 +221,12 @@ void winSystemPointerAcceleration::setTransferFunction(URI &funcURI)
     }
     int accValue = sliderPosition*2+10;
     if (accValue == 0) accValue = 1;
-    if (!SystemParametersInfo(SPI_SETMOUSESPEED, NULL, (void*)accValue, SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE))
+    if (!SystemParametersInfo(SPI_SETMOUSESPEED, 0, (void*)accValue, SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE))
       std::cerr << "winSystemPointerAcceleration could not set the parameters to the system" << std::endl;
 
     int param[3] = {6,10, 1};
     if (!enhancePointerPrecision) param[2] = 0;
-    SystemParametersInfo(SPI_SETMOUSE, NULL, param, SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
+    SystemParametersInfo(SPI_SETMOUSE, 0, param, SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
   }
 
   winSystemPointerAcceleration::~winSystemPointerAcceleration() {

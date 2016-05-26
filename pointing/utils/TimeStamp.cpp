@@ -128,6 +128,7 @@ namespace pointing {
   TimeStamp::string2int(std::string s) {
 
 #ifdef __MINGW32__
+  (void)s; // Not used
   std::cerr << "Warning: TimeStamp::string2int is not implemented" << std::endl ;
   return 0 ;
 #else
@@ -172,8 +173,9 @@ namespace pointing {
   std::string
   TimeStamp::int2string(TimeStamp::inttime t) {
 #ifdef __MINGW32__
+  (void)t; // Not used
   std::cerr << "Warning: TimeStamp::int2string is not implemented" << std::endl ;
-  return 0 ;
+  return "" ;
 #else
     time_t sec = (time_t)(t/one_second) ;
     inttime frac = t - (inttime)(sec)*one_second ;
