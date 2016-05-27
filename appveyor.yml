@@ -5,17 +5,21 @@ environment:
     - QTDIR: C:\Qt\5.6\msvc2013_64
       name: Win64
       VSVER: 12.0
+      PT: v120
     - QTDIR: C:\Qt\5.6\msvc2013
       name: Win32
       VSVER: 12.0
+      PT: v120
     - QTDIR: C:\Qt\5.3\mingw482_32
       name: mingw
     - QTDIR: C:\Qt\5.6\msvc2015_64
       name: Win64
       VSVER: 14.0
+      PT: v140
     - QTDIR: C:\Qt\5.6\msvc2015
       name: Win32
       VSVER: 14.0
+      PT: v140
     - QTDIR: C:\Qt\5.6\mingw49_32
       name: mingw
 
@@ -42,7 +46,8 @@ before_build:
 build_script:
   - cd %APPVEYOR_BUILD_FOLDER%\pointing
   - '%make%'
-  - if not %name%==mingw msbuild /m /p:Configuration=%CONFIGURATION% /p:Platform=%ARCH% pointing.vcxproj /t:Clean;Build
+  # Also, build vcxproj (without qt)
+  - if not %name%==mingw msbuild /m /p:Configuration=%CONFIGURATION% /p:Platform=%ARCH% pointing.vcxproj /p:PlatformToolset=%PT% /t:Rebuild
 
 test_script:
   - cd %APPVEYOR_BUILD_FOLDER%\tests
