@@ -1,49 +1,50 @@
 version: 0.9.{build}
 
-init:
-  # Gather some basic build environment details.
-  - dir "%ProgramFiles(x86)%\Microsoft Visual Studio *" /b /o
-  - dir "%ProgramFiles%\Microsoft SDKs\Windows" /b /o
-  - dir "%SystemDrive%\Qt\5.*" /b /o
-
 environment:
-   # Visual Studio 2015
   matrix:
-    - QTDIR: C:\Qt\5.6\mingw49_32
     - QTDIR: C:\Qt\5.6\msvc2013_64
+      name: Win64
       VSVER: 12.0
     - QTDIR: C:\Qt\5.6\msvc2013
+      name: Win32
       VSVER: 12.0
+    - QTDIR: C:\Qt\5.3\mingw482_32
+      name: mingw
     - QTDIR: C:\Qt\5.6\msvc2015_64
+      name: Win64
       VSVER: 14.0
     - QTDIR: C:\Qt\5.6\msvc2015
+      name: Win32
       VSVER: 14.0
+    - QTDIR: C:\Qt\5.6\mingw49_32
+      name: mingw
 
-#configuration:
-#  - debug
-#  - release
+configuration:
+  - debug
+  - release
 
 install:
   - '%QTDIR%\bin\qtenv2.bat'
   - qmake -v
   - if %QTDIR:_64=%==%QTDIR% ( set ARCH=x86 ) else set ARCH=x64
-  - if %QTDIR:msvc=%==%QTDIR% g++ --version
-  - if %QTDIR:msvc=%==%QTDIR% set make=mingw32-make.exe
-  - if %QTDIR:msvc=%==%QTDIR% %make% --version
-  - if not %QTDIR:msvc=%==%QTDIR% call "%ProgramFiles(x86)%\Microsoft Visual Studio %VSVER%\VC\vcvarsall.bat" %ARCH%
-  - if not %QTDIR:msvc=%==%QTDIR% set make=nmake.exe
-  - if not %QTDIR:msvc=%==%QTDIR% %make% /? > nul
+  - if %name%==mingw set make=mingw32-make.exe
+  - if %name%==mingw g++ --version
+  - if %name%==mingw %make% --version
+  - if not %name%==mingw call "%ProgramFiles(x86)%\Microsoft Visual Studio %VSVER%\VC\vcvarsall.bat" %ARCH%
+  - if not %name%==mingw set make=nmake.exe
+  - if not %name%==mingw %make% /? > nul
 
 before_build:
-  - if %QTDIR:msvc=%==%QTDIR% set PATH=%PATH%;%QTDIR%\bin;C:\MinGW\bin;C:\Program Files (x86)\Windows Kits\10\Include\10.0.10240.0\shared
+  - if %name%==mingw set PATH=%PATH%;%QTDIR%\bin;C:\MinGW\bin;C:\Program Files (x86)\Windows Kits\10\Include\10.0.10240.0\shared
   - cd %APPVEYOR_BUILD_FOLDER%\pointing
   - qmake -Wall -Wlogic -Wparser CONFIG+=%CONFIGURATION%
 
 build_script:
   - cd %APPVEYOR_BUILD_FOLDER%\pointing
   - '%make%'
+  - if not %name%==mingw msbuild /m /p:Configuration=%CONFIGURATION% /p:Platform=%ARCH% pointing.vcxproj /t:Clean;Build
 
 test_script:
   - cd %APPVEYOR_BUILD_FOLDER%\tests
   - qmake -Wall -Wlogic -Wparser CONFIG+=%CONFIGURATION%
-  - '%make% check TESTARGS=-silent'
+  - '%make% check -s'
