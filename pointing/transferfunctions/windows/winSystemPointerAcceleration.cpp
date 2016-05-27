@@ -187,9 +187,13 @@ void winSystemPointerAcceleration::setTransferFunction(URI &funcURI)
 		*winVersion = "10";
 
 #else
+#ifndef IsWindows10OrGreater
+    // TODO Temporary fix
+#define IsWindows10OrGreater() IsWindowsVersionOrGreater(10, 0, 0)
+#endif
 	if (IsWindows10OrGreater())
 		*winVersion = "10";
-	else if (IsWindows8Point1OrGreater())
+    else if (IsWindows8Point1OrGreater())
 		*winVersion = "8.1";
 	else if (IsWindows8OrGreater())
 		*winVersion = "8.0";
