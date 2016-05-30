@@ -100,6 +100,7 @@ unix:!macx {
              $$HERE/output/linux/xorgDisplayDevice.h \
              $$HERE/transferfunctions/linux/xorgSystemPointerAcceleration.h \
              $$HERE/input/linux/linuxPointingDeviceManager.h \
+             $$HERE/input/linux/XInputHelper.h \
              $$HERE/output/linux/xorgDisplayDeviceManager.h
   SOURCES += $$HERE/input/linux/linuxPointingDevice.cpp \
              $$HERE/output/linux/xorgDisplayDevice.cpp \

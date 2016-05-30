@@ -20,8 +20,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
+#include <pointing/input/linux/XInputHelper.h>
 #include <X11/Xatom.h>
-#include <X11/extensions/XInput.h>
 
 namespace pointing
 {

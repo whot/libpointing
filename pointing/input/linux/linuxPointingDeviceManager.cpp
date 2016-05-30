@@ -17,7 +17,7 @@
 #include <pointing/utils/URI.h>
 
 #include <unistd.h>
-#include <pointing/input/linux/XInputHelper.cpp>
+#include <pointing/input/linux/XInputHelper.h>
 
 #include <linux/input.h>
 #include <linux/hidraw.h>

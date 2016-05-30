@@ -29,6 +29,7 @@ CPPFLAGS = [
     "-fPIC",
     ]
 CXXFLAGS = [
+    "-std=c++11",
     ]
 
 LDFLAGS = [
@@ -80,6 +81,7 @@ HEADERS = [
     "pointing/transferfunctions/linux/xorgSystemPointerAcceleration.h",
     "pointing/input/linux/linuxPointingDeviceManager.h",
     "pointing/output/linux/xorgDisplayDeviceManager.h",
+    "pointing/input/linux/XInputHelper.h",
     ]
 
 SOURCES = [
