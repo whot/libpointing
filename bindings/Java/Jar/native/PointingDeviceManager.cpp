@@ -34,8 +34,9 @@ jobject objectForDescriptor(JNIEnv *env, const PointingDeviceDescriptor &desc)
   if (ctor == NULL)
     std::cerr << "Error : cannot find constructor" << std::endl;
   
-  jobject feature = env->NewObject(descClass, ctor, env->NewStringUTF(desc.devURI.c_str()),
-                                   env->NewStringUTF(desc.name.c_str()), desc.vendorID, desc.productID);
+  jobject feature = env->NewObject(descClass, ctor, env->NewStringUTF(desc.devURI.asString().c_str()),
+                                   env->NewStringUTF(desc.vendor.c_str()), env->NewStringUTF(desc.product.c_str()),
+                                   desc.vendorID, desc.productID);
   return feature;
 }
 

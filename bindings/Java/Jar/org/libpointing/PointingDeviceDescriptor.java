@@ -17,14 +17,16 @@ package org.libpointing;
 public class PointingDeviceDescriptor {
 
 	public String devUri;
-	public String name;
+	public String vendor;
+    public String product;
     public int vendorID;
     public int productID;
 
-    public PointingDeviceDescriptor(String sDevUri, String sName, int sVendorID, int sProductID)
+    public PointingDeviceDescriptor(String sDevUri, String sVendor, String sProduct, int sVendorID, int sProductID)
     {
     	devUri = sDevUri;
-    	name = sName;
+    	vendor = sVendor;
+        product = sProduct;
     	vendorID = sVendorID;
     	productID = sProductID;
     }

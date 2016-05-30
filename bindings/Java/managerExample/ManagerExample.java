@@ -26,7 +26,8 @@ public class ManagerExample {
 	    {
 	        //System.out.println(Arrays.toString(getDeviceList()));
 	    	System.out.println("Device added:");
-	        System.out.println("Device " + desc.name + " was added with URI: " + desc.devUri);
+	        System.out.println("Device " + desc.vendor + " - " + desc.product);
+	        System.out.print(" was added with URI: " + desc.devUri);
 	        System.out.println("Vendor Id: " + desc.vendorID + " Product Id: " + desc.productID + "\n");
 	    }
 
@@ -34,7 +35,8 @@ public class ManagerExample {
 	    {
 	        //System.out.println(Arrays.toString(getDeviceList()));
 	    	System.out.println("Device removed:");
-	        System.out.println("Device " + desc.name + " was removed with URI: " + desc.devUri + "\n");
+	        System.out.println("Device " + desc.vendor + " - " + desc.product);
+	        System.out.print(" was removed with URI: " + desc.devUri + "\n");
 	    }
 	}
 	
@@ -47,7 +49,7 @@ public class ManagerExample {
     // It is better to use callbacks, not getDeviceList
     // Because devices are found with delay, not immediately
     for (PointingDeviceDescriptor desc : manager.getDeviceList()) {
-        System.out.println(desc.name);
+        System.out.println(desc.vendor + " - " + desc.product);
     }
     //System.out.println(Arrays.toString(manager.getDeviceList()));
 
