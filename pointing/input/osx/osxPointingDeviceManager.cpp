@@ -23,6 +23,19 @@ namespace pointing {
 
 #define USE_CURRENT_RUNLOOP 0
 
+  bool isNotPointingDevice(IOHIDDeviceRef devRef)
+  {
+    // List of the URI substrings for which the corresponding devices will be ignored
+    io_name_t ignored[] = { "Keyboard", "AppleUSBTCButtons", "BNBTrackpadDevice", "AppleMikeyHIDDriver", "AppleUSBMultitouchDriver" };
+    io_name_t className;
+    IOObjectGetClass(IOHIDDeviceGetService(devRef), className);
+    const int n = sizeof(ignored) / sizeof(ignored[0]);
+    for (int i = 0; i < n; i++)
+      if (strstr(className, ignored[i]) != NULL)
+        return true;
+    return false;
+  }
+
   void fillDescriptorInfo(IOHIDDeviceRef devRef, PointingDeviceDescriptor &desc)
   {
     desc.devURI = hidDeviceURI(devRef);
@@ -45,6 +58,9 @@ namespace pointing {
 
   void osxPointingDeviceManager::AddDevice(void *sender, IOReturn, void *, IOHIDDeviceRef devRef)
   {
+    // Prevent other HID devices from being detected
+    if (isNotPointingDevice(devRef))
+      return;
     osxPointingDeviceManager *self = (osxPointingDeviceManager *)sender;
     osxPointingDeviceData *pdd = new osxPointingDeviceData;
     fillDescriptorInfo(devRef, pdd->desc);
