@@ -19,22 +19,13 @@ var pointing = require("libpointing");
 
 var manager = new pointing.PointingDeviceManager();
 var dManager = new pointing.DisplayDeviceManager();
+
 /*
 app.use('/static', express.static('static'));
 app.get('/', function(req, res) {
   res.sendFile(__dirname + '/index.html');
 });
 */
-
-function uriIsOK(deviceDescriptor) {
-  var ls = ['Keyboard', 'osxhid://0/AppleMikeyHIDDriver', 'osxhid:/USB/1d182000/AppleUSBMultitouchDriver', 'BNBTrackpadDevice', 'AppleUSBTCButtons'];
-  for (var i = 0; i < ls.length; i++) {
-    if (deviceDescriptor.devURI.indexOf(ls[i]) != -1) {
-      return false;
-    }
-  }
-  return true;
-}
 
 function logPointingDevice(desc, wasAdded) {
   console.log(new Date().toString() + ': device ' + (wasAdded ? 'added' : 'removed'));
@@ -68,10 +59,7 @@ io.on('connection', function(socket) {
   });
 
   socket.on('pointingDeviceList', function() {
-  	var ls = manager.deviceList.filter(function(deviceDescriptor) {
-      return uriIsOK(deviceDescriptor);
-    });
-    socket.emit('pointingDeviceList', ls);
+    socket.emit('pointingDeviceList', manager.deviceList);
   });
 
   socket.on('displayDeviceList', function() {

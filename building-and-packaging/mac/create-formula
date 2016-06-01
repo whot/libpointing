@@ -49,7 +49,12 @@ to_subs = 'sha256 ' + '"' + sha256_val + '"'
 replaced = re.sub('sha256 ".*"', to_subs, replaced, 1)
 
 os.chdir(HOMEBREW_REPO)
+os.system("git remote add upstream https://github.com/Homebrew/homebrew-core.git")
+os.system("git fetch upstream")
+os.system("git checkout -b libpointing origin/master")
+os.system("git rebase upstream/master") # Update with upstream
 os.system("git checkout -b libpointing origin/libpointing")
+os.system("git rebase origin/master") # Update with master
 print "Making changes to the formula description in " + HOMEBREW_REPO_FILE
 with open(os.path.join(HERE, HOMEBREW_REPO_FILE), "w") as ruby_file:
     ruby_file.write(replaced)
