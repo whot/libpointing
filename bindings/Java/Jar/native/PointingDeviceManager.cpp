@@ -30,7 +30,7 @@ jobject objectForDescriptor(JNIEnv *env, const PointingDeviceDescriptor &desc)
   jclass descClass = env->FindClass("org/libpointing/PointingDeviceDescriptor");
   if (descClass == NULL)
     std::cerr << "Error : cannot find class PointingDeviceDescriptor" << std::endl;
-  jmethodID ctor = env->GetMethodID(descClass, "<init>", "(Ljava/lang/String;Ljava/lang/String;II)V");
+  jmethodID ctor = env->GetMethodID(descClass, "<init>", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V");
   if (ctor == NULL)
     std::cerr << "Error : cannot find constructor" << std::endl;
   
