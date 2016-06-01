@@ -36,7 +36,7 @@ namespace pointing {
       URI::getQueryArg(uri.query, "product", &productID);
     }
     else
-      this->uri = man->generalizeSpecific(uri);
+      this->uri.generalize();
   }
 
   bool SystemPointingDevice::isActive(void) const

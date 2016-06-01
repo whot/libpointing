@@ -53,8 +53,6 @@ namespace pointing
 
         void processMatching(PointingDeviceData *, SystemPointingDevice *);
 
-        virtual URI generalizeSpecific(const URI &uri) const override;
-
         winPointingDeviceManager();
         ~winPointingDeviceManager();
     };

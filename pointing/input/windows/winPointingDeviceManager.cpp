@@ -29,20 +29,15 @@ namespace pointing
 
     URI uriForHandle(HANDLE h)
     {
-        std::stringstream ss;
-        if (h)
-            ss << "winhid:?handle=0x" << std::hex
-               << std::noshowbase << PtrToUint(h);
-        else
-            ss << "any:";
-        return URI(ss.str());
-    }
-
-    URI winPointingDeviceManager::generalizeSpecific(const URI &uri) const
-    {
-      unsigned int handle;
-      URI::getQueryArg(uri.query, "handle", &handle);
-      return uriForHandle((HANDLE)handle);
+      URI result;
+      if (h)
+      {
+        result.scheme = "winhid";
+        result.path = "/" + std::to_string(PtrToUint(h));
+      }
+      else
+        result.scheme = "any";
+      return result;
     }
 
     bool winPointingDeviceManager::fillDescriptorInfo(HANDLE h, PointingDeviceDescriptor &desc)
@@ -172,7 +167,6 @@ namespace pointing
 
   void winPointingDeviceManager::processMatching(PointingDeviceManager::PointingDeviceData *, SystemPointingDevice *)
   {
-      // Nothing here
   }
 
   // Static function that process the rawinput events and let the others processed by the default processor.

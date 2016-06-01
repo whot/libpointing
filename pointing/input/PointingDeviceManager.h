@@ -184,14 +184,6 @@ namespace pointing
          */
         URI generalizeAny(const URI &anyURI) const;
 
-        /**
-         * @brief generalizeSpecific Remove all arguments
-         * except for platform-specific required arguments
-         * @param URI
-         * @return plqtform specific URI
-         */
-        virtual URI generalizeSpecific(const URI &uri) const;
-
         //static void destroy();
 
         /**

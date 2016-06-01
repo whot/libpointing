@@ -143,13 +143,6 @@ namespace pointing
         return result;
     }
 
-    URI PointingDeviceManager::generalizeSpecific(const URI &uri) const
-    {
-        URI result = uri;
-        result.generalize();
-        return result;
-    }
-
     /*void PointingDeviceManager::destroy()
   {
       delete singleManager;
@@ -189,6 +182,7 @@ namespace pointing
             while (i != candidates.end())
             {
                 SystemPointingDevice *device = *i;
+
                 // Found matching device
                 // Move it from candidates to devMap
                 if (pdd->desc.devURI == device->uri)
