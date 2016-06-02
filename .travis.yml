@@ -34,7 +34,6 @@ install:
           sudo apt-get install -qq libudev-dev ;
           sudo apt-get install -qq xorg-dev ;
           sudo apt-get install -qq freeglut3-dev ;
-          sudo pip install requests ;
       elif [ $TRAVIS_OS_NAME == osx ] ; then
           brew ls | grep -wq qt || brew install qt ;
       fi
@@ -51,7 +50,8 @@ script:
 before_deploy:
     - |
       if [ $TRAVIS_OS_NAME == linux ] ; then
-          ./building-and-packaging/linux/create-deb
+          sudo pip install --upgrade requests ;
+          ./building-and-packaging/linux/create-deb ;
       elif [ $TRAVIS_OS_NAME == osx ] ; then
           ./building-and-packaging/mac/create-formula
       fi
