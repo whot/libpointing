@@ -24,7 +24,6 @@ environment:
       cname: mingw
 
 configuration:
-  - debug
   - release
 
 install:
@@ -54,16 +53,25 @@ test_script:
   - qmake -Wall -Wlogic -Wparser CONFIG+=%CONFIGURATION%
   - '%make% check -s'
 
-before_deploy:
-  - 7z a libpointing-%APPVEYOR_REPO_TAG_NAME%-%cname%-%CONFIGURATION%.zip pointing\**\*.h
-  - 7z a libpointing-%APPVEYOR_REPO_TAG_NAME%-%cname%-%CONFIGURATION%.zip pointing-echomouse\*
-  - 7z a libpointing-%APPVEYOR_REPO_TAG_NAME%-%cname%-%CONFIGURATION%.zip pointing-xorg\*
-  - if %cname%==mingw 7z a libpointing-%APPVEYOR_REPO_TAG_NAME%-%cname%-%CONFIGURATION%.zip pointing\%CONFIGURATION%\libpointing.a
-  - if not %cname%==mingw 7z a libpointing-%APPVEYOR_REPO_TAG_NAME%-%cname%-%CONFIGURATION%.zip pointing\%CONFIGURATION%\pointing.lib
+after_build:
+  - cd %APPVEYOR_BUILD_FOLDER%
+  - 7z a libpointing-%APPVEYOR_REPO_TAG_NAME%-%cname%.zip pointing-echomouse\*
+  - 7z a libpointing-%APPVEYOR_REPO_TAG_NAME%-%cname%.zip pointing\*.h
+  - 7z a libpointing-%APPVEYOR_REPO_TAG_NAME%-%cname%.zip pointing\**\*.h
+  - 7z a libpointing-%APPVEYOR_REPO_TAG_NAME%-%cname%.zip pointing\input\windows\*.h
+  - 7z a libpointing-%APPVEYOR_REPO_TAG_NAME%-%cname%.zip pointing\output\windows\*.h
+  - 7z a libpointing-%APPVEYOR_REPO_TAG_NAME%-%cname%.zip pointing\transferfunctions\windows\*.h
+  - 7z a libpointing-%APPVEYOR_REPO_TAG_NAME%-%cname%.zip pointing\utils\windows\*.h
+  - 7z a libpointing-%APPVEYOR_REPO_TAG_NAME%-%cname%.zip pointing-xorg\**\*.h
+  - if %cname%==mingw 7z a libpointing-%APPVEYOR_REPO_TAG_NAME%-%cname%.zip %APPVEYOR_BUILD_FOLDER%\pointing\%CONFIGURATION%\libpointing.a
+  - if %cname%==Win64-2013 7z a libpointing-%APPVEYOR_REPO_TAG_NAME%-%cname%.zip %APPVEYOR_BUILD_FOLDER%\pointing\%ARCH%\%CONFIGURATION%\pointing.lib
+  - if %cname%==Win64-2015 7z a libpointing-%APPVEYOR_REPO_TAG_NAME%-%cname%.zip %APPVEYOR_BUILD_FOLDER%\pointing\%ARCH%\%CONFIGURATION%\pointing.lib
+  - if %cname%==Win32-2013 7z a libpointing-%APPVEYOR_REPO_TAG_NAME%-%cname%.zip %APPVEYOR_BUILD_FOLDER%\pointing\%CONFIGURATION%\pointing.lib
+  - if %cname%==Win32-2015 7z a libpointing-%APPVEYOR_REPO_TAG_NAME%-%cname%.zip %APPVEYOR_BUILD_FOLDER%\pointing\%CONFIGURATION%\pointing.lib
 
 artifacts:
-  - path: libpointing-%APPVEYOR_REPO_TAG_NAME%-%cname%-%CONFIGURATION%.zip
-    name: archive
+  - path: '*.zip'
+    name: libpointing-archive
 
 deploy:
     provider: GitHub
@@ -72,4 +80,8 @@ deploy:
       secure: 1UNYGNi45HjR94wYYU6mMM1n9M2VE0gIVcyEjjJgixN1zkWxd16B/Bwz6PDksRv3
     on:
       appveyor_repo_tag: true
-    artifact: archive
+
+notifications:
+  on_build_success: false
+  on_build_failure: false
+  on_build_status_changed: false
