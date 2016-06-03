@@ -25,18 +25,16 @@ public class ManagerExample {
 	    public void deviceAdded(PointingDeviceDescriptor desc)
 	    {
 	        //System.out.println(Arrays.toString(getDeviceList()));
-	    	System.out.println("Device added:");
 	        System.out.println("Device " + desc.vendor + " - " + desc.product);
-	        System.out.print(" was added with URI: " + desc.devUri);
-	        System.out.println("Vendor Id: " + desc.vendorID + " Product Id: " + desc.productID + "\n");
+	        System.out.println("  was added with URI: " + desc.devUri);
+	        System.out.println("  with vendor Id: " + desc.vendorID + " and product Id: " + desc.productID + "\n");
 	    }
 
 	    public void deviceRemoved(PointingDeviceDescriptor desc)
 	    {
 	        //System.out.println(Arrays.toString(getDeviceList()));
-	    	System.out.println("Device removed:");
 	        System.out.println("Device " + desc.vendor + " - " + desc.product);
-	        System.out.print(" was removed with URI: " + desc.devUri + "\n");
+	        System.out.print("  was removed with URI: " + desc.devUri + "\n");
 	    }
 	}
 	

@@ -14,8 +14,8 @@ var leftInput, rightInput;
 
 manager.addDeviceUpdateCallback(function(deviceDescriptor, wasAdded) {
   if (wasAdded) {
-    $('#player1list').append($('<option>', {value:deviceDescriptor.devURI, text:deviceDescriptor.name}));
-    $('#player2list').append($('<option>', {value:deviceDescriptor.devURI, text:deviceDescriptor.name}));
+    $('#player1list').append($('<option>', {value:deviceDescriptor.devURI, text:deviceDescriptor.vendor.concat(" - ", deviceDescriptor.product)}));
+    $('#player2list').append($('<option>', {value:deviceDescriptor.devURI, text:deviceDescriptor.vendor.concat(" - ", deviceDescriptor.product)}));
   }
 });
 
