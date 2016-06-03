@@ -72,7 +72,7 @@ namespace pointing {
       const UInt8 *bytes = CFDataGetBytePtr(descriptor);
       CFIndex length = CFDataGetLength(descriptor);
       if (!pdd->parser.setDescriptor(bytes, length))
-        std::cerr << "osxPointingDeviceManager::AddDevice: unable to parse the HID report descriptor" << std::endl;
+        std::cerr << "    osxPointingDeviceManager::AddDevice: unable to parse the HID report descriptor" << std::endl;
       else
         IOHIDDeviceRegisterInputReportCallback(devRef, pdd->report, sizeof(pdd->report),
                                                hidReportCallback, self);

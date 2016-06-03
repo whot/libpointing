@@ -6,6 +6,7 @@ Makefile
 *.o
 *.app
 *.a
+*.class
 *.prl
 *.pyc
 *.obj
@@ -55,3 +56,4 @@ tests/pointingdevice/pointingdevice
 tests/*/target_wrapper.sh
 bindings/Node/cache
 bindings/Node/nw
+bindings/Java/Jar/native/org_libpointing_*
