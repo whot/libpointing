@@ -3,21 +3,21 @@ version: 0.9.{build}
 environment:
   matrix:
     - QTDIR: C:\Qt\5.6\msvc2013
-      cname: Win32-2013
+      cname: Win32-VS2013
       VSVER: 12.0
       PT: v120
     - QTDIR: C:\Qt\5.3\mingw482_32
       cname: mingw
     - QTDIR: C:\Qt\5.6\msvc2013_64
-      cname: Win64-2013
+      cname: Win64-VS2013
       VSVER: 12.0
       PT: v120
     - QTDIR: C:\Qt\5.6\msvc2015_64
-      cname: Win64-2015
+      cname: Win64-VS2015
       VSVER: 14.0
       PT: v140
     - QTDIR: C:\Qt\5.6\msvc2015
-      cname: Win32-2015
+      cname: Win32-VS2015
       VSVER: 14.0
       PT: v140
     - QTDIR: C:\Qt\5.6\mingw49_32
@@ -64,10 +64,10 @@ after_build:
   - 7z a libpointing-%APPVEYOR_REPO_TAG_NAME%-%cname%.zip pointing\utils\windows\*.h
   - 7z a libpointing-%APPVEYOR_REPO_TAG_NAME%-%cname%.zip pointing-xorg\**\*.h
   - if %cname%==mingw 7z a libpointing-%APPVEYOR_REPO_TAG_NAME%-%cname%.zip %APPVEYOR_BUILD_FOLDER%\pointing\%CONFIGURATION%\libpointing.a
-  - if %cname%==Win64-2013 7z a libpointing-%APPVEYOR_REPO_TAG_NAME%-%cname%.zip %APPVEYOR_BUILD_FOLDER%\pointing\%ARCH%\%CONFIGURATION%\pointing.lib
-  - if %cname%==Win64-2015 7z a libpointing-%APPVEYOR_REPO_TAG_NAME%-%cname%.zip %APPVEYOR_BUILD_FOLDER%\pointing\%ARCH%\%CONFIGURATION%\pointing.lib
-  - if %cname%==Win32-2013 7z a libpointing-%APPVEYOR_REPO_TAG_NAME%-%cname%.zip %APPVEYOR_BUILD_FOLDER%\pointing\%CONFIGURATION%\pointing.lib
-  - if %cname%==Win32-2015 7z a libpointing-%APPVEYOR_REPO_TAG_NAME%-%cname%.zip %APPVEYOR_BUILD_FOLDER%\pointing\%CONFIGURATION%\pointing.lib
+  - if %cname%==Win64-VS2013 7z a libpointing-%APPVEYOR_REPO_TAG_NAME%-%cname%.zip %APPVEYOR_BUILD_FOLDER%\pointing\%ARCH%\%CONFIGURATION%\pointing.lib
+  - if %cname%==Win64-VS2015 7z a libpointing-%APPVEYOR_REPO_TAG_NAME%-%cname%.zip %APPVEYOR_BUILD_FOLDER%\pointing\%ARCH%\%CONFIGURATION%\pointing.lib
+  - if %cname%==Win32-VS2013 7z a libpointing-%APPVEYOR_REPO_TAG_NAME%-%cname%.zip %APPVEYOR_BUILD_FOLDER%\pointing\%CONFIGURATION%\pointing.lib
+  - if %cname%==Win32-VS2015 7z a libpointing-%APPVEYOR_REPO_TAG_NAME%-%cname%.zip %APPVEYOR_BUILD_FOLDER%\pointing\%CONFIGURATION%\pointing.lib
 
 artifacts:
   - path: '*.zip'
