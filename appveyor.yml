@@ -75,7 +75,7 @@ artifacts:
 
 deploy:
     provider: GitHub
-    description: 'Release by AppVeyor'
+    description: 'Release %APPVEYOR_REPO_TAG_NAME%'
     auth_token:
       secure: 1UNYGNi45HjR94wYYU6mMM1n9M2VE0gIVcyEjjJgixN1zkWxd16B/Bwz6PDksRv3
     on:
