@@ -53,7 +53,11 @@ namespace pointing {
     dev->cpi = hidGetPointingResolution(pdd->devRef);
     dev->hz = 1.0 / hidGetReportInterval(pdd->devRef);
     if (IOHIDDeviceOpen(pdd->devRef, inOptions) != kIOReturnSuccess)
-      throw std::runtime_error("IOHIDDeviceOpen failed");
+    {
+      std::cerr << "IOHIDDeviceOpen failed" << std::endl;
+      if (inOptions == kIOHIDOptionsTypeSeizeDevice)
+        std::cerr << "Could not seize " << device->getURI() << std::endl;
+    }
   }
 
   void osxPointingDeviceManager::AddDevice(void *sender, IOReturn, void *, IOHIDDeviceRef devRef)
@@ -72,7 +76,10 @@ namespace pointing {
       const UInt8 *bytes = CFDataGetBytePtr(descriptor);
       CFIndex length = CFDataGetLength(descriptor);
       if (!pdd->parser.setDescriptor(bytes, length))
-        std::cerr << "    osxPointingDeviceManager::AddDevice: unable to parse the HID report descriptor" << std::endl;
+      {
+        if (self->debugLevel > 1)
+          std::cerr << "    osxPointingDeviceManager::AddDevice: unable to parse the HID report descriptor" << std::endl;
+      }
       else
         IOHIDDeviceRegisterInputReportCallback(devRef, pdd->report, sizeof(pdd->report),
                                                hidReportCallback, self);
