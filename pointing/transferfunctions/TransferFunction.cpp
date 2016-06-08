@@ -134,11 +134,18 @@ namespace pointing {
     if (uri.scheme=="system") {
 #ifdef __APPLE__
       osxSystemPointerAcceleration sysAcc ;
-      double setting = sysAcc.get(uri.opaque.c_str()) ;
+      const char *target = uri.opaque.c_str();
+#ifndef POINTING_OSX
+      // Interpolated function
+      // was obtained only for mouse
+      if (!strlen(target))
+        target = "mouse";
+#endif
+      double setting = sysAcc.get(target) ;
       if (!uri.query.empty()) {
         URI::getQueryArg(uri.query, "setting", &setting) ;
-        sysAcc.set(setting, uri.opaque.c_str()) ;
-        setting = sysAcc.get(uri.opaque.c_str()) ;
+        sysAcc.set(setting, target) ;
+        setting = sysAcc.get(target) ;
       }
       uri.scheme = "osx" ;
       std::stringstream q ;
