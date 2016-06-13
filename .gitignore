@@ -48,6 +48,7 @@ qrc_*.cpp
 apps/consoleExample/consoleExample
 apps/glutExample/glutExample
 apps/qtExample/qtExample
+apps/controlMouse/controlMouse
 bindings/Node/cache
 tests/interpolation/interpolation
 tests/subpixel/subpixel
