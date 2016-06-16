@@ -1,5 +1,7 @@
 # Tenth position of the slider with the value 4
 
+max-counts: 98
+
 # counts: pixels
 0: 0
 1: 2.81667

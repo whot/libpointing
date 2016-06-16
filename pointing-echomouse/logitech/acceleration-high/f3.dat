@@ -1,5 +1,7 @@
 # Third position of the slider with the value -3
 
+max-counts: 127
+
 # counts: pixels
 0: 0
 1: 0.35
