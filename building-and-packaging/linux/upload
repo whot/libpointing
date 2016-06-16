@@ -1,0 +1,22 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
+# building-and-packaging/linux/upload
+#
+# Initial software
+# Authors: Izzatbek Mukhanov
+# Copyright © Inria
+
+import os
+import sys
+import requests
+
+if 'LIBPOINTING_ORG_KEY' in os.environ:
+    # Upload to libpointing.org
+    url = 'http://libpointing.org/data/upload-distrib.php'
+    files = {'deb': open("debian/" + sys.argv[1], 'rb'), 'packages': open('debian/Packages.gz', 'rb')}
+    data = {'token': os.environ['LIBPOINTING_ORG_KEY'], 'type': 'debian'}
+    r = requests.post(url, files=files, data=data)
+    print(r.text)
+else:
+    print("LIBPOINTING_ORG_KEY variable is not defined!")

@@ -46,11 +46,12 @@ before_script:
 script:
     - make
     - make check -s
+    - sudo apt-get install -y python3-requests ;
+    - python3 ./building-and-packaging/linux/create-deb ;
 
 before_deploy:
     - |
       if [ $TRAVIS_OS_NAME == linux ] ; then
-          sudo pip install --upgrade requests ;
           ./building-and-packaging/linux/create-deb ;
       elif [ $TRAVIS_OS_NAME == osx ] ; then
           ./building-and-packaging/mac/create-formula
