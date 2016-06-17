@@ -33,11 +33,13 @@ Libpointing is an open-source cross-platform library written in C++ that provide
 } 
 ```
 
-The official website is available [here](http://libpointing.org/).
-
 ## Installation
 
-Visit [installation page](http://libpointing.org/user-guide/install/) or build it from source.
+Visit [installation page](https://github.com/INRIA/libpointing/wiki/Installation) or build it from source.
+
+## Documentation
+
+Please visit our [wiki](https://github.com/INRIA/libpointing/wiki).
 
 ## Features
 
@@ -107,7 +109,7 @@ Once you correctly installed *libpointing* and linked it to your project, simply
 
 * [Nicolas Roussel](http://interaction.lille.inria.fr/~roussel)
 * [Géry Casiez](http://cristal.univ-lille.fr/~casiez/)
-* Izzatbek Mukhanov
+* [Izzatbek Mukhanov](https://www.linkedin.com/in/izzat-mukhanov-26a93b63)
 
 ## License
 
