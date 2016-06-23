@@ -7,3 +7,7 @@
 TEMPLATE = subdirs
 
 SUBDIRS += consoleExample glutExample qtExample
+
+windows {
+    SUBDIRS += transferFunctionEditor
+}

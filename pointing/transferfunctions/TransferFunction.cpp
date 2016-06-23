@@ -227,7 +227,7 @@ namespace pointing {
       else
       {
         int slider = DEFAULT_WINDOWS_SLIDER;
-        int epp = DEFAULT_WINDOWS_EPP;
+        bool epp = DEFAULT_WINDOWS_EPP;
         URI::getQueryArg(uri.query, "slider", &slider);
         URI::addQueryArg(uri.query, "f", slider);
         URI::getQueryArg(uri.query, "epp", &epp);
