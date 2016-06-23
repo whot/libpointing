@@ -6,3 +6,8 @@ This application uses libpointing to:
 * create new transfer functions
 * display and compare them
 * apply any transfer function to the system
+
+#### Dependencies
+
+Please compile [QCustomPlot](http://qcustomplot.com/).
+Then modify INCLUDEPATH and LIBS in transferFunctionEditor.pro
