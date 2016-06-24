@@ -11,3 +11,7 @@ SUBDIRS += consoleExample glutExample qtExample
 windows {
     SUBDIRS += transferFunctionEditor
 }
+
+macx {
+  SUBDIRS += controlMouse
+}

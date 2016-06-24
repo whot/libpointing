@@ -127,6 +127,8 @@ void FunctionChanger::setDxDy(double dx, double dy, CGMouseButton buttons)
 
 #if DIRECT_UPDATE_MODE == 0
   updateOnScreen(buttons);
+#else
+   (void)buttons;
 #endif
 }
 

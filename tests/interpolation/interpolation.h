@@ -191,8 +191,8 @@ private slots:
       TransferFunction *f = TransferFunction::create("windows:?slider=2&epp=true", 0, 0);
       int dxP, dyP;
       f->applyi(13398, 44530, &dxP, &dyP);
-      QCOMPARE(dxP, 26796);
-      QCOMPARE(dyP, 89060);
+      QCOMPARE(dxP, 48407);
+      QCOMPARE(dyP, 160890);
       delete f;
     }
 
