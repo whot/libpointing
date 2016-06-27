@@ -95,8 +95,11 @@ namespace pointing
       else
         highInd[i] = highInd[i + 1];
     }
+    if (space == InterpolationSpace::VelocityGain)
+      TableToCoefficients();
     Interpolate(lowInd, highInd);
-    TableToCoefficients();
+    if (space == InterpolationSpace::VelocityVelocity)
+      TableToCoefficients();
   }
 
   void Interpolation::loadFromDirectory()
@@ -155,7 +158,7 @@ namespace pointing
   }
 
   Interpolation::Interpolation(URI &uri, PointingDevice *input, DisplayDevice *output)
-    :originalInput(0),originalOutput(0),normalize(false),tableAcc(1, 0.)
+    :tableAcc(1, 0.)
   {
     if (uri.scheme!="interp")
       cerr << "Interpolation warning: scheme is '" << uri.scheme << "', should be 'interp'" << endl ;
@@ -165,6 +168,10 @@ namespace pointing
 
     URI::getQueryArg(uri.query, "f", &curAcc);
     URI::getQueryArg(uri.query, "normalize", &normalize);
+    string spaceStr;
+    URI::getQueryArg(uri.query, "space", &spaceStr);
+    if (spaceStr == "vv")
+      space = InterpolationSpace::VelocityVelocity;
 
     directory = uri.opaque!="" ? uri.opaque : uri.path ;
     string configDictPath = directory + "/config.dict";
@@ -295,6 +302,13 @@ namespace pointing
     URI::addQueryArg(uri.query, "f", curAcc);
     if (expanded || normalize)
       URI::addQueryArg(uri.query, "normalize", normalize);
+    if (expanded)
+    {
+      string spaceStr = "vg";
+      if (space == InterpolationSpace::VelocityVelocity)
+        spaceStr = "vv";
+      URI::addQueryArg(uri.query, "space", spaceStr);
+    }
     return uri;
   }
 

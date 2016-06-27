@@ -96,8 +96,8 @@ private slots:
                            "11: 22\n");
         int dxP, dyP;
         func->clearState();
-        func->applyi(2, 0, &dxP, &dyP);
-        QCOMPARE(dxP, 3);
+        func->applyi(3, 0, &dxP, &dyP);
+        QCOMPARE(dxP, 4);
         func->clearState();
         func->applyi(9, 0, &dxP, &dyP);
         QCOMPARE(dxP, 18);

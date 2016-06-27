@@ -24,6 +24,8 @@
 
 namespace pointing
 {
+  enum class InterpolationSpace { VelocityGain, VelocityVelocity };
+
   /**
    * @brief The Interpolation class is subclass of TransferFunction which can interpolate
    * between given values in the table.
@@ -39,10 +41,12 @@ namespace pointing
 
     PointingDevice *pointingDevice;
     DisplayDevice *displayDevice;
-    PointingDevice *originalInput;
-    DisplayDevice *originalOutput;
+    PointingDevice *originalInput = nullptr;
+    DisplayDevice *originalOutput = nullptr;
 
-    bool normalize;
+    InterpolationSpace space = InterpolationSpace::VelocityGain;
+
+    bool normalize = false;
     std::string directory;
     std::string curAcc;
 
