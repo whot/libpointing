@@ -7,18 +7,18 @@
     <x>0</x>
     <y>0</y>
     <width>1026</width>
-    <height>431</height>
+    <height>497</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Transfer Function Editor</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="QCustomPlot" name="customPlot" native="true">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>10</y>
+      <y>70</y>
       <width>541</width>
       <height>331</height>
      </rect>
@@ -104,38 +104,12 @@
      <rect>
       <x>655</x>
       <y>340</y>
-      <width>75</width>
+      <width>141</width>
       <height>23</height>
      </rect>
     </property>
     <property name="text">
-     <string>Apply</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_2">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>350</y>
-      <width>131</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Current System Function:</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="systemFunctionLabel">
-    <property name="geometry">
-     <rect>
-      <x>140</x>
-      <y>350</y>
-      <width>411</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Default Windows</string>
+     <string>Apply To The System</string>
     </property>
    </widget>
    <widget class="QPushButton" name="customButton">
@@ -154,16 +128,16 @@
    <widget class="QWidget" name="widgetCustom" native="true">
     <property name="geometry">
      <rect>
-      <x>830</x>
-      <y>80</y>
-      <width>120</width>
-      <height>80</height>
+      <x>820</x>
+      <y>50</y>
+      <width>91</width>
+      <height>91</height>
      </rect>
     </property>
     <widget class="QLabel" name="labelName">
      <property name="geometry">
       <rect>
-       <x>10</x>
+       <x>30</x>
        <y>10</y>
        <width>47</width>
        <height>13</height>
@@ -193,7 +167,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>50</y>
+       <y>60</y>
        <width>75</width>
        <height>23</height>
       </rect>
@@ -202,6 +176,52 @@
       <string>Add</string>
      </property>
     </widget>
+   </widget>
+   <widget class="QComboBox" name="comboBoxInput">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>10</y>
+      <width>341</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>80</x>
+      <y>12</y>
+      <width>121</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Plots for Pointing Device</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButtonChangeInputURI">
+    <property name="geometry">
+     <rect>
+      <x>477</x>
+      <y>38</y>
+      <width>75</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Change URI</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEditInput">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>40</y>
+      <width>251</width>
+      <height>20</height>
+     </rect>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">

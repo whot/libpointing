@@ -62,6 +62,7 @@ class MainWindow : public QMainWindow
   pointing::PointingDevice *input = NULL;
   pointing::DisplayDevice *output = NULL;
   static pointing::TransferFunction *func;
+  std::list<pointing::PointingDevice *> inputs;
 
   std::string curName;
 
@@ -78,6 +79,10 @@ class MainWindow : public QMainWindow
   void saveTransferFunction();
 
   QCPGraph *customGraph = nullptr;
+  QLabel *systemFunctionLabel;
+
+  void setupInput();
+  void updateInput();
 
 public:
   explicit MainWindow(QWidget *parent = 0);
@@ -98,6 +103,12 @@ private slots:
   void on_applyButton_clicked();
 
   void on_customButton_clicked();
+
+  void on_pushButtonAdd_clicked();
+
+  void on_pushButtonChangeInputURI_clicked();
+
+  void on_comboBoxInput_currentIndexChanged(int index);
 
 private:
   Ui::MainWindow *ui;

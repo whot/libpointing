@@ -18,6 +18,7 @@
 #include <iostream>
 #include <pointing/utils/FileUtils.h>
 #include <pointing/utils/ConfigDict.h>
+#include <pointing/input/PointingDeviceManager.h>
 #include <fstream>
 
 using namespace std;
@@ -31,12 +32,16 @@ void MainWindow::recomputeFunc(TF &tf)
 {
   tf.points = vector<double>(128, 0.);
   TransferFunction *f = TransferFunction::create(tf.uri, input, output);
+  TimeStamp::inttime now = TimeStamp::createAsInt();
+  double updateFreq = input->getUpdateFrequency();
+
+  int deltaMs = 1000. / updateFreq;
+
   for (unsigned i = 1; i < tf.points.size(); i++)
   {
     f->clearState();
     double x, y;
-    // FIXME Timestamp + delta
-    f->applyd(i, 0, &x, &y);
+    f->applyd(i, 0, &x, &y, now + i * deltaMs * TimeStamp::one_millisecond);
     double speedInput = i / input->getResolution() * ipm * input->getUpdateFrequency();
     double speedOutput = x / output->getResolution() * ipm * input->getUpdateFrequency();
     double gain = speedOutput / speedInput;
@@ -52,6 +57,7 @@ void MainWindow::recomputeFunc(TF &tf)
 
 void MainWindow::recomputeAllFuncs()
 {
+  maxGain = 0;
   for (TF &tf : allTfs)
     recomputeFunc(tf);
 }
@@ -61,7 +67,9 @@ list<TF> MainWindow::getDefaultTfs()
   list<TF> result;
   string dir = moduleHeadersPath() + "\\pointing-echomouse\\";
   result.push_back(TF("Windows", "windows:?", TFTypes::Echomouse, "windows\\epp"));
+  result.push_back(TF("Windows without EPP", "windows:?epp=false", TFTypes::Echomouse, "windows\\no-epp"));
   result.push_back(TF("Sigmoid", "sigmoid:?", TFTypes::Default));
+  result.push_back(TF("Linux", "xorg:?", TFTypes::Default));
   result.push_back(TF("Darwin 10", "", TFTypes::Echomouse, "darwin-10"));
   result.push_back(TF("Darwin 14", "", TFTypes::Echomouse, "darwin-14"));
   result.push_back(TF("Darwin 15", "osx:?", TFTypes::Echomouse, "darwin-15"));
@@ -138,6 +146,7 @@ bool MainWindow::isInLibpointing(string path)
 
 void MainWindow::updateList()
 {
+  ui->listWidget->clear();
   string outputDir = moduleHeadersPath() + "\\pointing-echomouse";
   wstring woutputDir = wstring(outputDir.begin(), outputDir.end());
   list<string> all = getDirectoryFunctions(woutputDir, L"");
@@ -164,18 +173,45 @@ void MainWindow::updateList()
   }
 }
 
+void MainWindow::setupInput()
+{
+  PointingDeviceManager *pdm = PointingDeviceManager::get();
+  for (PointingDescriptorIterator it = pdm->begin(); it != pdm->end(); it++)
+  {
+    PointingDeviceDescriptor desc = *it;
+    QString text = QString::fromStdString(desc.vendor + " - " + desc.product);
+    ui->comboBoxInput->addItem(text, QString::fromStdString(desc.devURI.asString()));
+    PointingDevice *dev = PointingDevice::create(desc.devURI.asString());
+    inputs.push_back(dev);
+    dev->setPointingCallback(pointingCallback, nullptr);
+  }
+
+  if (inputs.size())
+  {
+    input = inputs.front();//PointingDevice::create("winhid:/65611?debugLevel=1&cpi=400&hz=1000");
+    updateInput();
+  }
+  else
+  {
+    QMessageBox msgBox;
+    msgBox.setText("No Pointing device was found");
+    msgBox.setStandardButtons(QMessageBox::Ok);
+    msgBox.setDefaultButton(QMessageBox::Ok);
+    msgBox.exec();
+  }
+}
+
 MainWindow::MainWindow(QWidget *parent) :
   QMainWindow(parent),
   ui(new Ui::MainWindow)
 {
   ui->setupUi(this);
+  setupInput();
 
-  input = PointingDevice::create("winhid:/65595?debugLevel=1&cpi=400&hz=1000");
   output = DisplayDevice::create("any:?");
   curName = "Windows";
 
   SetWindowsHookEx(WH_MOUSE_LL, MouseHookProc, NULL, 0);
-  input->setPointingCallback(pointingCallback, nullptr);
 
   allTfs = getDefaultTfs();
   updateList();
@@ -189,19 +225,20 @@ MainWindow::MainWindow(QWidget *parent) :
   // give the axes some labels:
   ui->customPlot->xAxis->setLabel("motor speed (m/s)");
   ui->customPlot->yAxis->setLabel("gain");
-  // set axes ranges, so we see all data:
-  double maxInputSpeed = 128. / input->getResolution() * ipm * input->getUpdateFrequency();
-  ui->customPlot->xAxis->setRange(0, maxInputSpeed);
   connect(ui->customPlot, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(mousePress(QMouseEvent*)));
   connect(ui->customPlot, SIGNAL(mouseDoubleClick(QMouseEvent*)), this, SLOT(mouseDoubleClick(QMouseEvent*)));
   ui->widgetCustom->setVisible(false);
+  systemFunctionLabel = new QLabel("Current System Function: Windows Default");
+  ui->statusBar->addWidget(systemFunctionLabel);
+  ui->customPlot->replot();
 }
 
 MainWindow::~MainWindow()
 {
   delete func;
   delete output;
-  delete input;
+  for (PointingDevice *inp : inputs)
+    delete inp;
   delete ui;
 }
 
@@ -222,6 +259,7 @@ void MainWindow::mouseDoubleClick(QMouseEvent *event)
 
     qDebug() << inputSpeed << gain;
     customGraph->addData(inputSpeed, gain);
+    customGraph->data();
     ui->customPlot->replot();
   }
 }
@@ -245,13 +283,13 @@ void MainWindow::changeShowPlot(TF &tf)
   else
     customPlot->graph(tf.plotIndex)->clearData();
   customPlot->yAxis->setRange(0, maxGain);
-  customPlot->replot();
 }
 
 void MainWindow::replot()
 {
   for (TF & tf : allTfs)
     changeShowPlot(tf);
+  ui->customPlot->replot();
 }
 
 TF *MainWindow::findFunc(string fName)
@@ -271,6 +309,7 @@ void MainWindow::on_listWidget_itemClicked(QListWidgetItem *item)
   {
     tf->shown = (item->checkState() == Qt::Checked);
     changeShowPlot(*tf);
+    ui->customPlot->replot();
   }
   ui->lineEdit->setText(QString::fromStdString(tf->uri));
   ui->lineEdit->setCursorPosition(0);
@@ -309,6 +348,7 @@ void MainWindow::on_changeButton_clicked()
     tf->uri = ui->lineEdit->text().toLocal8Bit().constData();
     recomputeFunc(*tf);
     changeShowPlot(*tf);
+    ui->customPlot->replot();
   }
 }
 
@@ -344,20 +384,57 @@ void MainWindow::on_applyButton_clicked()
   if (tf)
   {
     func = TransferFunction::create(tf->uri, input, output);
-    ui->systemFunctionLabel->setText(QString::fromStdString(func->getURI().asString()));
+    systemFunctionLabel->setText("Current System Function: " + QString::fromStdString(func->getURI().asString()));
   }
 }
 
-void MainWindow::saveTransferFunction()
+void MainWindow::on_customButton_clicked()
 {
-  /*
+  if (ui->widgetCustom->isVisible())
+  {
+    ui->customPlot->removeGraph(customGraph);
+    ui->widgetCustom->setVisible(false);
+    ui->customButton->setText("Custom");
+    replot();
+    customGraph = nullptr;
+  }
+  else
+  {
+    customGraph = ui->customPlot->addGraph();
+    customGraph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, 5));
+    ui->widgetCustom->setVisible(true);
+    ui->customButton->setText("Cancel");
+  }
+}
+
+void MainWindow::on_pushButtonAdd_clicked()
+{
+  // Convert points on the plot to counts and pixels
+  map<int, double> resPoints;
+  resPoints[0] = 0.;
+  for (auto it = customGraph->data()->begin(); it != customGraph->data()->end(); it++)
+  {
+    int counts = it->key * input->getResolution() / ipm / input->getUpdateFrequency();
+    if (counts > 0 && counts < 128)
+    {
+      double pixels = it->value * it->key * output->getResolution() / ipm / input->getUpdateFrequency();
+      if (pixels > 0)
+      {
+        resPoints[counts] = pixels;
+      }
+    }
+  }
+
+  // Create files
   ConfigDict cd;
   cd.set("libpointing-input", input->getURI(true, true));
   cd.set("libpointing-output", output->getURI(true));
   cd.set("functions", "f");
   cd.set("default-function", "f");
 
-  string outputDir = moduleHeadersPath() + "/pointing-echomouse/" + ui->lineEdit->text().toStdString();
+  string name = ui->lineEditCustom->text().toStdString();
+
+  string outputDir = moduleHeadersPath() + "\\pointing-echomouse\\" + name;
 
   if (CreateDirectoryA(outputDir.c_str(), NULL) ||
       ERROR_ALREADY_EXISTS == GetLastError())
@@ -372,17 +449,10 @@ void MainWindow::saveTransferFunction()
     string dat = outputDir + "/f.dat";
     file.open(dat.c_str(), ios::out | ios::trunc);
 
-    double coef = output->getResolution() / 0.0254f / input->getUpdateFrequency();
-
-    int maxCount = 0;
-    for (unsigned i = 0; i < ui->graphicsView->customPoints.size(); i++)
+    int maxCount = resPoints.rbegin()->first;
+    for (auto &kv : resPoints)
     {
-      double point = ui->graphicsView->customPoints[i];
-      if (point >= 0)
-      {
-        file << i << ": " << point * coef << endl;
-        maxCount = i;
-      }
+      file << kv.first << ": " << kv.second << endl;
     }
 
     file << "max-counts: " <<  maxCount << endl;
@@ -393,22 +463,56 @@ void MainWindow::saveTransferFunction()
   {
     cerr << "Failed to create the directory" << endl;
   }
-  */
+
+  // Add new transfer function into the list
+  ui->customPlot->removeGraph(customGraph);
+  ui->widgetCustom->setVisible(false);
+  ui->customButton->setText("Custom");
+  customGraph = nullptr;
+  updateList();
+  replot();
 }
 
-void MainWindow::on_customButton_clicked()
+void MainWindow::updateInput()
 {
-  if (ui->widgetCustom->isVisible())
+  ui->lineEditInput->setText(QString::fromStdString(input->getURI(true).asString()));
+  double maxInputSpeed = 128. / input->getResolution() * ipm * input->getUpdateFrequency();
+  ui->customPlot->xAxis->setRange(0, maxInputSpeed);
+}
+
+void MainWindow::on_pushButtonChangeInputURI_clicked()
+{
+  for (PointingDevice *inp : inputs)
   {
-    ui->customPlot->removeGraph(customGraph);
-    ui->widgetCustom->setVisible(false);
-    ui->customButton->setText("Custom");
-    customGraph = nullptr;
+    if (inp->getURI().path == input->getURI().path)
+    {
+      inputs.remove(input);
+      delete input;
+      input = PointingDevice::create(ui->lineEditInput->text().toStdString());
+      input->setPointingCallback(pointingCallback, nullptr);
+
+      inputs.push_back(input);
+      updateInput();
+      recomputeAllFuncs();
+      replot();
+      break;
+    }
   }
-  else
+}
+
+void MainWindow::on_comboBoxInput_currentIndexChanged(int index)
+{
+  QString uriString = ui->comboBoxInput->itemData(index).toString();
+  URI uri(uriString.toStdString());
+  for (PointingDevice *inp : inputs)
   {
-    customGraph = ui->customPlot->addGraph();
-    ui->widgetCustom->setVisible(true);
-    ui->customButton->setText("Cancel");
+    if (inp->getURI().path == uri.path)
+    {
+      input = inp;
+      updateInput();
+      break;
+    }
   }
+  recomputeAllFuncs();
+  replot();
 }

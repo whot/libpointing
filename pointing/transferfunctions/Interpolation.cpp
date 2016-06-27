@@ -44,7 +44,9 @@ namespace pointing
   void Interpolation::TableToCoefficients()
   {
     for (size_t i = 1; i < tableAcc.size(); i++)
+    {
       tableAcc[i] /= i;
+    }
   }
 
   void Interpolation::Interpolate(vector<int> &lowInd, vector<int> &highInd)
@@ -86,7 +88,7 @@ namespace pointing
     }
 
     // Fill the closest next values
-    for (int i = nCounts - 2; i > 0; i--)
+    for (int i = nCounts - 2; i >= 0; i--)
     {
       if (lowInd[i] == i) // There is a value
         highInd[i] = i;
