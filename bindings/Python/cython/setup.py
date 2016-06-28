@@ -10,11 +10,11 @@ if platform.system() == 'Darwin':
                         "pylibpointing", 
                         ["pylibpointing.pyx"],
                         language="c++",   
-                        libraries=['pointing', "stdc++"],
+                        libraries=['pointing'],
                         include_dirs=[libpointing],
                         library_dirs=["./",libpointing+"pointing"],
-                        extra_compile_args=["-stdlib=libstdc++", "-mmacosx-version-min=10.6"],
-                        extra_link_args=["-stdlib=libstdc++", "-mmacosx-version-min=10.6", "-framework", "CoreGraphics"],
+                        extra_compile_args=["-stdlib=libc++", "-mmacosx-version-min=10.7", "-std=c++11"],
+                        extra_link_args=["-mmacosx-version-min=10.7", "-framework", "CoreGraphics"],
                         )]
 elif platform.system() == 'Linux':
     ext_modules = [Extension(

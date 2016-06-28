@@ -11,8 +11,9 @@ cdef extern from "pointing/input/PointingDeviceManager.h" namespace "pointing::P
 cdef extern from "pointing/input/PointingDeviceManager.h" namespace "pointing":
 
     struct PointingDeviceDescriptor:
-            string devURI
-            string name
+            URI devURI
+            string vendor
+            string product
             int vendorID
             int productID
 

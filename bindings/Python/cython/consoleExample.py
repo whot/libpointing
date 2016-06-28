@@ -21,7 +21,7 @@ for desc in pm:
 """
 for desc in pm:
 	print desc.devURI
-	print desc.name
+	print desc.vendor, desc.product
 	pdev = PointingDevice(desc.uri)
 """
 

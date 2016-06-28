@@ -38,7 +38,7 @@ cdef void deviceUpdateCallback(void *context,
         cdef PyGILState_STATE st
         st = PyGILState_Ensure()
         
-        pyDesc = PointingDeviceDescriptor(desc.devURI, desc.name, desc.vendorID, desc.productID)
+        pyDesc = PointingDeviceDescriptor(desc.devURI.asString(), desc.vendor, desc.product, desc.vendorID, desc.productID)
         if wasAdded:
             PointingDeviceManager.descriptors[pyDesc.devURI] = pyDesc
         else:
@@ -177,17 +177,18 @@ cdef class PointingDeviceManager(object):
             yield desc
 
 class PointingDeviceDescriptor(object):
-    def __init__(self, devURI, name, vendorID, productID):
+    def __init__(self, devURI, vendor, product, vendorID, productID):
         self.devURI = devURI
-        self.name = name
+        self.vendor = vendor
+        self.product = product
         self.vendorID = vendorID
         self.productID = productID
 
     def __str__(self):
-        return "Device\n\turi=%s\n\tname=%s\n\tvendor=%d\n\tproduct=%d"%(self.devURI, self.name, self.vendorID, self.productID)
+        return "Device\n\turi=%s\n\tvendor=%s\n\tproduct=%s\n\tvendorID=%d\n\tproductID=%d"%(self.devURI, self.vendor, self.product, self.vendorID, self.productID)
 
     def __eq__(self, other):
-        return isinstance(other, PointingDeviceDescriptor) and self.devURI==other.devURI and self.name==other.name and self.vendorID==other.vendorID and self.productID==other.productID
+        return isinstance(other, PointingDeviceDescriptor) and self.devURI==other.devURI and self.vendor==other.vendor and self.product == other.product and self.vendorID==other.vendorID and self.productID==other.productID
 
     def __ne__(self, other):
         return not self==other
