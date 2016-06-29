@@ -2,7 +2,6 @@
 
 from pylibpointing import PointingDevice, DisplayDevice, TransferFunction
 from pylibpointing import PointingDeviceManager, PointingDeviceDescriptor
-#from pylibpointing import SubPixelFunction
 
 import sys
 
@@ -27,12 +26,11 @@ for desc in pm:
 
 pdev = PointingDevice("any:")
 ddev = DisplayDevice.create("any:")
-#tfct = SubPixelFunction("subpixel:?cardinality=200000&widgetsize=283&debugLevel=2", "system:", pdev, ddev)
 tfct = TransferFunction("system:", pdev, ddev)
 
 def cb_fct(timestamp, dx, dy, button):
     rx,ry=tfct.applyd(dx, dy, timestamp)
-    print("%s: %d %d %d -> %d %d"%(str(timestamp), dx, dy, button, rx, ry ))
+    print("%s: %d %d %d -> %.2f %.2f"%(str(timestamp), dx, dy, button, rx, ry ))
     sys.stdout.flush()
 
 pdev.setCallback(cb_fct)

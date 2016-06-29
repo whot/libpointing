@@ -3,7 +3,6 @@
 import threading
 from libcpp cimport bool
 from libcpp.string cimport string
-cimport ctransferfunction 
 cimport csubpixelfunction 
 cimport cdisplaydevice
 cimport cpointingdevice
@@ -127,15 +126,7 @@ cdef class PointingDevice(object):
         return self.thiscptr_
     
     def getURI(self, expanded=False):
-        cdef curi.URI uri = self.thiscptr_.getURI(expanded)
-        # FIXME: I couldn't pass to the (python) URI constructor the
-        # (c++) URI object (like a copy constructor) so I had to pass
-        # the string representation and then construct a new object
-        # from it.
-        cdef string s = uri.asString()
-        pyuri = URI()
-        pyuri.load(s)
-        return pyuri
+        return URI(self.thiscptr_.getURI(expanded).asString())
     uri=property(getURI, None, None)
     
     @classmethod
@@ -274,14 +265,7 @@ cdef class DisplayDevice(object):
 
     def getURI(self, expanded=False):
         cdef curi.URI uri = self.thiscptr_.getURI(expanded)
-        # FIXME: I couldn't pass to the (python) URI constructor the
-        # (c++) URI object (like a copy constructor) so I had to pass
-        # the string representation and then construct a new object
-        # from it.
-        cdef string s = uri.asString()
-        pyuri = URI()
-        pyuri.load(s)
-        return pyuri
+        return URI(uri.asString())
     uri=property(getURI, None, None)
        
     cdef cdisplaydevice.DisplayDevice* getRawPointer(self):
@@ -325,12 +309,13 @@ cdef class DummyDisplayDevice(DisplayDevice):
         d.setResolution(float(resolution))
         
    
+"""
+All transfer functions support subPixeling by default.
+"""
 cdef class TransferFunction(object):
-    cdef ctransferfunction.TransferFunction *thiscptr_
+    cdef csubpixelfunction.SubPixelFunction *thiscptr_
 
-    def __cinit__(self, uri, pdev, ddev):     
-        #self.pdev_=pdev
-        #self.ddev_=ddev
+    def __cinit__(self, uriString, pdev, ddev):
         cdef PointingDevice tpdev
         cdef DisplayDevice tddev
         
@@ -342,8 +327,14 @@ cdef class TransferFunction(object):
         
         iptr=tpdev.thiscptr_
         dptr=tddev.thiscptr_
-        self.thiscptr_ = ctransferfunction.create(uri, iptr, 
-                                                       dptr)
+
+        cdef curi.URI funcUri
+        funcUri.load(uriString)
+
+        cdef curi.URI subPixURI
+        subPixURI.load("subpixel:?isOn=false")
+
+        self.thiscptr_ = new csubpixelfunction.SubPixelFunction(subPixURI, funcUri, iptr, dptr)
 
     def __dealloc__(self):
         del self.thiscptr_
@@ -362,7 +353,41 @@ cdef class TransferFunction(object):
     
     def clearState(self):
         self.thiscptr_.clearState()
-    
+
+    def getSubPixeling(self):
+        return self.thiscptr_.getSubPixeling()
+    def setSubPixeling(self, subpixeling):
+        self.thiscptr_.setSubPixeling(subpixeling)
+    subpixeling=property(getSubPixeling, setSubPixeling, None)
+
+    def getHumanResolution(self):
+        return self.thiscptr_.getHumanResolution()
+    def setHumanResolution(self, human_resolution):
+        self.thiscptr_.setHumanResolution(human_resolution)
+    humanresolution=property(getHumanResolution, setHumanResolution, None)
+
+    def getCardinality(self):
+        cdef int cardinality = 0
+        cdef int ws = 0
+        self.thiscptr_.getCardinalitySize(&cardinality, &ws)
+        return cardinality
+    cardinality=property(getCardinality, None, None)
+
+    def getWidgetSize(self):
+        cdef int cardinality = 0
+        cdef int ws = 0
+        self.thiscptr_.getCardinalitySize(&cardinality, &ws)
+        return ws
+    widgetSize=property(getWidgetSize, None, None)
+
+    def setCardinalitySize(self, cardinality, size):
+        self.thiscptr_.setCardinalitySize(cardinality, size)
+
+    def getURI(self, expanded=False):
+        cdef curi.URI uri = self.thiscptr_.getURI(expanded)
+        return URI(uri.asString())
+    uri=property(getURI, None, None)
+
     @classmethod
     def create(self, uri, pointingdevice, displaydevice):
         try:
@@ -370,56 +395,3 @@ cdef class TransferFunction(object):
         except:
             # For Python 3.2
             return TransferFunction(bytes(uri,"utf-8"), pointingdevice, displaydevice)
-
-"""
-cdef class SubPixelFunction(object):
-    cdef csubpixelfunction.SubPixelFunction *thiscptr_
-
-    def __cinit__(self, uri, func_uri, pdev, ddev):
-        cdef PointingDevice tpdev
-        cdef DisplayDevice tddev
-        cdef URI tfunc_uri, t_uri
-        
-        tpdev=pdev
-        tddev=ddev
-        p_func_uri = URI(func_uri)
-        p_uri = URI(uri)
-        
-        cdef cpointingdevice.PointingDevice* iptr
-        cdef cdisplaydevice.DisplayDevice* dptr
-        cdef curi.URI *uptr
-        cdef curi.URI *ufptr
-        
-        iptr=tpdev.thiscptr_
-        dptr=tddev.thiscptr_
-        uptr=p_uri.thiscptr_
-        ufptr=p_func_uri.thiscptr_
-        self.thiscptr_ = new csubpixelfunction.SubPixelFunction(uptr[0], ufptr[0], iptr, dptr)
-
-    def __dealloc__(self):
-        del self.thiscptr_
-
-    def applyi(self, dx, dy, timestamp):
-        cdef int dxPixel=0
-        cdef int dyPixel=0
-        self.thiscptr_.applyi(dx, dy, &dxPixel, &dyPixel, timestamp)
-        return (dxPixel, dyPixel)
-
-    def applyd(self, dx, dy, timestamp):
-        cdef double dxPixel=0
-        cdef double dyPixel=0
-        self.thiscptr_.applyd(dx, dy, &dxPixel, &dyPixel, timestamp)
-        return (dxPixel, dyPixel)
-    
-    def clearState(self):
-        self.thiscptr_.clearState()
-
-    def setCardinalitySize(self, cardinality, size):
-        self.thiscptr_.setCardinalitySize(cardinality, size)
-
-    def setHumanResolution(self, res_human):
-        self.thiscptr_.setHumanResolution(res_human)
-
-    def setSubPixeling(self, subpixeling):
-        self.thiscptr_.setSubPixeling(subpixeling)
-"""

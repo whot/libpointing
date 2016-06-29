@@ -15,6 +15,14 @@ cdef extern from "pointing/transferfunctions/SubPixelFunction.h" namespace "poin
         void applyi(int input_dx, int input_dy, int* dxPixel, int* dyPixel, inttime timestamp)
         void applyd(int input_dx, int input_dy, double* dxPixel, double* dyPixel, inttime timestamp)
         void clearState()
+
         void setCardinalitySize(int cardinality, int size)
+        void getCardinalitySize(int *cardinality, int *size)
+
         void setHumanResolution(int humanResolution)
+        int getHumanResolution()
+
+        bool getSubPixeling()
         void setSubPixeling(bool subpixeling)
+
+        URI getURI(bool expanded)

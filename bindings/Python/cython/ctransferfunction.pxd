@@ -13,6 +13,5 @@ cdef extern from "pointing/transferfunctions/TransferFunction.h" namespace "poin
         void applyi(int input_dx, int input_dy, int* dxPixel, int* dyPixel, inttime timestamp)
         void applyd(int input_dx, int input_dy, double* dxPixel, double* dyPixel, inttime timestamp)
         void clearState()
-    
-        
+
     

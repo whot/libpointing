@@ -4,6 +4,7 @@ Makefile
 *~
 *.pro.user*
 *.o
+*.so
 *.app
 *.a
 *.class
