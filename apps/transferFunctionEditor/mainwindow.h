@@ -77,6 +77,7 @@ class MainWindow : public QMainWindow
   static LRESULT CALLBACK MouseHookProc(int nCode, WPARAM wParam, LPARAM lParam);
 
   void saveTransferFunction();
+  double movedKey = -1.;
 
   QCPGraph *customGraph = nullptr;
   QLabel *systemFunctionLabel;
@@ -94,6 +95,8 @@ private slots:
   void on_allButton_clicked();
 
   void mousePress(QMouseEvent *event);
+  void mouseMove(QMouseEvent *event);
+  void mouseRelease(QMouseEvent *);
   void mouseDoubleClick(QMouseEvent *event);
 
   void on_noneButton_clicked();

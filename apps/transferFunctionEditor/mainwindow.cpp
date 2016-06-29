@@ -13,6 +13,8 @@
  *
  */
 
+// TODO Plug-in plug-out of input devices
+
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <iostream>
@@ -226,6 +228,8 @@ MainWindow::MainWindow(QWidget *parent) :
   ui->customPlot->xAxis->setLabel("motor speed (m/s)");
   ui->customPlot->yAxis->setLabel("gain");
   connect(ui->customPlot, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(mousePress(QMouseEvent*)));
+  connect(ui->customPlot, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(mouseMove(QMouseEvent*)));
+  connect(ui->customPlot, SIGNAL(mouseRelease(QMouseEvent*)), this, SLOT(mouseRelease(QMouseEvent*)));
   connect(ui->customPlot, SIGNAL(mouseDoubleClick(QMouseEvent*)), this, SLOT(mouseDoubleClick(QMouseEvent*)));
   ui->widgetCustom->setVisible(false);
   systemFunctionLabel = new QLabel("Current System Function: Windows Default");
@@ -246,8 +250,40 @@ void MainWindow::mousePress(QMouseEvent *event)
 {
   double inputSpeed = this->ui->customPlot->xAxis->pixelToCoord(event->pos().x());
   double gain = this->ui->customPlot->yAxis->pixelToCoord(event->pos().y());
+  double maxInputSpeed = 128. / input->getResolution() * ipm * input->getUpdateFrequency();
+
+  if (customGraph)
+  {
+    for (auto it = customGraph->data()->begin(); it != customGraph->data()->end(); it++)
+    {
+      if (abs(inputSpeed - it->key) / maxInputSpeed < 0.02 && abs(gain - it->value) / maxGain < 0.02)
+      {
+        movedKey = it->key;
+        return;
+      }
+    }
+  }
 
   qDebug() << inputSpeed << gain;
+}
+
+void MainWindow::mouseMove(QMouseEvent *event)
+{
+  double inputSpeed = this->ui->customPlot->xAxis->pixelToCoord(event->pos().x());
+  double gain = this->ui->customPlot->yAxis->pixelToCoord(event->pos().y());
+
+  if (movedKey > 0)
+  {
+    customGraph->removeData(movedKey);
+    customGraph->addData(inputSpeed, gain);
+    movedKey = inputSpeed;
+    replot();
+  }
+}
+
+void MainWindow::mouseRelease(QMouseEvent *)
+{
+  movedKey = -1.;
 }
 
 void MainWindow::mouseDoubleClick(QMouseEvent *event)
@@ -258,9 +294,11 @@ void MainWindow::mouseDoubleClick(QMouseEvent *event)
     double gain = this->ui->customPlot->yAxis->pixelToCoord(event->pos().y());
 
     qDebug() << inputSpeed << gain;
-    customGraph->addData(inputSpeed, gain);
-    customGraph->data();
-    ui->customPlot->replot();
+    if (inputSpeed > 0 && gain > 0)
+    {
+      customGraph->addData(inputSpeed, gain);
+      ui->customPlot->replot();
+    }
   }
 }
 
@@ -348,6 +386,7 @@ void MainWindow::on_changeButton_clicked()
     tf->uri = ui->lineEdit->text().toLocal8Bit().constData();
     recomputeFunc(*tf);
     changeShowPlot(*tf);
+    updateInput();
     ui->customPlot->replot();
   }
 }
