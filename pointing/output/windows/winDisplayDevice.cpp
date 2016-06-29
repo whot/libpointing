@@ -34,6 +34,12 @@ namespace pointing {
     dinfo.w = 0;
     dinfo.h = 0;
 
+    URI::getQueryArg(uri.query, "bw", &dinfo.resx);
+    URI::getQueryArg(uri.query, "bh", &dinfo.resy);
+    URI::getQueryArg(uri.query, "w", &dinfo.w);
+    URI::getQueryArg(uri.query, "h", &dinfo.h);
+    URI::getQueryArg(uri.query, "hz", &dinfo.refreshRate);
+
     if (uri.path.empty()) {
       if (numberDisplays() == 1)
 	displayID = getFirstDisplay();
@@ -117,7 +123,7 @@ namespace pointing {
   }
 
   URI
-  winDisplayDevice::getURI(bool /*expanded*/) const {
+  winDisplayDevice::getURI(bool expanded) const {
     URI uri ;
     std::string simpleString;
     simpleString.assign(displayID.begin(), displayID.end());
@@ -125,7 +131,15 @@ namespace pointing {
     std::stringstream path ;
     path << "/" << simpleString ;
     uri.path = path.str() ;
+    if (expanded)
+    {
+      URI::addQueryArg(uri.query, "bw", dinfo.resx);
+      URI::addQueryArg(uri.query, "bh", dinfo.resy);
+      URI::addQueryArg(uri.query, "w", dinfo.w);
+      URI::addQueryArg(uri.query, "h", dinfo.h);
+      URI::addQueryArg(uri.query, "hz", dinfo.refreshRate);
+    }
+
     return uri ;
   }
-
 }
