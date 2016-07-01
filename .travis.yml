@@ -63,6 +63,7 @@ deploy:
     file:
         - "building-and-packaging/linux/debian/*.deb"
         - "building-and-packaging/mac/*.tar.gz"
+        - "building-and-packaging/mac/macports/devel/libpointing/Portfile"
     file_glob: true
     skip_cleanup: true
     on:

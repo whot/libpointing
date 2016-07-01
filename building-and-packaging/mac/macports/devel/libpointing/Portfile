@@ -1,0 +1,30 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+PortGroup           github 1.0
+
+name                libpointing
+version             0.9.7
+categories          devel
+license             GPL-2
+master_sites        https://github.com/INRIA/libpointing/releases/download/v${version}/
+maintainers         gmail.com:christian.frisson inria.fr:izzatbek.mukhanov openmaintainer
+description         An open-source cross-platform library to get raw events \
+                    from pointing devices and master transfer functions.
+long_description    Libpointing is an open-source cross-platform library \
+                    that provides direct access to HID pointing devices \
+					and supports the design of pointing transfer functions.
+platforms           darwin
+homepage            http://libpointing.org
+checksums           sha256    254aca1da53c48952240a2f3b291d27117685a45f0f15dc6125c7b398de8e5da
+
+use_configure 		no
+
+distname            ${name}-mac-${version}
+
+destroot.destdir	PREFIX=${destroot}/${prefix}
+
+post-destroot {
+    system "install_name_tool -id ${prefix}/lib/libpointing.dylib ${destroot}${prefix}/lib/libpointing.dylib"
+}

@@ -43,7 +43,7 @@ os.chdir(HERE)
 with open(os.path.join(HERE, HOMEBREW_REPO_FILE), "r") as ruby_file:
     new_script = ruby_file.read()
 
-to_subs = 'url "https://github.com/INRIA/libpointing/releases/download/v%s/libpointing-%s.tar.gz'%(VERSION, VERSION) + '"'
+to_subs = 'url "https://github.com/INRIA/libpointing/releases/download/v%s/libpointing-mac-%s.tar.gz'%(VERSION, VERSION) + '"'
 replaced = re.sub('url ".*"', to_subs, new_script)
 to_subs = 'sha256 ' + '"' + sha256_val + '"'
 replaced = re.sub('sha256 ".*"', to_subs, replaced, 1)
@@ -63,3 +63,17 @@ os.system("git commit -m 'Update libpointing %s'"%VERSION)
 
 print "Pushing formula changes"
 os.system("git push origin libpointing")
+
+PORTFILE = "macports/devel/libpointing/Portfile"
+
+# Update Portfile
+with open(os.path.join(HERE, PORTFILE), "r") as port_file:
+    port_contents = port_file.read()
+
+to_subs = 'version'.ljust(20) + VERSION + "\n"
+replaced = re.sub('version.*\n', to_subs, port_contents, 1)
+to_subs = 'sha256    ' + sha256_val + "\n"
+replaced = re.sub('sha256 .*\n', to_subs, replaced, 1)
+
+with open(os.path.join(HERE, PORTFILE), "w") as port_file:
+    port_file.write(replaced)
