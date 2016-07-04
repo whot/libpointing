@@ -52,8 +52,14 @@ os.chdir(HOMEBREW_REPO)
 os.system("git remote add upstream https://github.com/Homebrew/homebrew-core.git")
 os.system("git fetch upstream")
 os.system("git rebase upstream/master") # Update with upstream
-os.system("git checkout -b libpointing origin/libpointing")
-os.system("git rebase master") # Update with master
+
+# This step is necessary to avoid having multiple commits on libpointing-branch
+# Since homebrew demands a single commit for a single update
+# So if we have other commits not merged with upstream - they are ignored.
+# As we perform forced push to libpointing-branch
+os.system("git branch -D libpointing") # Remove local branch libpointing
+os.system("git checkout -b libpointing") # Now create new branch
+
 print "Making changes to the formula description in " + HOMEBREW_REPO_FILE
 with open(os.path.join(HERE, HOMEBREW_REPO_FILE), "w") as ruby_file:
     ruby_file.write(replaced)
@@ -61,11 +67,11 @@ os.system("git add -u")
 os.system("git commit -m 'Update libpointing %s'"%VERSION)
 
 print "Pushing formula changes"
-os.system("git push --all --force")
+os.system("git push --set-upstream origin libpointing --force")
 
 PORTFILE = "macports/devel/libpointing/Portfile"
 
-# Update Portfile
+# Create a new Portfile to release
 with open(os.path.join(HERE, PORTFILE), "r") as port_file:
     port_contents = port_file.read()
 
@@ -74,5 +80,5 @@ replaced = re.sub('version.*\n', to_subs, port_contents, 1)
 to_subs = 'sha256    ' + sha256_val + "\n"
 replaced = re.sub('sha256 .*\n', to_subs, replaced, 1)
 
-with open(os.path.join(HERE, PORTFILE), "w") as port_file:
+with open(os.path.join(HERE, "Portfile"), "w") as port_file:
     port_file.write(replaced)
