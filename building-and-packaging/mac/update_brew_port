@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# building-and-packaging/mac/create_formula
+# building-and-packaging/mac/update_brew_port
 #
 # Initial software
 # Authors: Izzat Mukhanov
@@ -51,10 +51,9 @@ replaced = re.sub('sha256 ".*"', to_subs, replaced, 1)
 os.chdir(HOMEBREW_REPO)
 os.system("git remote add upstream https://github.com/Homebrew/homebrew-core.git")
 os.system("git fetch upstream")
-os.system("git checkout -b libpointing origin/master")
 os.system("git rebase upstream/master") # Update with upstream
 os.system("git checkout -b libpointing origin/libpointing")
-os.system("git rebase origin/master") # Update with master
+os.system("git rebase master") # Update with master
 print "Making changes to the formula description in " + HOMEBREW_REPO_FILE
 with open(os.path.join(HERE, HOMEBREW_REPO_FILE), "w") as ruby_file:
     ruby_file.write(replaced)
@@ -62,7 +61,7 @@ os.system("git add -u")
 os.system("git commit -m 'Update libpointing %s'"%VERSION)
 
 print "Pushing formula changes"
-os.system("git push origin libpointing")
+os.system("git push --all --force")
 
 PORTFILE = "macports/devel/libpointing/Portfile"
 

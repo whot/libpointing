@@ -20,6 +20,11 @@
 
 namespace pointing {
 
+  /**
+   * @brief The SystemPointingDevice class is used to represent Pointing Devices connected to the computer.
+   *
+   * It defines general behavior for all three platforms.
+   */
   class SystemPointingDevice : public PointingDevice
   {
   protected:

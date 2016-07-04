@@ -28,10 +28,9 @@
 namespace pointing {
 
   /**
-   * @brief The PointingDevice class is used to represent Pointing Devices connected to the computer.
+   * @brief The PointingDevice class is used to represent Pointing Devices connected to the computer or pseudo-devices.
    *
-   * It is an abstract class which creates an instance of its platform-specific
-   * subclass.
+   * It is an abstract class which creates an instance using create factory method.
    */
   class PointingDevice {
 

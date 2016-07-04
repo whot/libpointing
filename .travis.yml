@@ -54,7 +54,7 @@ before_deploy:
           sudo pip install --upgrade requests ;
           ./building-and-packaging/linux/create-deb ;
       elif [ $TRAVIS_OS_NAME == osx ] ; then
-          ./building-and-packaging/mac/create-formula
+          ./building-and-packaging/mac/update_brew_port
       fi
 
 deploy:
