@@ -26,6 +26,7 @@ namespace pointing {
   }
 
   winDisplayDevice::winDisplayDevice(URI uri) {
+    displayID = L"";
     dinfo.monitorName[0] = '\0';
     dinfo.ppi = 0;
     dinfo.refreshRate = 0;
@@ -44,12 +45,10 @@ namespace pointing {
       if (numberDisplays() == 1)
 	displayID = getFirstDisplay();
       else {
-	int numberDisplays;
-	std::wstring monitorName = getControlPanelDisplayName(&numberDisplays);
-	if (numberDisplays == 1)
-	  displayID = getMatchingRegistryKey(monitorName);
-	else
-	  displayID = L"";
+  int numberDisplays;
+  std::wstring monitorName = getControlPanelDisplayName(&numberDisplays);
+  if (numberDisplays >= 1)
+    displayID = getMatchingRegistryKey(monitorName);
       }
     }
     else {
