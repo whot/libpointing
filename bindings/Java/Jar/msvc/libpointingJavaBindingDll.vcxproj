@@ -173,6 +173,7 @@
     <ClCompile Include="..\native\DisplayDevice.cpp" />
     <ClCompile Include="..\native\PointingDevice.cpp" />
     <ClCompile Include="..\native\PointingDeviceManager.cpp" />
+    <ClCompile Include="..\native\DisplayDeviceManager.cpp" />
     <ClCompile Include="..\native\TimeStamp.cpp" />
     <ClCompile Include="..\native\TransferFunction.cpp" />
     <ClCompile Include="dllmain.cpp">
@@ -196,6 +197,7 @@
     <ClInclude Include="..\native\org_libpointing_DisplayDevice.h" />
     <ClInclude Include="..\native\org_libpointing_PointingDevice.h" />
     <ClInclude Include="..\native\org_libpointing_PointingDeviceManager.h" />
+    <ClInclude Include="..\native\org_libpointing_DisplayDeviceManager.h" />
     <ClInclude Include="..\native\org_libpointing_TimeStamp.h" />
     <ClInclude Include="..\native\org_libpointing_TransferFunction.h" />
     <ClInclude Include="libpointingJavaBindingDll.h" />

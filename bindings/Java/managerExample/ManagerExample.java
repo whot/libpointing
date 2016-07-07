@@ -19,6 +19,22 @@ import org.libpointing.*;
 import org.libpointing.event.*;
 
 public class ManagerExample {
+
+	static class MyDisplayDeviceManagerListener implements DisplayDeviceManagerListener {
+
+	    public void deviceAdded(DisplayDeviceDescriptor desc)
+	    {
+	        System.out.println("Device " + desc.name);
+	        System.out.println("  was added with URI: " + desc.devUri);
+	        System.out.println("  with width: " + desc.width + " and height: " + desc.height + "\n");
+	    }
+
+	    public void deviceRemoved(DisplayDeviceDescriptor desc)
+	    {
+	        System.out.println("Device " + desc.name);
+	        System.out.print("  was removed with URI: " + desc.devUri + "\n");
+	    }
+	}
 	
 	static class MyPointingDeviceManagerListener implements PointingDeviceManagerListener {
 
@@ -38,9 +54,10 @@ public class ManagerExample {
 	    }
 	}
 	
+	
   public static void main(String args[]) {
 
-    PointingDevice input = new PointingDevice("any:");
+    PointingDevice input = new PointingDevice("any:?vendor=0x46d&debugLevel=1");
     
     PointingDeviceManager manager = PointingDeviceManager.getInstance();
     manager.addPointingDeviceManagerListener(new MyPointingDeviceManagerListener());
@@ -50,6 +67,12 @@ public class ManagerExample {
         System.out.println(desc.vendor + " - " + desc.product);
     }
     //System.out.println(Arrays.toString(manager.getDeviceList()));
+
+    DisplayDeviceManager dManager = DisplayDeviceManager.getInstance();
+    dManager.addDisplayDeviceManagerListener(new MyDisplayDeviceManagerListener());
+    for (DisplayDeviceDescriptor desc : dManager.getDeviceList()) {
+        System.out.println(desc.name);
+    }
 
 	while (true) {
 		PointingDevice.idle(100);

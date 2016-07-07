@@ -23,6 +23,9 @@
     <ClCompile Include="..\native\PointingDeviceManager.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
+    <ClCompile Include="..\native\DisplayDeviceManager.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
     <ClCompile Include="..\native\TimeStamp.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
@@ -47,6 +50,9 @@
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
     <ClInclude Include="..\native\org_libpointing_PointingDeviceManager.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="..\native\org_libpointing_DisplayDeviceManager.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
     <ClInclude Include="..\native\org_libpointing_TimeStamp.h">

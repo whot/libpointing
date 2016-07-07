@@ -1,6 +1,6 @@
 /* -*- mode: java -*-
  *
- * Bindings/Java/Jar/org/libpointing/PointingDevice.java --
+ * Bindings/Java/Jar/org/libpointing/PointingDeviceManagerListener.java --
  *
  * Initial software
  * Authors: Stéphane Huot

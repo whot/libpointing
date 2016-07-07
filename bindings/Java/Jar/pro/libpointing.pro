@@ -23,6 +23,7 @@ unix {
 HEADERS  = $$HERE/native/org_libpointing_DisplayDevice.h \
            $$HERE/native/org_libpointing_PointingDevice.h \
            $$HERE/native/org_libpointing_PointingDeviceManager.h \
+           $$HERE/native/org_libpointing_DisplayDeviceManager.h \
            $$HERE/native/org_libpointing_TransferFunction.h \
            $$HERE/native/org_libpointing_TimeStamp.h \
            $$HERE/native/handle.h
@@ -31,6 +32,7 @@ HEADERS  = $$HERE/native/org_libpointing_DisplayDevice.h \
 SOURCES  = $$HERE/native/DisplayDevice.cpp \
            $$HERE/native/PointingDevice.cpp \
            $$HERE/native/PointingDeviceManager.cpp \
+           $$HERE/native/DisplayDeviceManager.cpp \
            $$HERE/native/TransferFunction.cpp \
            $$HERE/native/TimeStamp.cpp
 

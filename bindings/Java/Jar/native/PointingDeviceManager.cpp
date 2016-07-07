@@ -22,8 +22,8 @@
 
 using namespace pointing;
 
-JavaVM *machine;
-jobject ob;
+JavaVM *pdm_machine;
+jobject pdm_ob;
 
 jobject objectForDescriptor(JNIEnv *env, const PointingDeviceDescriptor &desc)
 {
@@ -43,7 +43,7 @@ jobject objectForDescriptor(JNIEnv *env, const PointingDeviceDescriptor &desc)
 void updateDeviceCallback(void *, const PointingDeviceDescriptor &desc, bool wasAdded)
 { 
   JNIEnv *env;
-  machine->AttachCurrentThread((void **)&env, NULL);
+  pdm_machine->AttachCurrentThread((void **)&env, NULL);
 
   jmethodID mid;
   jclass handlerClass = env->FindClass("org/libpointing/PointingDeviceManager");
@@ -60,14 +60,14 @@ void updateDeviceCallback(void *, const PointingDeviceDescriptor &desc, bool was
   if (mid == NULL)
     std::cerr << "Error : cannot find method callback" << std::endl;
   
-  env->CallVoidMethod(ob, mid, feature);
+  env->CallVoidMethod(pdm_ob, mid, feature);
 }
 
 JNIEXPORT void JNICALL Java_org_libpointing_PointingDeviceManager_setCallbacks
 (JNIEnv *env, jobject jobj)
 {
-  env->GetJavaVM(&machine);
-  ob = env->NewGlobalRef(jobj);
+  env->GetJavaVM(&pdm_machine);
+  pdm_ob = env->NewGlobalRef(jobj);
   PointingDeviceManager *manager = PointingDeviceManager::get();
   manager->addDeviceUpdateCallback(updateDeviceCallback, (void*)(env));
 }
