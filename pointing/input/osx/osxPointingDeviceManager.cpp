@@ -124,6 +124,18 @@ namespace pointing {
     CFStringRef runLoopMode = kCFRunLoopCommonModes;
 #endif
     IOHIDManagerScheduleWithRunLoop(manager, runLoop, runLoopMode);
+
+    if (IOHIDManagerOpen(manager, kIOHIDOptionsTypeNone)!=kIOReturnSuccess)
+      throw std::runtime_error("IOHIDManagerOpen failed");
+  }
+
+  osxPointingDeviceManager::~osxPointingDeviceManager()
+  {
+    if (manager)
+    {
+      IOHIDManagerClose(manager, kIOHIDOptionsTypeNone) ;
+      CFRelease(manager) ;
+    }
   }
 
   void osxPointingDeviceManager::hidReportCallback(void *context, IOReturn, void *dev, IOHIDReportType, uint32_t, uint8_t *report, CFIndex)

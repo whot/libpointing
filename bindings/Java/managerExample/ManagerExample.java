@@ -57,7 +57,7 @@ public class ManagerExample {
 	
   public static void main(String args[]) {
 
-    PointingDevice input = new PointingDevice("any:?vendor=0x46d&debugLevel=1");
+    PointingDevice input = new PointingDevice("any:?debugLevel=1");
     
     PointingDeviceManager manager = PointingDeviceManager.getInstance();
     manager.addPointingDeviceManagerListener(new MyPointingDeviceManagerListener());

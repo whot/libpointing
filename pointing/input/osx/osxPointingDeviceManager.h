@@ -49,12 +49,12 @@ namespace pointing
 
     void processMatching(PointingDeviceData *pdd, SystemPointingDevice *device);
 
-    IOHIDManagerRef manager;
+    IOHIDManagerRef manager = nullptr;
     static void AddDevice(void *context, IOReturn /*result*/, void *sender, IOHIDDeviceRef devRef);
     static void RemoveDevice(void *context, IOReturn /*result*/, void *sender, IOHIDDeviceRef devRef);
 
     osxPointingDeviceManager();
-    ~osxPointingDeviceManager() {}
+    ~osxPointingDeviceManager();
 
     static void hidReportCallback(void *context, IOReturn result, void *sender,
                   IOHIDReportType type, uint32_t reportID,
