@@ -152,4 +152,10 @@ namespace pointing {
 #endif 
   }
 
+  void PointingDevice::getAbsolutePosition(double *x, double *y) const
+  {
+    *x = -1;
+    *y = -1;
+  }
+
 }

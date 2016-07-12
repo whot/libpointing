@@ -176,6 +176,13 @@ namespace pointing {
      */
     virtual void debug(std::ostream& /*out*/) const {}
 
+    /**
+     * @brief getAbsolutePosition Returns absolute position of the device if available otherwise -1, -1
+     * @param x
+     * @param y
+     */
+    virtual void getAbsolutePosition(double *x, double *y) const;
+
     virtual ~PointingDevice(void) {}
 
   } ;

@@ -26,6 +26,8 @@ namespace pointing
 
     public:
         winPointingDevice(URI uri);
+
+        void getAbsolutePosition(double *x, double *y) const override;
     } ;
 }
 

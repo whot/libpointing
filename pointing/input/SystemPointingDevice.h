@@ -65,7 +65,6 @@ namespace pointing {
     void setDebugLevel(int level);
 
     virtual ~SystemPointingDevice();
-
   } ;
 
 }

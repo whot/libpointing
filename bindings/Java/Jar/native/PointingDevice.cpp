@@ -125,6 +125,23 @@ JNIEXPORT void JNICALL Java_org_libpointing_PointingDevice_setDebugLevel
   getHandle<PointingDevice>(env, obj)->setDebugLevel(debugLevel);
 }
 
+JNIEXPORT jobject JNICALL Java_org_libpointing_PointingDevice_getAbsolutePosition
+  (JNIEnv *env, jobject obj)
+{
+  jclass handlerClass = env->FindClass("java/awt/geom/Point2D$Double");
+  jmethodID mid = env->GetMethodID(handlerClass, "setLocation", "(DD)V");
+  if (mid == NULL) {
+    std::cerr << "Error : cannot find method setLocation" << std::endl;
+    return NULL;
+  } else {
+    double x = 0.0, y = 0.0;
+    getHandle<PointingDevice>(env, obj)->getAbsolutePosition(&x, &y);
+    jdouble jx = x;
+    jdouble jy = y;
+    return env->NewObject(handlerClass, mid, jx, jy);
+  }
+}
+
 JNIEXPORT void JNICALL Java_org_libpointing_PointingDevice_idle
 (JNIEnv *, jclass, jint idleTime)
 {

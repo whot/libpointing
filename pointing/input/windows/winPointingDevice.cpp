@@ -25,4 +25,10 @@ namespace pointing
       winPointingDeviceManager *man = static_cast<winPointingDeviceManager *>(PointingDeviceManager::get());
       man->addPointingDevice(this);
     }
+
+    void winPointingDevice::getAbsolutePosition(double *x, double *y) const
+    {
+      *x = lastX;
+      *y = lastY;
+    }
 }

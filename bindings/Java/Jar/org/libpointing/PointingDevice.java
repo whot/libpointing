@@ -18,6 +18,7 @@ import javax.swing.event.EventListenerList;
 
 import org.libpointing.event.PointingDeviceEvent;
 import org.libpointing.event.PointingDeviceListener;
+import java.awt.geom.Point2D;
 
 public class PointingDevice {
 
@@ -38,6 +39,7 @@ public class PointingDevice {
     public native int getProductID();
     public native String getProduct();
     public native void setDebugLevel(int i);
+    public native Point2D.Double getAbsolutePosition();
     public static native void idle(int t);
 
     // Java part
