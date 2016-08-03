@@ -18,7 +18,7 @@
 #include "org_libpointing_TransferFunction.h"
 #include "handle.h"
 
-#include <pointing/pointing.h>
+#include <pointing/transferfunctions/SubPixelFunction.h>
 
 using namespace pointing;
 
@@ -28,7 +28,8 @@ JNIEXPORT jlong JNICALL Java_org_libpointing_TransferFunction_initTransferFuncti
   PointingDevice *input = getHandle<PointingDevice>(env, jinput);
   DisplayDevice *output = getHandle<DisplayDevice>(env, joutput);
   const char *uri = env->GetStringUTFChars(uriStr, 0);
-  TransferFunction *func = TransferFunction::create(uri, input, output);
+
+  SubPixelFunction *func = new SubPixelFunction("subpixel:?isOn=false", uri, input, output);
   env->ReleaseStringUTFChars(uriStr, uri);
   return (jlong)func;
 }
@@ -36,14 +37,14 @@ JNIEXPORT jlong JNICALL Java_org_libpointing_TransferFunction_initTransferFuncti
 JNIEXPORT void JNICALL Java_org_libpointing_TransferFunction_releaseTransferFunction
   (JNIEnv *env, jobject obj)
 {
-  delete getHandle<TransferFunction>(env, obj);
+  delete getHandle<SubPixelFunction>(env, obj);
 }
 
 JNIEXPORT jstring JNICALL Java_org_libpointing_TransferFunction_getURI
   (JNIEnv *env, jobject obj)
 {
-  TransferFunction *p = getHandle<TransferFunction>(env, obj);
-  return env->NewStringUTF(p->getURI().asString().c_str());
+  SubPixelFunction *p = getHandle<SubPixelFunction>(env, obj);
+  return env->NewStringUTF(p->getInnerURI().asString().c_str());
 }
 
 JNIEXPORT jobject JNICALL Java_org_libpointing_TransferFunction_applyi
@@ -56,7 +57,7 @@ JNIEXPORT jobject JNICALL Java_org_libpointing_TransferFunction_applyi
     return NULL;
   } else {
     int output_dx = 0, output_dy = 0;
-    TransferFunction *func = getHandle<TransferFunction>(env, obj);
+    SubPixelFunction *func = getHandle<SubPixelFunction>(env, obj);
     func->applyi(inputDx, inputDy, &output_dx, &output_dy, timestamp);
     jint joutput_dx = output_dx;
     jint joutput_dy = output_dy;
@@ -86,5 +87,58 @@ JNIEXPORT jobject JNICALL Java_org_libpointing_TransferFunction_applyd
 JNIEXPORT void JNICALL Java_org_libpointing_TransferFunction_clearState
   (JNIEnv *env, jobject obj)
 {
-  getHandle<TransferFunction>(env, obj)->clearState();
+  getHandle<SubPixelFunction>(env, obj)->clearState();
+}
+
+
+JNIEXPORT void JNICALL Java_org_libpointing_TransferFunction_setSubPixeling
+  (JNIEnv *env, jobject obj, jboolean subPixeling)
+{
+  getHandle<SubPixelFunction>(env, obj)->setSubPixeling(subPixeling);
+}
+
+
+JNIEXPORT void JNICALL Java_org_libpointing_TransferFunction_setHumanResolution
+  (JNIEnv *env, jobject obj, jint humRes)
+{
+  getHandle<SubPixelFunction>(env, obj)->setHumanResolution(humRes);
+}
+
+
+JNIEXPORT void JNICALL Java_org_libpointing_TransferFunction_setCardinalitySize
+  (JNIEnv *env, jobject obj, jint cardinality, jint widgetSize)
+{
+  getHandle<SubPixelFunction>(env, obj)->setCardinalitySize(cardinality, widgetSize);
+}
+
+
+JNIEXPORT jboolean JNICALL Java_org_libpointing_TransferFunction_getSubPixeling
+  (JNIEnv *env, jobject obj)
+{
+  return getHandle<SubPixelFunction>(env, obj)->getSubPixeling();
+}
+
+
+JNIEXPORT jint JNICALL Java_org_libpointing_TransferFunction_getHumanResolution
+  (JNIEnv *env, jobject obj)
+{
+  return getHandle<SubPixelFunction>(env, obj)->getHumanResolution();
+}
+
+
+JNIEXPORT jint JNICALL Java_org_libpointing_TransferFunction_getCardinality
+  (JNIEnv *env, jobject obj)
+{
+  int cardinality = 0, widgetSize = 0;
+  getHandle<SubPixelFunction>(env, obj)->getCardinalitySize(&cardinality, &widgetSize);
+  return cardinality;
+}
+
+
+JNIEXPORT jint JNICALL Java_org_libpointing_TransferFunction_getWidgetSize
+  (JNIEnv *env, jobject obj)
+{
+  int cardinality = 0, widgetSize = 0;
+  getHandle<SubPixelFunction>(env, obj)->getCardinalitySize(&cardinality, &widgetSize);
+  return widgetSize;
 }

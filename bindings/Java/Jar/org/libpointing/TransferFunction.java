@@ -32,6 +32,17 @@ public class TransferFunction {
     public native Point2D.Double applyd(int input_dx, int input_dy, long timestamp);
     public native void clearState();
 
+    // All transfer functions support subPixeling
+    // It is turned off by default
+    public native void setSubPixeling(boolean subPixeling);
+    public native void setHumanResolution(int humanResolution);
+    public native void setCardinalitySize(int cardinality, int size);
+
+    public native boolean getSubPixeling();
+    public native int getHumanResolution();
+    public native int getCardinality();
+    public native int getWidgetSize();
+
     // Java part
     private long nativeHandle;
 
