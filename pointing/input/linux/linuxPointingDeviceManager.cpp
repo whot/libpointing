@@ -406,7 +406,7 @@ namespace pointing {
       for (SystemPointingDevice *device : pdd->pointingList)
       {
         linuxPointingDevice *dev = static_cast<linuxPointingDevice *>(device);
-        dev->registerTimestamp(now);
+        dev->registerTimestamp(now, dx, dy);
         if (dev->callback)
           dev->callback(dev->callback_context, now, dx, dy, pdd->buttons);
       }

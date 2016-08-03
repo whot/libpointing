@@ -256,7 +256,7 @@ namespace pointing
               if(raw->data.mouse.usButtonFlags & RI_MOUSE_RIGHT_BUTTON_UP)
                 dev->buttons &= ~(1 << 2);
 
-              dev->registerTimestamp(now);
+              dev->registerTimestamp(now, dx, dy);
 
               if (dev->callback != NULL)
                 dev->callback(dev->callback_context, now, dx, dy, dev->buttons);

@@ -38,15 +38,21 @@ namespace pointing {
 
     PointingDevice(void);
 
-    static const int BUCKETS_SIZE = 5;
-    unsigned long buckets[BUCKETS_SIZE];
-    TimeStamp::inttime lastTime;
+    TimeStamp::inttime lastTime = 0;
+
+    static const int N = 10; // Memorize last N dx values
+    int dxInd = 0; // Circular array
+    double dxs[N] = { 0. };
+    double sumDx = 0.;
+    double minVariance = 10e9;
+    double stableVariance = 250.;
+    double estimate = -1.;
 
     /**
      * @brief registerTimestamp Registers the current timestamp to calculate frequency of the device
      * @param timestamp Current timestamp
      */
-    void registerTimestamp(TimeStamp::inttime timestamp);
+    void registerTimestamp(TimeStamp::inttime timestamp, int dx, int dy);
 
     /**
      * @brief estimatedUpdateFrequency Estimates the frequency depending on the input timestamps

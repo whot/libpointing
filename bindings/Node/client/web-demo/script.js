@@ -131,12 +131,12 @@ var manager = new pointing.PointingDeviceManager();
 var output = new pointing.DisplayDevice("any:?");
 
 var tFuncs = [
-{name: "OS X El Capitan with default slider",
+{name: "OS X with default slider setting",
  uri: "osx:?setting=0.6875"}
-,{name: "OS X El Capitan with slider at maximum",
+,{name: "OS X with slider at maximum",
  uri: "osx:?setting=3.00"}
-,{name: "OS X Yosemite with default slider",
- uri: "osx:darwin-14"}
+,{name: "OS X with slider at minimum",
+ uri: "osx:?setting=0"}
 ,{name: "Windows with default slider",
  uri: "windows:7?slider=0"}
 ,{name: "Windows with slider at maximum",
@@ -162,7 +162,7 @@ manager.addDeviceUpdateCallback(function(deviceDescriptor, wasAdded) {
 		var pointingDevice = new pointing.PointingDevice(deviceDescriptor.devURI);
 		var mouse = {x: 400 + 20 * mice.length, y: 400, pointingDevice: pointingDevice};
 		mice.push(mouse);
-		var fInd = (funcIndex + mice.length) % tFuncs.length;
+		var fInd = (funcIndex + mice.length - 1) % tFuncs.length;
 		var tFunc = new pointing.TransferFunction(tFuncs[fInd].uri, mouse.pointingDevice, output);
 		mouse.pointingDevice.applyTransferFunction(tFunc);
 		pointingDevice.setPointingCallback(function(timestamp, dx, dy, buttons) {

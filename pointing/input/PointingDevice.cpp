@@ -36,65 +36,72 @@
 #include <stdexcept>
 #include <iostream>
 #include <sstream>
-#include <cstdlib>
 
 namespace pointing {
 
-  typedef enum {
-    FREQUENCY_LOW,
-    FREQUENCY_125,
-    FREQUENCY_250,
-    FREQUENCY_500,
-    FREQUENCY_1000
-  } DeviceFrequency;
+#define errThreshold .6
 
-  // Each delta increases the corresponding value of buckets-accumulator
-  // For example:
-  // 0.87 ms -> buckets[FREQUENCY_1000]++
-  // 1.8 ms -> buckets[FREQUENCY_500]++
-  // 3.4 ms -> buckets[FREQUENCY_250]++
-  // everything > 14 ms -> buckets[FREQUENCY_LOW]++
-  // which is normally an outlier and produced at the beginning of a movement
-  void PointingDevice::registerTimestamp(TimeStamp::inttime timestamp)
+  void PointingDevice::registerTimestamp(TimeStamp::inttime timestamp, int dx, int dy)
   {
-    static int minThresholds[BUCKETS_SIZE] = {14000, 6000, 3000, 1500, 0};
-    TimeStamp::inttime delta = (timestamp - lastTime) / TimeStamp::one_microsecond;
+    if (!(dx || dy))
+      return;
+
+    double delta = double(timestamp - lastTime) / TimeStamp::one_millisecond;
     lastTime = timestamp;
-    for (int i = 0; i < BUCKETS_SIZE; i++)
+    // Delta cannot be less than 0.4 ms
+    // So filter it out
+    if (delta < 0.4)
+      delta = dxInd;
+
+    sumDx += delta - dxs[dxInd];
+    dxs[dxInd] = delta;
+    dxInd = (dxInd + 1) % N;
+
+    double average = sumDx / N;
+    double variance = 0.;
+    for (int i = 0; i < N; i++)
     {
-      if (delta > minThresholds[i])
+        double dif = dxs[i] - average;
+        variance += dif * dif;
+    }
+
+    double curEstimate = sumDx / N;
+    // Polling rate was changed
+    if (variance < stableVariance && curEstimate - estimate > errThreshold)
+    {
+      // Reset minimum variance
+      minVariance = 10e9;
+    }
+    // Improve estimate
+    if (variance < minVariance)
+    {
+      minVariance = variance;
+      if (curEstimate - estimate > errThreshold && minVariance < stableVariance)
       {
-        buckets[i] += 1;
-        return;
+        stableVariance = minVariance;
       }
+      estimate = curEstimate;
     }
   }
 
   double PointingDevice::estimatedUpdateFrequency() const
   {
-    static const int MIN_N = 25;
-    static const double minPerc[BUCKETS_SIZE] = {0.5, 0.4, 0.3, 0.2, 0.1};
-    unsigned long sum = 0;
-    for (int i = 1; i < BUCKETS_SIZE; i++) {
-      sum += buckets[i];
+    if (minVariance >= stableVariance)
+      return -1.;
+
+    static const int stdFreqN = 4;
+    static const double stdFreqs[stdFreqN] = { 1., 2., 4., 8. };
+
+    for (int i = 0; i < stdFreqN; i++)
+    {
+      double err = abs(estimate - stdFreqs[i]);
+      if (err < errThreshold)
+        return 1000. / stdFreqs[i];
     }
-    if (sum < MIN_N)
-      return -1;
-    if (double(buckets[FREQUENCY_1000]) / sum > minPerc[FREQUENCY_1000])
-      return 1000.;
-    if (double(buckets[FREQUENCY_500]) / sum > minPerc[FREQUENCY_500])
-      return 500.;
-    if (double(buckets[FREQUENCY_250]) / sum > minPerc[FREQUENCY_250])
-      return 250.;
-    if (double(buckets[FREQUENCY_125]) / sum > minPerc[FREQUENCY_125])
-      return 125.;
-    return -1;
+    return 1000. / estimate;
   }
 
-  PointingDevice::PointingDevice()
-    :lastTime(0) {
-    memset(buckets, 0, sizeof(buckets));
-  }
+  PointingDevice::PointingDevice() { }
 
   PointingDevice *
   PointingDevice::create(const char *device_uri) {

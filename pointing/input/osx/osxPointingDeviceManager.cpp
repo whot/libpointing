@@ -157,7 +157,7 @@ namespace pointing {
         for (SystemPointingDevice *device : pdd->pointingList)
         {
           osxPointingDevice *dev = static_cast<osxPointingDevice *>(device);
-          dev->registerTimestamp(timestamp);
+          dev->registerTimestamp(timestamp, dx, dy);
           if (dev->callback)
             dev->callback(dev->callback_context, timestamp, dx, dy, buttons);
         }
