@@ -36,6 +36,7 @@
 #include <stdexcept>
 #include <iostream>
 #include <sstream>
+#include <math.h>
 
 namespace pointing {
 
@@ -94,14 +95,18 @@ namespace pointing {
 
     for (int i = 0; i < stdFreqN; i++)
     {
-      double err = abs(estimate - stdFreqs[i]);
+      double err = fabs(estimate - stdFreqs[i]);
       if (err < errThreshold)
         return 1000. / stdFreqs[i];
     }
     return 1000. / estimate;
   }
 
-  PointingDevice::PointingDevice() { }
+  PointingDevice::PointingDevice()
+  {
+    for (int i = 0; i < N; i++)
+      dxs[i] = 0;
+  }
 
   PointingDevice *
   PointingDevice::create(const char *device_uri) {

@@ -42,7 +42,7 @@ namespace pointing {
 
     static const int N = 10; // Memorize last N dx values
     int dxInd = 0; // Circular array
-    double dxs[N] = { 0. };
+    double dxs[N];
     double sumDx = 0.;
     double minVariance = 10e9;
     double stableVariance = 250.;
