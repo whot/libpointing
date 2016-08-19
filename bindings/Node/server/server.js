@@ -114,10 +114,10 @@ io.on('connection', function(socket) {
       input.setPointingCallback(function(timestamp, dx, dy, buttons) {
         var result;
         if (floating || func.subPixeling) {
-          result = func.applyd(dx, dy);
+          result = func.applyd(dx, dy, timestamp);
         }
         else {
-          result = func.applyi(dx, dy);
+          result = func.applyi(dx, dy, timestamp);
         }
         socket.emit('pointingCallback', id, timestamp, result.dx, result.dy, buttons);
       });

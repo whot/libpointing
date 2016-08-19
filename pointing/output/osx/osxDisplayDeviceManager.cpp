@@ -81,6 +81,13 @@ namespace pointing
     DisplayDeviceDescriptor desc;
     desc.devURI = uri.str();
     desc.name = getDisplayName(did);
+
+    CGDisplayModeRef dispMode = CGDisplayCopyDisplayMode(did);
+    CGRect rect = CGDisplayBounds(did);
+    desc.width = rect.size.width;
+    desc.height = rect.size.height;
+    CGDisplayModeRelease(dispMode);
+
     return desc;
   }
 

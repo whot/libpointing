@@ -100,6 +100,7 @@ namespace pointing
 
     gPix = dxP / x * input->getResolution() / output->getResolution();
     vPix = input->getUpdateFrequency() / output->getResolution() / gPix;
+
     if (debugLevel)
       std::cerr << "One pixel gain Gpix: " << gPix << std::endl << "One pixel velocity Vpix: " << vPix << std::endl;
   }
@@ -177,10 +178,15 @@ namespace pointing
     if (isOn && cardinality > 0)
     {
       double dt = double(timestamp - lastTime) / TimeStamp::one_second;
-      lastTime = (timestamp == TimeStamp::undef) ? TimeStamp::createAsInt() : timestamp;
+      lastTime = (!timestamp || timestamp == TimeStamp::undef) ? TimeStamp::createAsInt() : timestamp;
 
       // inches
       double dd = sqrt(dxMickey * dxMickey + dyMickey * dyMickey) / input->getResolution();
+      if (!dd)
+      {
+        *dxPixel = *dyPixel = 0.;
+        return;
+      }
 
       // inches per sec
       double speed = dd / dt;
@@ -189,7 +195,8 @@ namespace pointing
       func->applyd(dxMickey, dyMickey, &outDx, &outDy, timestamp);
       double gain = sqrt(outDx * outDx + outDy * outDy) / dd / output->getResolution();
 
-      if (debugLevel > 1) std::cerr << "Original gain: " << gain << std::endl;
+      if (debugLevel > 1)
+        std::cerr << "Original gain: " << gain << " for speed: " << speed << std::endl;
 
       double q = 1.0;
       if (vPix > vUse)
