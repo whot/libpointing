@@ -3,7 +3,7 @@
   "name": "pointingserver",
   "description": "Pointing Server",
   "homepage": "http://libpointing.org",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "keywords": [ "libpointing", "HID", "transfer function" ],
   "author": "Izzatbek Mukhanov",
   "license": "GPL",

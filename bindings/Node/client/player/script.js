@@ -107,8 +107,8 @@ window.onload = function() {
 
 		manager.addDeviceUpdateCallback(function(deviceDescriptor, wasAdded) {
 			if (wasAdded) {
-				var pointingDevice = new pointing.PointingDevice(deviceDescriptor.devURI);
-				var transferFunction = new pointing.TransferFunction("system:?debugLevel=2", pointingDevice, output);
+				var pointingDevice = new pointing.PointingDevice(deviceDescriptor.devURI + "?cpi=400");
+				var transferFunction = new pointing.TransferFunction("osx:?debugLevel=2", pointingDevice, output);
 				transferFunction.setSubPixeling(true).setCardinalitySize(27 * 3600, sliderWidth);
 				pointingDevice.applyTransferFunction(transferFunction, true);
 
@@ -125,13 +125,14 @@ window.onload = function() {
 					}
 					if (shouldMoveVideo) {
 						if (dx) {
+							console.log(dx);
 							handlePosX += dx;
 							if (handlePosX > sliderWidth)
 								handlePosX = sliderWidth;
 							if (handlePosX < 0)
 								handlePosX = 0;
 						}
-						var newTime = player.getDuration() * handlePosX / 600;// Skip video to new time.
+						var newTime = player.getDuration() * handlePosX / sliderWidth; // Skip video to new time.
     					player.seekTo(newTime);
 					}
 				});
