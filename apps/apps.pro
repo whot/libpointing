@@ -9,9 +9,9 @@ TEMPLATE = subdirs
 SUBDIRS += consoleExample glutExample qtExample
 
 windows {
-    SUBDIRS += transferFunctionEditor
+    SUBDIRS += transferFunctionEditor echoMouse
 }
 
 macx {
-  SUBDIRS += controlMouse
+  SUBDIRS += controlMouse echoMouse
 }

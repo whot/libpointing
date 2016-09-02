@@ -50,6 +50,7 @@ apps/consoleExample/consoleExample
 apps/glutExample/glutExample
 apps/qtExample/qtExample
 apps/controlMouse/controlMouse
+apps/echoMouse/echoMouse
 bindings/Node/cache
 tests/interpolation/interpolation
 tests/subpixel/subpixel
