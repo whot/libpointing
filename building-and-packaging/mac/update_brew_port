@@ -40,14 +40,6 @@ os.chdir(LIBPOINTING_FOLDER)
 sha256_val = subprocess.Popen('make tarball', shell=True, stdout=subprocess.PIPE).stdout.read().split()[-1]
 os.chdir(HERE)
 
-with open(os.path.join(HERE, HOMEBREW_REPO_FILE), "r") as ruby_file:
-    new_script = ruby_file.read()
-
-to_subs = 'url "https://github.com/INRIA/libpointing/releases/download/v%s/libpointing-mac-%s.tar.gz'%(VERSION, VERSION) + '"'
-replaced = re.sub('url ".*"', to_subs, new_script)
-to_subs = 'sha256 ' + '"' + sha256_val + '"'
-replaced = re.sub('sha256 ".*"', to_subs, replaced, 1)
-
 os.chdir(HOMEBREW_REPO)
 os.system("git remote add upstream https://github.com/Homebrew/homebrew-core.git")
 os.system("git fetch upstream")
@@ -59,6 +51,14 @@ os.system("git rebase upstream/master") # Update with upstream
 # As we perform forced push to libpointing-branch
 os.system("git branch -D libpointing") # Remove local branch libpointing
 os.system("git checkout -b libpointing") # Now create new branch
+
+with open(os.path.join(HERE, HOMEBREW_REPO_FILE), "r") as ruby_file:
+    new_script = ruby_file.read()
+
+to_subs = 'url "https://github.com/INRIA/libpointing/releases/download/v%s/libpointing-mac-%s.tar.gz'%(VERSION, VERSION) + '"'
+replaced = re.sub('url ".*"', to_subs, new_script)
+to_subs = 'sha256 ' + '"' + sha256_val + '"'
+replaced = re.sub('sha256 ".*"', to_subs, replaced, 1)
 
 print "Making changes to the formula description in " + HOMEBREW_REPO_FILE
 with open(os.path.join(HERE, HOMEBREW_REPO_FILE), "w") as ruby_file:
