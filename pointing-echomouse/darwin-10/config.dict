@@ -1,4 +1,4 @@
-system: Darwin_10.8
+system: Darwin/10.8 (Mac OS X 10.6 - 2011)
 
 # Created with libpointing
 libpointing-input: dummy:?hz=125&cpi=400

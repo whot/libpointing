@@ -1,5 +1,5 @@
 # Obtained with "uname -rs"
-system: Darwin_14.1.0
+system: Darwin/14.1.0 (Mac OS X 10.10 - 2015)
 
 # Created with libpointing
 libpointing-input: dummy:?hz=125&cpi=400

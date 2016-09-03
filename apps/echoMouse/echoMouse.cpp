@@ -63,20 +63,22 @@ void EchoMouse::writeConfigDict()
     file.open(fileName.c_str(), ios::out | ios::trunc);
 
     /* ---------- System Info ---------- */
+
     file << "system: " << getSystemVersion()
          << endl << endl;
 
     /* ---------- Input and Output URIs ---------- */
-    file << "# Created with libpointing" << endl;
+
     file << "libpointing-input: "
          << input->getURI(true, true).asString()
          << endl << endl;
-    file << "# Obtained with libpointing" << endl;
+
     file << "libpointing-output: "
          << output->getURI(true).asString()
          << endl << endl;
 
     /* ---------- Functions info ---------- */
+    
     file << "functions: ";
     stringstream sFunc;
     stringstream sAlias;
