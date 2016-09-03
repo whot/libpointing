@@ -56,21 +56,22 @@ namespace pointing {
     URI::getQueryArg(uri.query, "hz", &forced_hz) ;
 
 #if 0
-    // OLD STUFF, USED BEFORE WE KNEW HOW TO PARSE REPORTS...
     use_report_callback = URI::getQueryArg(uri.query, "report") ;
     use_queue_callback = URI::getQueryArg(uri.query, "queue") ;
     if (isBluetooth()) {
       use_queue_callback = false ;
       use_report_callback = !use_queue_callback ;      
-    } else { // isUSB() or dDefault, used for example if no path is specified
+    } else { // isUSB() or default, used for example if no path is specified
       use_queue_callback = true ;
       use_report_callback = !use_queue_callback ;            
     }
-#endif
-
+#else
+    // Force the use of the report callback (and our custom-made report parser)
     use_queue_callback = false ;
     use_report_callback = !use_queue_callback ;      
-      
+#endif
+    std::cerr << "osxHIDInputDevice: " << (use_queue_callback?"queue":"report") << " mode" << std::endl ;
+    
     callback = 0 ;
     callback_context = 0 ;
     if (use_report_callback)
@@ -208,6 +209,7 @@ namespace pointing {
 
   void
   osxHIDPointingDevice::setPointingCallback(PointingCallback cbck, void *ctx) {
+    // std::cerr << "setPointingCallback " << cbck << " " << ctx << std::endl ;
     callback = cbck ;
     callback_context = ctx ;
     if (callback) {
@@ -332,7 +334,6 @@ namespace pointing {
       TimeStamp::inttime uptime = AbsoluteTimeInNanoseconds(IOHIDValueGetTimeStamp(hidvalue)) ;
       TimeStamp::inttime timestamp = self->epoch + (uptime - self->epoch_mach)*TimeStamp::one_nanosecond ;
 #else
-
       TimeStamp::inttime timestamp = TimeStamp::createAsInt() ;
 #endif
 
@@ -345,15 +346,15 @@ namespace pointing {
       IOHIDElementRef element = IOHIDValueGetElement(hidvalue) ;
       uint32_t usagepage = IOHIDElementGetUsagePage(element) ;
       uint32_t usage = IOHIDElementGetUsage(element) ;
-      //std::cout << usagepage << std::endl;
-      //std::cout << usage << std::endl;
+      //std::cerr << usagepage << std::endl;
+      //std::cerr << usage << std::endl;
       if (usagepage==kHIDPage_GenericDesktop) {
 	if (usage==kHIDUsage_GD_X || usage==kHIDUsage_GD_Y) {
       // Could use IOHIDValueGetScaledValue(hidvalue, kIOHIDValueScaleTypePhysical)
       CFIndex d = IOHIDValueGetIntegerValue(hidvalue) ;
 
-      //std::cout << IOHIDValueGetBytePtr(hidvalue) << std::endl;
-      //std::cout << IOHIDValueGetLength(hidvalue) << std::endl;
+      //std::cerr << IOHIDValueGetBytePtr(hidvalue) << std::endl;
+      //std::cerr << IOHIDValueGetLength(hidvalue) << std::endl;
       if (d) {
 	    if (usage==kHIDUsage_GD_X) self->qreport.dx = (int32_t)d ; else self->qreport.dy = (int32_t)d ;
 	    self->qreport.t = timestamp ;
@@ -378,7 +379,7 @@ namespace pointing {
   void
   osxHIDPointingDevice::report(osxHIDPointingDevice::PointingReport &r) {
     if (r.t) {
-      registerTimestamp(r.t);
+      registerTimestamp(r.t, r.dx, r.dy);
       if (callback) {
         if (hiddev->debugLevel>1)
       std::cerr << "osxHIDPointingDevice::report: " << r.toString() << std::endl ;

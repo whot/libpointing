@@ -22,8 +22,8 @@
 #include <pointing/input/DummyPointingDevice.h>
 
 #ifdef __APPLE__
-#include <CoreFoundation/CoreFoundation.h>
 #include <pointing/input/osx/osxPointingDevice.h>
+#include <pointing/input/osx/osxHIDPointingDevice.h>
 #endif
 #ifdef __linux__
 #include <pointing/input/linux/linuxPointingDevice.h>
@@ -132,12 +132,18 @@ namespace pointing {
 
 #ifdef __APPLE__
     if (anywilldo || uri.scheme=="osxhid")
-      return new osxPointingDevice(uri);
+#if 1
+      return new osxPointingDevice(uri);    // New way
+#else
+      return new osxHIDPointingDevice(uri); // Old way, kept for debugging purposes
 #endif
+#endif
+
 #ifdef _WIN32
     if (anywilldo || uri.scheme=="winhid")
       return new winPointingDevice(uri) ;
 #endif
+    
 #ifdef __linux__
     if (anywilldo || uri.scheme=="input")
       return new linuxPointingDevice(uri) ;
@@ -164,8 +170,8 @@ namespace pointing {
 #endif 
   }
 
-  void PointingDevice::getAbsolutePosition(double *x, double *y) const
-  {
+  void
+  PointingDevice::getAbsolutePosition(double *x, double *y) const {
     *x = -1;
     *y = -1;
   }

@@ -23,10 +23,17 @@ namespace pointing {
 
 #define USE_CURRENT_RUNLOOP 0
 
+#if 0
   bool isNotPointingDevice(IOHIDDeviceRef devRef)
   {
     // List of the URI substrings for which the corresponding devices will be ignored
-    io_name_t ignored[] = { "Keyboard", "AppleUSBTCButtons", "BNBTrackpadDevice", "AppleMikeyHIDDriver", "AppleUSBMultitouchDriver" };
+    io_name_t ignored[] = {
+      "Keyboard",
+      "AppleUSBTCButtons",
+      "BNBTrackpadDevice",
+      "AppleMikeyHIDDriver",
+      "AppleUSBMultitouchDriver"
+    } ;
     io_name_t className;
     IOObjectGetClass(IOHIDDeviceGetService(devRef), className);
     const int n = sizeof(ignored) / sizeof(ignored[0]);
@@ -35,7 +42,8 @@ namespace pointing {
         return true;
     return false;
   }
-
+#endif
+  
   void fillDescriptorInfo(IOHIDDeviceRef devRef, PointingDeviceDescriptor &desc)
   {
     desc.devURI = hidDeviceURI(devRef);
@@ -62,9 +70,9 @@ namespace pointing {
 
   void osxPointingDeviceManager::AddDevice(void *sender, IOReturn, void *, IOHIDDeviceRef devRef)
   {
-    // Prevent other HID devices from being detected
-    if (isNotPointingDevice(devRef))
-      return;
+    // if (isNotPointingDevice(devRef)) return ; // Prevents other HID devices from being detected
+    // NR: No. These devices matched the requested profile, leave that decision to the application    
+    
     osxPointingDeviceManager *self = (osxPointingDeviceManager *)sender;
     osxPointingDeviceData *pdd = new osxPointingDeviceData;
     fillDescriptorInfo(devRef, pdd->desc);
@@ -80,9 +88,9 @@ namespace pointing {
         if (self->debugLevel > 1)
           std::cerr << "    osxPointingDeviceManager::AddDevice: unable to parse the HID report descriptor" << std::endl;
       }
-      else
-        IOHIDDeviceRegisterInputReportCallback(devRef, pdd->report, sizeof(pdd->report),
-                                               hidReportCallback, self);
+      else {
+	IOHIDDeviceRegisterInputReportCallback(devRef, pdd->report, sizeof(pdd->report), hidReportCallback, self) ;
+      }
 
       if (self->debugLevel > 1)
       {
@@ -140,6 +148,7 @@ namespace pointing {
 
   void osxPointingDeviceManager::hidReportCallback(void *context, IOReturn, void *dev, IOHIDReportType, uint32_t, uint8_t *report, CFIndex)
   {
+    std::cerr << "hidReportCallback" << std::endl ;
     TimeStamp::inttime timestamp = TimeStamp::createAsInt();
 
     osxPointingDeviceManager *self = static_cast<osxPointingDeviceManager *>(context);

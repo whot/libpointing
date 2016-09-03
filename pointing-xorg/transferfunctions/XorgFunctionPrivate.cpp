@@ -742,7 +742,11 @@ DoGetDirection(int dx, int dy){
   float r;
   int i1, i2;
   /* on insignificant mickeys, flag 135 degrees */
-  if(abs(dx) < 2 && abs(dy < 2)){
+
+  // NR: fixed the line below which has a misplaced parenthesis...
+  // if(abs(dx) < 2 && abs(dy < 2)){
+  if(abs(dx) < 2 && abs(dy) < 2){
+    
     /* first check diagonal cases */
     if(dx > 0 && dy > 0)
       return 4+8+16;

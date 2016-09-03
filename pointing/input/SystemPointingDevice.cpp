@@ -18,8 +18,8 @@
 
 namespace pointing {
 
-  #define DEFAULT_CPI       400.0
-  #define DEFAULT_HZ        125.0
+  #define DEFAULT_CPI       400.001
+  #define DEFAULT_HZ        125.001
 
   SystemPointingDevice::SystemPointingDevice(URI uri):uri(uri)
   {

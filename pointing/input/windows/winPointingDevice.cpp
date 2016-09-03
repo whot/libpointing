@@ -18,17 +18,17 @@
 #include <pointing/input/windows/winPointingDevice.h>
 #include <pointing/input/windows/winPointingDeviceManager.h>
 
-namespace pointing
-{
-    winPointingDevice::winPointingDevice(URI uri) : SystemPointingDevice(uri)
-    {
-      winPointingDeviceManager *man = static_cast<winPointingDeviceManager *>(PointingDeviceManager::get());
-      man->addPointingDevice(this);
-    }
+namespace pointing {
+  
+  winPointingDevice::winPointingDevice(URI uri) : SystemPointingDevice(uri) {
+    winPointingDeviceManager *man = static_cast<winPointingDeviceManager *>(PointingDeviceManager::get());
+    man->addPointingDevice(this);
+  }
 
-    void winPointingDevice::getAbsolutePosition(double *x, double *y) const
-    {
-      *x = lastX;
-      *y = lastY;
-    }
+  void
+  winPointingDevice::getAbsolutePosition(double *x, double *y) const {
+    *x = lastX;
+    *y = lastY;
+  }
+
 }

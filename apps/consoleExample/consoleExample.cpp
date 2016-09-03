@@ -48,9 +48,9 @@ main(int argc, char** argv) {
   try {
 
     if (argc < 3)
-      std::cout 
-  << "Usage: " << argv[0] << " [inputdeviceURI [outputdeviceURI [transferfunctionURI]]]" << std::endl 
-  << "Using default values for some parameters" << std::endl ;
+      std::cerr << "Usage: " << argv[0]
+		<< " [inputdeviceURI [outputdeviceURI [transferfunctionURI]]]"
+		<< std::endl  ;
 
     // --- Pointing device ----------------------------------------------------
 
