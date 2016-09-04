@@ -2,7 +2,6 @@
  *
  * pointing/utils/HIDItem.cpp --
  *
- * Initial software
  * Authors: Izzatbek Mukhanov
  * Copyright © Inria
  *

@@ -2,7 +2,6 @@
  *
  * pointing/utils/HIDReportParser.h --
  *
- * Initial software
  * Authors: Izzatbek Mukhanov
  * Copyright © Inria
  *
