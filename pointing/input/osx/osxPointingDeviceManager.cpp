@@ -148,7 +148,7 @@ namespace pointing {
 
   void osxPointingDeviceManager::hidReportCallback(void *context, IOReturn, void *dev, IOHIDReportType, uint32_t, uint8_t *report, CFIndex)
   {
-    std::cerr << "hidReportCallback" << std::endl ;
+    // std::cerr << "hidReportCallback" << std::endl ;
     TimeStamp::inttime timestamp = TimeStamp::createAsInt();
 
     osxPointingDeviceManager *self = static_cast<osxPointingDeviceManager *>(context);

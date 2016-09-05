@@ -66,18 +66,15 @@ namespace pointing {
 
   URI
   hidDeviceURI(IOHIDDeviceRef device) {
-    URI uri ;
-    uri.scheme = "osxhid" ;
     io_name_t className ;
     IOObjectGetClass(IOHIDDeviceGetService(device), className) ;
-    std::stringstream path ;
-    path << "/" 
-	 << hidDeviceGetStringProperty(device, CFSTR(kIOHIDTransportKey))
-	 << "/"
-	 << std::hex << hidDeviceGetIntProperty(device, CFSTR(kIOHIDLocationIDKey)) << std::dec
-	 << "/" << className ;
-    uri.path = path.str() ;
-    return uri ;
+    std::stringstream uriAsString ;
+    uriAsString << "osxhid:/"
+		<< hidDeviceGetStringProperty(device, CFSTR(kIOHIDTransportKey))
+		<< "/"
+		<< std::hex << hidDeviceGetIntProperty(device, CFSTR(kIOHIDLocationIDKey)) << std::dec
+		<< "/" << className ;
+    return URI(uriAsString.str()) ;
   }
 
   // -----------------------------------------------------------------------

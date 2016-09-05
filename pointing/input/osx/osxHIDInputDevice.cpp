@@ -56,7 +56,6 @@ namespace pointing {
     osxHIDInputDevice *self = (osxHIDInputDevice*)context ;
 
     URI devUri = hidDeviceURI(device) ;
-    // std::cerr << "osxHIDInputDevice::AddDevice: " << devUri.asString() << std::endl ;
     
     bool match = self->theDevice==0 && (self->uri.isEmpty() || self->uri.scheme=="any" || self->uri.resemble(devUri)) ;
 
