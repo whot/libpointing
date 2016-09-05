@@ -34,6 +34,7 @@ namespace pointing {
   URI hidDeviceURI(IOHIDDeviceRef device) ;
 
   std::string hidDeviceName(IOHIDDeviceRef device);
+  std::string hidDeviceSerialNumber(IOHIDDeviceRef device);
 
   void hidDebugDevice(IOHIDDeviceRef device, std::ostream& out) ;
 

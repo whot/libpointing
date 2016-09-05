@@ -79,11 +79,14 @@ namespace pointing {
 
   // -----------------------------------------------------------------------
 
-  std::string hidDeviceName(IOHIDDeviceRef device)
-  {
+  std::string hidDeviceName(IOHIDDeviceRef device) {
       std::string manufacturer = hidDeviceGetStringProperty(device, CFSTR(kIOHIDManufacturerKey)) ;
       std::string product = hidDeviceGetStringProperty(device, CFSTR(kIOHIDProductKey)) ;
       return manufacturer + " - " + product;
+  }
+
+  std::string hidDeviceSerialNumber(IOHIDDeviceRef device) {
+      return hidDeviceGetStringProperty(device, CFSTR(kIOHIDSerialNumberKey)) ;
   }
 
   // -----------------------------------------------------------------------
@@ -94,12 +97,14 @@ namespace pointing {
     int32_t productID = hidDeviceGetIntProperty(device, CFSTR(kIOHIDProductIDKey)) ;
     std::string manufacturer = hidDeviceGetStringProperty(device, CFSTR(kIOHIDManufacturerKey)) ;
     std::string product = hidDeviceGetStringProperty(device, CFSTR(kIOHIDProductKey)) ;
-
+    std::string serial = hidDeviceGetStringProperty(device, CFSTR(kIOHIDSerialNumberKey)) ;
+      
     out << hidDeviceURI(device).asString()
 	<< " ["
 	<< std::hex
 	<< "vend:0x" << vendorID << ", prod:0x" << productID
-	<< std::dec ;
+	<< std::dec
+	<< ", serial:" << serial ;
     SInt32 resolution = hidGetPointingResolution(device) ;
     if (resolution!=-1) out << ", " << resolution << " CPI" ;
     double reportinterval = hidGetReportInterval(device) ;

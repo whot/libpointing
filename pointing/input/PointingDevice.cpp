@@ -132,11 +132,9 @@ namespace pointing {
 
 #ifdef __APPLE__
     if (anywilldo || uri.scheme=="osxhid")
-#if 1
       return new osxPointingDevice(uri);    // New way
-#else
+    if (uri.scheme=="osxhid-legacy")    
       return new osxHIDPointingDevice(uri); // Old way, kept for debugging purposes
-#endif
 #endif
 
 #ifdef _WIN32

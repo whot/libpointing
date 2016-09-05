@@ -170,7 +170,7 @@ namespace pointing
           curRepInfo->dyPos += 8;
           curRepInfo->buttonsPos += 8;
         }
-        if (debugLevel)
+        if (debugLevel>1)
         {
           cerr << "    HIDReportParser: report ID #" << curRepInfo->reportId << " - "
                << "buttons: " << curRepInfo->buttonsPos

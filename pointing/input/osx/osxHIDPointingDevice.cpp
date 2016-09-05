@@ -70,7 +70,7 @@ namespace pointing {
     use_queue_callback = false ;
     use_report_callback = !use_queue_callback ;      
 #endif
-    std::cerr << "osxHIDInputDevice: " << (use_queue_callback?"queue":"report") << " mode" << std::endl ;
+    // std::cerr << "osxHIDInputDevice: " << (use_queue_callback?"queue":"report") << " mode" << std::endl ;
     
     callback = 0 ;
     callback_context = 0 ;
@@ -190,6 +190,7 @@ namespace pointing {
 
     double result = -1 ;
     if (hiddev->theDevice) result = 1.0 / hidGetReportInterval(hiddev->theDevice->device) ;
+
     double estimated = estimatedUpdateFrequency();
     if (result == 125. && estimated > 0.)
       return estimated;

@@ -60,7 +60,7 @@ namespace pointing {
     bool match = self->theDevice==0 && (self->uri.isEmpty() || self->uri.scheme=="any" || self->uri.resemble(devUri)) ;
 
     if (self->debugLevel>0) {
-      std::cerr << (match?"+ ":"  ") ; // << device << " " ;
+      std::cerr << (match?"+ ":"  ") ;
       hidDebugDevice(device, std::cerr) ;
       std::cerr << std::endl ;
     }
