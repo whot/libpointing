@@ -30,8 +30,18 @@ class MachAbsTimeConverter {
   TimeStamp::inttime epoch ;
 
   uint64_t nanoseconds(uint64_t mabst) {
-    Nanoseconds nanos = AbsoluteToNanoseconds(*(AbsoluteTime *)&mabst) ;
-    return (*(uint64_t *)&nanos) ;
+#if 0 // AbsoluteToNanoseconds is deprecated since macOS 10.8
+    Nanoseconds tmp = AbsoluteToNanoseconds(*(AbsoluteTime *)&mabst) ;
+    uint64_t nanos = (*(uint64_t *)&tmp) ;
+#else
+    // Adapted from https://developer.apple.com/library/mac/qa/qa1398/_index.html
+    static mach_timebase_info_data_t sTimebaseInfo ;
+    if (sTimebaseInfo.denom == 0 ) {
+      (void) mach_timebase_info(&sTimebaseInfo) ;
+    }
+    uint64_t nanos = mabst * sTimebaseInfo.numer / sTimebaseInfo.denom ;
+#endif    
+    return nanos ;
   }
   
 public:
