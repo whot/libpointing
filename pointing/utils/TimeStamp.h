@@ -118,6 +118,10 @@ namespace pointing {
       return (this->t==t) ;
     }
 
+    bool operator!=(const TimeStamp &other) const {
+        return (t!=other.t);
+    }
+
     TimeStamp::inttime operator-(const TimeStamp &other) const {
       return t-other.t ;
     }

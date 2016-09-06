@@ -55,22 +55,6 @@ namespace pointing {
 
   // ----------------------------------------------------------------------
 
-  TimeStamp::TimeStamp(const TimeStamp::inttime t) {
-    if ((t>=TimeStamp::min && t<=TimeStamp::max) || t==TimeStamp::undef)
-      this->t = t ;
-    else
-      throw std::runtime_error("TimeStamp value out of range") ;
-  }
-
-  TimeStamp::inttime
-  TimeStamp::operator=(const TimeStamp::inttime t) {
-    if ((t>=TimeStamp::min && t<=TimeStamp::max) || t==TimeStamp::undef)
-      this->t = t ;
-    else
-      throw std::runtime_error("TimeStamp value out of range") ;
-    return t ;
-  }
-
 #ifdef _MSC_VER // Visual Studio C++
 #include <Windows.h>
 
@@ -120,8 +104,25 @@ namespace pointing {
  
     return 0;
   }
-
 #endif
+
+  // ----------------------------------------------------------------------
+
+  TimeStamp::TimeStamp(const TimeStamp::inttime t) {
+    if ((t>=TimeStamp::min && t<=TimeStamp::max) || t==TimeStamp::undef)
+      this->t = t ;
+    else
+      throw std::range_error("TimeStamp value out of range") ;
+  }
+
+  TimeStamp::inttime
+  TimeStamp::operator=(const TimeStamp::inttime t) {
+    if ((t>=TimeStamp::min && t<=TimeStamp::max) || t==TimeStamp::undef)
+      this->t = t ;
+    else
+      throw std::range_error("TimeStamp value out of range") ;
+    return t ;
+  }
 
   TimeStamp::inttime 
   TimeStamp::now(void) {
@@ -165,7 +166,7 @@ namespace pointing {
     memset(&aTm, 0, sizeof(aTm)) ;
     /*int nbitems = */ sscanf(s.c_str(),"%4d-%2d-%2dT%2d:%2d:%2d.%9lldZ",
 			      &aTm.tm_year,&aTm.tm_mon,&aTm.tm_mday,
-                  &aTm.tm_hour,&aTm.tm_min,&aTm.tm_sec,
+			      &aTm.tm_hour,&aTm.tm_min,&aTm.tm_sec,
 			      &frac) ;
 #if 0
     std::cerr << nbitems << " items parsed: "
@@ -186,6 +187,8 @@ namespace pointing {
 
   std::string
   TimeStamp::int2string(TimeStamp::inttime t) {
+    if(t==TimeStamp::undef) return "undef" ;
+
     time_t sec = (time_t)(t/one_second) ;
     inttime frac = t - (inttime)(sec)*one_second ;
     if (t<0 && frac!=0) {
@@ -194,23 +197,23 @@ namespace pointing {
     }
 
     struct tm *tm = gmtime(&sec) ;
-    // std::cerr << "-- isdst: " << tm->tm_isdst << " zone: " << tm->tm_zone << " gmtoff: " << tm->tm_gmtoff << " --" << std::endl ;
+    if (tm==NULL) return "undef[NULL]" ;
 
     std::stringstream result ;
     result << std::setfill('0') << std::setw(4) << 1900+tm->tm_year
 	   << "-" << std::setfill('0') << std::setw(2) << 1+tm->tm_mon
 	   << "-" << std::setfill('0') << std::setw(2) << tm->tm_mday
-	   << "T" << std::setfill('0') << std::setw(2) << tm->tm_hour 
-	   << ":" << std::setfill('0') << std::setw(2) << tm->tm_min 
+	   << "T" << std::setfill('0') << std::setw(2) << tm->tm_hour
+	   << ":" << std::setfill('0') << std::setw(2) << tm->tm_min
 	   << ":" << std::setfill('0') << std::setw(2) << tm->tm_sec
-	   << "." << std::setfill('0') << std::setw(9) << frac 
+	   << "." << std::setfill('0') << std::setw(9) << frac
 	   << "Z" ;
     return result.str() ;
   }
 
   TimeStamp::inttime
   TimeStamp::ext2int(int year, int month, int day, 
-         int hour, int min, int sec, int frac) {
+		     int hour, int min, int sec, int frac) {
     struct tm tm ;
     tm.tm_sec = sec ;
     tm.tm_min = min ;
