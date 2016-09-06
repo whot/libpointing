@@ -6,8 +6,6 @@
 
 #message("Using pointing.pri")
 
-QT += xml
-
 CONFIG += link_prl
 
 INCLUDEPATH += $$POINTING
