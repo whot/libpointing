@@ -34,6 +34,9 @@
 #define timegm(arg) (mktime(arg) - timezone)
 #endif
 
+#ifdef __APPLE__
+#include <mach/mach_time.h>
+#endif
 
 namespace pointing {
 
@@ -122,9 +125,24 @@ namespace pointing {
 
   TimeStamp::inttime 
   TimeStamp::now(void) {
+#ifdef __APPLE__
+    static uint64_t epoch, epoch_mach ;
+    static mach_timebase_info_data_t sTimebaseInfo ;
+    if (sTimebaseInfo.denom == 0) {
+      struct timeval stamp ;
+      gettimeofday(&stamp, 0) ;
+      epoch_mach = mach_absolute_time() ;
+      epoch = (inttime)stamp.tv_sec*one_second +  (inttime)stamp.tv_usec*one_microsecond ;
+      (void) mach_timebase_info(&sTimebaseInfo) ;
+      return epoch ;
+    }
+    uint64_t elapsedNano = (mach_absolute_time()-epoch_mach) * sTimebaseInfo.numer / sTimebaseInfo.denom ;
+    return epoch + elapsedNano*TimeStamp::one_nanosecond ;
+#else
     struct timeval stamp ;
     gettimeofday(&stamp, 0) ;
     return (inttime)stamp.tv_sec*one_second +  (inttime)stamp.tv_usec*one_microsecond ;
+#endif
   }
 
   TimeStamp::inttime 

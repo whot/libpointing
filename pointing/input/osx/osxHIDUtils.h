@@ -57,8 +57,6 @@ namespace pointing {
   std::string hidAnyPointingDevice(void) ;
   std::string hidXYElements(void) ;
 
-  uint64_t AbsoluteTimeInNanoseconds(uint64_t tAbs) ;
-
 }
 
 #endif

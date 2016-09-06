@@ -13,7 +13,6 @@
  *
  */
 
-#include <pointing/utils/TimeStamp.h>
 #include <pointing/input/osx/osxHIDUtils.h>
 
 #include <IOKit/IOCFPlugIn.h>
@@ -118,34 +117,15 @@ namespace pointing {
     // out << tmp << std::endl ;
   }
 
-  uint64_t
-  AbsoluteTimeInNanoseconds(uint64_t tAbs) {
-    // If this is the first time we've run, get the timebase.  We can
-    // use denom == 0 to indicate that sTimebaseInfo is uninitialised
-    // because it makes no sense to have a zero denominator is a
-    // fraction.
-
-    static mach_timebase_info_data_t sTimebaseInfo ;
-    if ( sTimebaseInfo.denom == 0 )
-      (void) mach_timebase_info(&sTimebaseInfo) ;
-
-    // Do the maths. We hope that the multiplication doesn't overflow;
-    // the price you pay for working in fixed point.
-
-    uint64_t tNano = tAbs * sTimebaseInfo.numer / sTimebaseInfo.denom ;
-    return tNano ;
-  }
-
   void
   hidDebugValue(IOHIDValueRef hidvalue, std::ostream& out) {
-    TimeStamp::inttime timestamp = AbsoluteTimeInNanoseconds(IOHIDValueGetTimeStamp(hidvalue)) ;
-
+    uint64_t timestamp = IOHIDValueGetTimeStamp(hidvalue) ;
     CFIndex value = IOHIDValueGetIntegerValue(hidvalue) ;
     IOHIDElementRef element = IOHIDValueGetElement(hidvalue) ;
     uint32_t usagepage = IOHIDElementGetUsagePage(element) ;
     uint32_t usage = IOHIDElementGetUsage(element) ;
     out 
-      << "@abs" << timestamp << "ns"
+      << "@abs" << timestamp
       << std::hex << " 0x" << usagepage << "/0x" << usage << std::dec
       << ": " ;
     if (usagepage==kHIDPage_GenericDesktop) {

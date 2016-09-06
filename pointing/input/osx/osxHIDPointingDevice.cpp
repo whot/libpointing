@@ -29,11 +29,13 @@ namespace pointing {
 #define OSX_DEFAULT_CPI       400.001
 #define OSX_DEFAULT_HZ        125.001
 
+#define USE_IOHIDValueGetTimeStamp 1
+  
   // ----------------------------------------------------------------------
 
   osxHIDPointingDevice::osxHIDPointingDevice(URI uri) {
-    epoch_mach = AbsoluteTimeInNanoseconds(mach_absolute_time()) ;
     epoch = TimeStamp::createAsInt() ;
+    epoch_mach = mach_absolute_time() ;
 
     vendorID = OSX_DEFAULT_VENDOR ;
     productID = OSX_DEFAULT_PRODUCT ;
@@ -66,7 +68,7 @@ namespace pointing {
       use_report_callback = !use_queue_callback ;            
     }
 #else
-    // Force the use of the report callback (and our custom-made report parser)
+    // Force the use of the report callback since our custom-made report parser seems to be faster
     use_queue_callback = false ;
     use_report_callback = !use_queue_callback ;      
 #endif
@@ -322,6 +324,10 @@ namespace pointing {
   void
   osxHIDPointingDevice::hidQueueCallback(void *context, IOReturn /*result*/, void *sender) {
     // std::cerr << "osxHIDPointingDevice::hidQueueCallback" << std::endl ;
+
+#if !USE_IOHIDValueGetTimeStamp
+    TimeStamp::inttime timestamp = TimeStamp::createAsInt() ;
+#endif
     
     osxHIDPointingDevice *self = (osxHIDPointingDevice*)context ;
     IOHIDQueueRef queue = (IOHIDQueueRef)sender ;
@@ -331,11 +337,12 @@ namespace pointing {
       IOHIDValueRef hidvalue = IOHIDQueueCopyNextValueWithTimeout(queue, 0.) ;
       if (!hidvalue) break ;
 
-#if 1
-      TimeStamp::inttime uptime = AbsoluteTimeInNanoseconds(IOHIDValueGetTimeStamp(hidvalue)) ;
-      TimeStamp::inttime timestamp = self->epoch + (uptime - self->epoch_mach)*TimeStamp::one_nanosecond ;
-#else
-      TimeStamp::inttime timestamp = TimeStamp::createAsInt() ;
+#if USE_IOHIDValueGetTimeStamp
+      static mach_timebase_info_data_t sTimebaseInfo ;
+      if ( sTimebaseInfo.denom == 0 ) (void) mach_timebase_info(&sTimebaseInfo) ;
+      TimeStamp::inttime uptime = IOHIDValueGetTimeStamp(hidvalue) ;
+      uint64_t nanoseconds = (uptime - self->epoch_mach) * sTimebaseInfo.numer / sTimebaseInfo.denom ;
+      TimeStamp::inttime timestamp = self->epoch + nanoseconds*TimeStamp::one_nanosecond ;
 #endif
 
       if (self->qreport.isOlderThan(timestamp)) {
