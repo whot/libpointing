@@ -6,6 +6,7 @@
 
 TEMPLATE = app
 CONFIG   += warn_on link_prl
+QT -= core gui
 
 POINTING = ../..
 include($$POINTING/pointing/pointing.pri)

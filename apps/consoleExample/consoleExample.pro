@@ -7,6 +7,7 @@
 TEMPLATE  = app
 CONFIG   += warn_on link_prl
 CONFIG   -= app_bundle
+QT -= core gui
 
 TARGET = consoleExample
 
