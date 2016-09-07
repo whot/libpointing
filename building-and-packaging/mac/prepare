@@ -88,7 +88,6 @@ HEADERS = [
     # OS X specifics
     # --------------------------------------------------------------
     "pointing/utils/osx/osxPlistUtils.h",
-    "pointing/utils/osx/osxTimeUtils.h",
     "pointing/input/osx/osxPointingDevice.h",
     "pointing/input/osx/osxHIDUtils.h",
     "pointing/input/osx/osxPrivateMultitouchDevice.h",

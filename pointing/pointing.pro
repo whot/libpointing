@@ -73,8 +73,7 @@ SOURCES  = $$HERE/utils/Base64.cpp \
 include(../pointing-xorg/pointing-xorg.pri)
 
 macx {
-  HEADERS += $$HERE/utils/osx/osxTimeUtils.h \
-             $$HERE/utils/osx/osxPlistUtils.h \
+  HEADERS += $$HERE/utils/osx/osxPlistUtils.h \
              $$HERE/input/osx/osxPointingDevice.h \
 	     $$HERE/input/osx/osxHIDInputDevice.h \
 	     $$HERE/input/osx/osxHIDPointingDevice.h \
