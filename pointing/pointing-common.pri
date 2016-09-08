@@ -7,9 +7,7 @@
 #message("Using pointing-common.pri")
 
 macx {
-  # CONFIG   += x86 x86_64
-  # QMAKE_MAC_SDK = macosx10.9
-  # QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.10
+    QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.10
 }
 
 unix {

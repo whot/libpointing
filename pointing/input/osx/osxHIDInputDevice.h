@@ -20,11 +20,18 @@
 
 #include <pointing/utils/URI.h>
 
+#include <Availability.h>
 #include <IOKit/hid/IOHIDManager.h>
 #include <pointing/utils/HIDReportParser.h>
 
 #include <map>
 #include <string>
+
+#if __MAC_OS_X_VERSION_MIN_REQUIRED >= 101000
+#define IOHIDReportCallbackSignature IOHIDReportWithTimeStampCallback
+#else
+#define IOHIDReportCallbackSignature IOHIDReportCallback
+#endif
 
 namespace pointing {
 
@@ -49,7 +56,7 @@ namespace pointing {
     __device *theDevice ;
     URI uri ;
 
-    IOHIDReportCallback inputreport_callback ;
+    IOHIDReportCallbackSignature inputreport_callback ;
     void *inputreport_context ;
     IOHIDValueCallback value_callback ;
     void *value_context ;
@@ -74,7 +81,7 @@ namespace pointing {
 
     IOHIDDeviceRef getDevice(void) const ;
 
-    void setInputReportCallback(IOHIDReportCallback callback, void *context=0) ;
+    void setInputReportCallback(IOHIDReportCallbackSignature callback, void *context=0) ;
     void setValueCallback(IOHIDValueCallback callback, void *context=0) ;
     void setQueueCallback(IOHIDCallback callback, void *context=0) ;
 

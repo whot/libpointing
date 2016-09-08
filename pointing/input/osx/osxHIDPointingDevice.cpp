@@ -18,8 +18,6 @@
 
 #include <sstream>
 
-#include <mach/mach_time.h>
-
 namespace pointing {
 
 #define OSX_DEFAULT_VENDOR    0
@@ -30,13 +28,14 @@ namespace pointing {
 #define OSX_DEFAULT_HZ        125.001
 
 #define USE_IOHIDValueGetTimeStamp 1
-  
+ 
   // ----------------------------------------------------------------------
 
   osxHIDPointingDevice::osxHIDPointingDevice(URI uri) {
     epoch = TimeStamp::createAsInt() ;
     epoch_mach = mach_absolute_time() ;
-
+    mach_timebase_info(&mach_timebaseinfo) ;
+      
     vendorID = OSX_DEFAULT_VENDOR ;
     productID = OSX_DEFAULT_PRODUCT ;
     primaryUsagePage = OSX_DEFAULT_USAGEPAGE ;
@@ -72,7 +71,7 @@ namespace pointing {
     use_queue_callback = false ;
     use_report_callback = !use_queue_callback ;      
 #endif
-    // std::cerr << "osxHIDInputDevice: " << (use_queue_callback?"queue":"report") << " mode" << std::endl ;
+    std::cerr << "osxHIDPointingDevice: " << (use_queue_callback?"queue":"report") << " mode" << std::endl ;
     
     callback = 0 ;
     callback_context = 0 ;
@@ -293,32 +292,43 @@ namespace pointing {
     return result.str() ;
   }
 
+#if __MAC_OS_X_VERSION_MIN_REQUIRED >= 101000
   void
-  osxHIDPointingDevice::hidReportCallback(void *context, IOReturn /*result*/, void */*sender*/,
-                      IOHIDReportType, uint32_t,
-                      uint8_t *report, CFIndex /*reportLength*/) {
-    // std::cerr << "osxHIDPointingDevice::hidReportCallback" << std::endl ;
-    
+  osxHIDPointingDevice::hidReportCallback(void *context,
+					  IOReturn /*result*/,
+					  void */*sender*/,
+					  IOHIDReportType /*type*/,
+					  uint32_t /*reportID*/,
+					  uint8_t *report,
+					  CFIndex /*reportLength*/,
+					  uint64_t abstime) {
+    osxHIDPointingDevice *self = (osxHIDPointingDevice*)context ;    
+    uint64_t nanoseconds = (abstime - self->epoch_mach) * self->mach_timebaseinfo.numer / self->mach_timebaseinfo.denom ;
+    TimeStamp::inttime timestamp = self->epoch + nanoseconds*TimeStamp::one_nanosecond ;
+#else
+  void
+  osxHIDPointingDevice::hidReportCallback(void *context,
+					  IOReturn /*result*/,
+					  void */*sender*/,
+					  IOHIDReportType /*type*/,
+					  uint32_t /*reportID*/,
+					  uint8_t *report,
+					  CFIndex /*reportLength*/) {
     TimeStamp::inttime timestamp = TimeStamp::createAsInt() ;
+    osxHIDPointingDevice *self = (osxHIDPointingDevice*)context ;    
+#endif    
 
-    osxHIDPointingDevice *self = (osxHIDPointingDevice*)context ;
+    if (!self->hiddev->parser->setReport(report)) return ;
 
-    PointingReport *pReport = 0 ;
-
-    if (self->hiddev->parser->setReport(report)) {
-      pReport = new PointingReport ;
-      int dx = 0, dy = 0, buttons = 0;
-      self->hiddev->parser->getReportData(&dx, &dy, &buttons) ;
-      pReport->dx = dx;
-      pReport->dy = dy;
-      pReport->btns = buttons;
-      pReport->t = timestamp;
-    }
-
-    if (pReport) {
-      self->report(*pReport) ;
-      delete pReport ;
-    }
+    int dx = 0, dy = 0, buttons = 0;
+    self->hiddev->parser->getReportData(&dx, &dy, &buttons) ;
+	
+    PointingReport r ;
+    r.t = timestamp ;
+    r.dx = dx ;
+    r.dy = dy ;
+    r.btns = buttons ;
+    self->report(r) ;      
   }
 
   void
@@ -338,10 +348,8 @@ namespace pointing {
       if (!hidvalue) break ;
 
 #if USE_IOHIDValueGetTimeStamp
-      static mach_timebase_info_data_t sTimebaseInfo ;
-      if ( sTimebaseInfo.denom == 0 ) (void) mach_timebase_info(&sTimebaseInfo) ;
-      TimeStamp::inttime uptime = IOHIDValueGetTimeStamp(hidvalue) ;
-      uint64_t nanoseconds = (uptime - self->epoch_mach) * sTimebaseInfo.numer / sTimebaseInfo.denom ;
+      TimeStamp::inttime abstime = IOHIDValueGetTimeStamp(hidvalue) ;
+      uint64_t nanoseconds = (abstime - self->epoch_mach) * self->mach_timebaseinfo.numer / self->mach_timebaseinfo.denom ;
       TimeStamp::inttime timestamp = self->epoch + nanoseconds*TimeStamp::one_nanosecond ;
 #endif
 

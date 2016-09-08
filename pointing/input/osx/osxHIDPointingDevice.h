@@ -21,6 +21,8 @@
 #include <pointing/utils/URI.h>
 #include <pointing/utils/TimeStamp.h>
 
+#include <mach/mach_time.h>
+
 namespace pointing {
 
   class osxHIDPointingDevice : public PointingDevice {
@@ -39,9 +41,10 @@ namespace pointing {
       std::string toString(void) const ;
     } ;
 
-    TimeStamp::inttime epoch_mach ;
     TimeStamp::inttime epoch ;
-
+    TimeStamp::inttime epoch_mach ;
+    mach_timebase_info_data_t mach_timebaseinfo ;
+    
     int vendorID, productID ; 
     int primaryUsagePage, primaryUsage ;
 
@@ -57,10 +60,17 @@ namespace pointing {
     bool isUSB(void) ;
     bool isBluetooth(void) ;
 
+#if __MAC_OS_X_VERSION_MIN_REQUIRED >= 101000
+    static void hidReportCallback(void *context, IOReturn result, void *sender,
+				  IOHIDReportType type, uint32_t reportID,
+				  uint8_t *report, CFIndex reportLength,
+				  uint64_t timeStamp) ;
+#else
     static void hidReportCallback(void *context, IOReturn result, void *sender,
 				  IOHIDReportType type, uint32_t reportID, 
 				  uint8_t *report, CFIndex reportLength) ;
-
+#endif
+    
     static void hidQueueCallback(void *context, IOReturn result, void *sender) ;
 
     void report(osxHIDPointingDevice::PointingReport &r) ;

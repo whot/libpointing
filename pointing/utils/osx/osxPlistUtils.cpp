@@ -32,6 +32,7 @@ namespace pointing {
 
   CFPropertyListRef
   getPropertyListFromFile(const char *path) {
+#if 1
     CFStringRef cfpath = CFStringCreateWithCStringNoCopy(kCFAllocatorDefault,
 							 path,
 							 kCFStringEncodingISOLatin1,
@@ -41,6 +42,7 @@ namespace pointing {
     CFRelease(cfpath) ;
     CFDataRef xmldata = 0 ;
     SInt32 errorCode = 0 ;
+    // FIXME: this function is now deprecated
     Boolean ok = CFURLCreateDataAndPropertiesFromResource(kCFAllocatorDefault,
 							  cfurl,
 							  &xmldata,
@@ -53,18 +55,34 @@ namespace pointing {
       return 0 ;
     }
 
-#if 1
     CFPropertyListRef plist = CFPropertyListCreateWithData(kCFAllocatorDefault,
 							   xmldata,
 							   kCFPropertyListImmutable,
 							   NULL, NULL) ;
     CFRelease(xmldata) ;
 #else
-    CFStringRef errorString ;
-    CFPropertyListRef plist = CFPropertyListCreateFromXMLData(kCFAllocatorDefault,
-							      xmldata,
-							      kCFPropertyListImmutable,
-							      &errorString) ;
+    // FIXME: possible replacement, when it works...
+    
+    CFStringRef cfpath = CFStringCreateWithCStringNoCopy(kCFAllocatorDefault,
+							 path,
+							 kCFStringEncodingISOLatin1,
+							 kCFAllocatorNull) ;
+    CFURLRef cfurl = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, cfpath, 
+						   kCFURLPOSIXPathStyle, false) ;
+    CFErrorRef *error= 0 ;
+    CFReadStreamRef stream = CFReadStreamCreateWithFile(kCFAllocatorDefault, cfurl );
+
+    // FIXME: the following code fails to work, for unknown reason (yet)
+    CFPropertyListRef plist = CFPropertyListCreateWithStream(kCFAllocatorDefault,
+							     stream, 0 /* streamLength */,
+							     kCFPropertyListImmutable,
+							     NULL /* *format */,
+							     error /* *error*/) ;
+    // if (error) CFShow(error) ;
+    
+    CFRelease(stream) ;
+    CFRelease(cfurl) ;
+    CFRelease(cfpath) ;    
 #endif
 
     return plist ;

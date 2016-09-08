@@ -86,8 +86,15 @@ namespace pointing {
     }
     
     if (self->inputreport_callback) {
-      IOHIDDeviceRegisterInputReportCallback(device, self->theDevice->report, sizeof(self->theDevice->report),
+#if __MAC_OS_X_VERSION_MIN_REQUIRED >= 101000
+      IOHIDDeviceRegisterInputReportWithTimeStampCallback(device,
+					     self->theDevice->report, sizeof(self->theDevice->report),
 					     self->inputreport_callback, self->inputreport_context) ;
+#else
+      IOHIDDeviceRegisterInputReportCallback(device,
+					     self->theDevice->report, sizeof(self->theDevice->report),
+					     self->inputreport_callback, self->inputreport_context) ;
+#endif
     }
 
     if (self->value_callback) {
@@ -212,7 +219,7 @@ namespace pointing {
   }
 
   void
-  osxHIDInputDevice::setInputReportCallback(IOHIDReportCallback callback, void *context) {
+  osxHIDInputDevice::setInputReportCallback(IOHIDReportCallbackSignature callback, void *context) {
     inputreport_callback = callback ;
     inputreport_context = context ;
   }
