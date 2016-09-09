@@ -222,7 +222,7 @@ namespace pointing {
         double setting = DEFAULT_OSX_SETTING;
         URI::getQueryArg(uri.query, "setting", &setting);
         URI::addQueryArg(uri.query, "f", setting);
-        subDir = "/pointing-echomouse/darwin-15";
+        subDir = "/pointing-echomouse/darwin-16";
       }
       else
       {
