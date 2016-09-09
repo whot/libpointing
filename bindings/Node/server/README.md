@@ -24,4 +24,4 @@ Note that, `pointingserver` with npm can be installed only on Mac OS and Linux.
 * `pointingserver start` starts the server.
 * `pointingserver stop` stops it.
 
-Download [client-side libpointing](https://raw.githubusercontent.com/INRIA/libpointing/master/bindings/Node/client/pointing.js) and you can start using it. Read the [documentation](http://libpointing.org/user-guide/node/) to learn how to use it.
+Download [client-side libpointing](https://raw.githubusercontent.com/INRIA/libpointing/master/bindings/Node/client/pointing.js) and you can start using it. Read the [documentation](https://github.com/INRIA/libpointing/wiki/Javascript-Bindings) to learn how to use it.
