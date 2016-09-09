@@ -68,7 +68,7 @@ NAN_METHOD(NDisplayDevice::New)
   {
     Local<Value> argv[1] = { info[0] };
     Local<v8::Function> cons = Nan::New(constructor);
-    info.GetReturnValue().Set(cons->NewInstance(1, argv));
+    info.GetReturnValue().Set(Nan::NewInstance(cons, 1, argv).ToLocalChecked());
   }
 }
 

@@ -112,7 +112,7 @@ NAN_METHOD(NSystemPointerAcceleration::New)
   } 
   else {
     Local<Function> cons = Nan::New<Function>(constructor);
-    info.GetReturnValue().Set(cons->NewInstance(0, NULL));
+    info.GetReturnValue().Set(Nan::NewInstance(cons).ToLocalChecked());
   }
 }
 

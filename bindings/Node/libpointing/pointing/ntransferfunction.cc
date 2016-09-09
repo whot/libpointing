@@ -79,7 +79,7 @@ NAN_METHOD(NTransferFunction::New)
     const int argc = 3;
     Local<Value> argv[argc] = { info[0], info[1], info[2] };
     Local<Function> cons = Nan::New<Function>(constructor);
-    info.GetReturnValue().Set(cons->NewInstance(argc, argv));
+    info.GetReturnValue().Set(Nan::NewInstance(cons, argc, argv).ToLocalChecked());
   }
 }
 

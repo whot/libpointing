@@ -132,7 +132,7 @@ NAN_METHOD(NPointingDeviceManager::New)
   } else {
     // Invoked as plain function `MyObject(...)`, turn into construct call.
     Local<Function> cons = Nan::New<Function>(constructor);
-    info.GetReturnValue().Set(cons->NewInstance(0, NULL));
+    info.GetReturnValue().Set(Nan::NewInstance(cons).ToLocalChecked());
   }
 }
 
