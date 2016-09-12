@@ -6,22 +6,38 @@ if (process.argv.length < 3)
 var arg = (process.argv.length > 2) ? process.argv[2] : 'start';
 var pidPath = __dirname + '/pointing.pid';
 const fs = require('fs');
+const port = 3423;
 
 if (arg == 'start') {
-	fs.access(pidPath, fs.F_OK, function(err) {
-	    if (err) { // If file does not exist
-			const spawn = require('child_process').spawn;
-			const stdout = fs.openSync(__dirname + '/pointing.log', 'a');
-			const stderr = fs.openSync(__dirname + '/pointing.log', 'a');
+	const http = require('http');
+	var server = http.createServer();
 
-			const child = spawn('nohup', [__dirname + '/server.js', '&'], {
-			 detached: true,
-			 stdio: [ 'ignore', stdout, stderr ]
-			});
-			fs.writeFile(pidPath, child.pid);
-			child.unref();
-			console.log('PointingServer was started');
+	server.listen(port).on('error', function(err) {
+		if (err.code === 'EADDRINUSE') {
+			console.log("Port " + port + " is already in use.")
+			const execSync = require('child_process').execSync;
+			processId = parseInt(execSync('lsof -t -i:' + port).toString('utf8'));
+			console.log("Id of process using the port:", processId);
+			process.exit();
 		}
+	});
+	server.close();
+
+	fs.access(pidPath, fs.F_OK, function(err) {
+		if (!err) { // If file exists remove it
+			fs.unlinkSync(pidPath);
+		}
+		const spawn = require('child_process').spawn;
+		const stdout = fs.openSync(__dirname + '/pointing.log', 'a');
+		const stderr = fs.openSync(__dirname + '/pointing.log', 'a');
+
+		const child = spawn('nohup', ['node', __dirname + '/server.js', port, '&'], {
+			detached: true,
+			stdio: [ 'ignore', stdout, stderr ]
+		});
+		fs.writeFile(pidPath, child.pid);
+		child.unref();
+		console.log('PointingServer was started');
     });
 }
 if (arg == 'stop') {

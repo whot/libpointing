@@ -20,6 +20,11 @@ var pointing = require("libpointing");
 var manager = new pointing.PointingDeviceManager();
 var dManager = new pointing.DisplayDeviceManager();
 
+var port = 3423;
+if (process.argv.length > 2) {
+  port = parseInt(process.argv[2]);
+}
+
 /*
 app.use('/static', express.static('static'));
 app.get('/', function(req, res) {
@@ -167,11 +172,17 @@ io.on('connection', function(socket) {
   });
 });
 
-http.listen(3423, function() {
-  console.log(new Date().toString() + ': listening on *:3423\n');
+http.listen(port, function() {
+  console.log(new Date().toString() + ': listening on *:' + port + '\n');
 }).on( 'error', function (e) { 
   if (e.code == 'EADDRINUSE') { 
-    console.log(new Date().toString() + ': specified port is already being used');
+    console.log(new Date().toString() + ': port ' + port + ' is already being used');
     process.exit();
+  }
+  else if(e.code == 'EACCES') {
+    console.log(new Date().toString() + ': port ' + port + 'cannot be used');
+  }
+  else {
+    console.log('Error:', e.code);
   }
 });
