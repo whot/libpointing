@@ -16,6 +16,7 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var pointing = require("libpointing");
+//var pointing = require("../libpointing/build/Release/pointing.node");
 
 var manager = new pointing.PointingDeviceManager();
 var dManager = new pointing.DisplayDeviceManager();

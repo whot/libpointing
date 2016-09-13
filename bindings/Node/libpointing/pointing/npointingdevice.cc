@@ -141,15 +141,16 @@ NAN_METHOD(NPointingDevice::setPointingCallback)
 {
   NPointingDevice* self = ObjectWrap::Unwrap<NPointingDevice>(info.Holder());
 
-  self->callback.SetFunction(info[0].As<Function>());
-  if (self->callback.IsEmpty())
+  if (info[0]->IsUndefined())
   {
+    self->callback.Reset();
     self->input->setPointingCallback(NULL, NULL);
     if (self->refs_) // Reference count with self->Ref()
       self->Unref();
   }
   else
   {
+    self->callback.SetFunction(info[0].As<Function>());
     if (!self->refs_)
       self->Ref();
     self->input->setPointingCallback(pointingCallback, self);

@@ -1,7 +1,7 @@
 {
   "name": "libpointing",
 
-  "version": "1.0.2",
+  "version": "1.0.3",
 
   "description": "An open-source cross-platform library to get raw events from pointing devices and master transfer functions",
 
