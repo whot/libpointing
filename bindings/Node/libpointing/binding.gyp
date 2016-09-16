@@ -1,17 +1,17 @@
 {
   "targets": [
-    {
-      "target_name": "pointing",
-      "sources": [ 
-      	"pointing/pointing.cc", 
-      	"pointing/npointingdevice.cc",
-      	"pointing/ndisplaydevice.cc",
-      	"pointing/ntransferfunction.cc",
-      	"pointing/npointingdevicemanager.cc",
-      	"pointing/ndisplaydevicemanager.cc",
-      	"pointing/nsystempointeracceleration.cc",
-      ],
-      'conditions': [
+	{
+	  "target_name": "pointing",
+	  "sources": [ 
+		"pointing/pointing.cc", 
+		"pointing/npointingdevice.cc",
+		"pointing/ndisplaydevice.cc",
+		"pointing/ntransferfunction.cc",
+		"pointing/npointingdevicemanager.cc",
+		"pointing/ndisplaydevicemanager.cc",
+		"pointing/nsystempointeracceleration.cc",
+	  ],
+	  'conditions': [
 			['OS=="mac"', {
 				"link_settings": {
 					'libraries': [
@@ -24,12 +24,12 @@
 					"<!(node -e \"require('nan')\")"
 				],
 				'xcode_settings': {
-			        'MACOSX_DEPLOYMENT_TARGET': '10.7',
+					'MACOSX_DEPLOYMENT_TARGET': '10.7',
 
-			        'OTHER_CFLAGS': [
-			          "-stdlib=libc++"
-			        ],
-			    },
+					'OTHER_CFLAGS': [
+					  "-stdlib=libc++"
+					],
+				},
 			}],
 			['OS=="linux"', {
 				"link_settings": {
@@ -52,7 +52,7 @@
 								'-luser32',
 								'-ladvapi32',
 								'../../../../pointing/Release/pointing.lib'
-						 	]
+							]
 						}],
 						["target_arch == 'x64'", {
 							'libraries': [
@@ -61,7 +61,7 @@
 								'-luser32',
 								'-ladvapi32',
 								'../../../../pointing/x64/Release/pointing.lib'
-						 	]
+							]
 						}]
 					]
 				 },
@@ -69,14 +69,25 @@
 					'../../..',
 					"<!(node -e \"require('nan')\")"
 				],
-				'msvs_settings': {
-				  	'VCCLCompilerTool': {
-				    	'RuntimeLibrary': 2, # multi threaded DLL
-				  	},
+				'configurations': {
+					'Debug': {
+						'msvs_settings': {
+							'VCCLCompilerTool': {
+								'RuntimeLibrary': '3' # /MDd
+							},
+						},
+					},
+					'Release': {
+						'msvs_settings': {
+							'VCCLCompilerTool': {
+								'RuntimeLibrary': '2' # /MD
+							},
+						},
+					},
 				},
 				"msvs_disabled_warnings": [ 4244, 4267 ],
 			}],
 		],
-    }
+	}
   ]
 }
