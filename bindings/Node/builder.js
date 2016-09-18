@@ -2,7 +2,7 @@ var NwBuilder = require('nw-builder');
 var fs = require('fs');
 var ncp = require('ncp');
 
-fs.createReadStream('./libpointing/nw/Release/pointing.node').pipe(fs.createWriteStream('./nw/pointing.node'));
+fs.createReadStream('./libpointing/build/Release/pointing.node').pipe(fs.createWriteStream('./nw/pointing.node'));
 fs.readFile('./server/server.js', 'utf8', function (err, data) {
   if (err) {
     return console.log(err);
@@ -21,7 +21,7 @@ fs.readFile('./server/server.js', 'utf8', function (err, data) {
       var nw = new NwBuilder({
           files: ['./nw/**'],// use the glob format
           platforms: ['win64'],
-          version: '0.12.3'
+          version: '0.17.3'
       });
 
       nw.on('log', console.log);

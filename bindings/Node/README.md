@@ -33,7 +33,7 @@ Configure *pointingserver* app or install it with:
 
 Follow these instructions to build the nw-app for Windows:
 
-1. Compile libpointing in Release mode (root/pointing/pointing.vcxproj)
+1. Compile libpointing in Release x64 mode (root/pointing/pointing.vcxproj)
 
 1. Install everything to build with nw:
 
@@ -41,11 +41,10 @@ Follow these instructions to build the nw-app for Windows:
 	* npm install nw-gyp -g
 	* npm install nw-builder ncp
 
-1. In *libpointing*-folder run `npm install nan`
+1. In *libpointing*-folder:
+	* run `npm install nan`
+	* run `nw-gyp configure build --target={version}`, where version could be smth. like 0.17.3
 
-1. Compile bindings with libpointing/nw/pointing.vcxproj in Release mode.
-   Note that, if you compile with VS 2015, the output executable may not work on previous Windows versions.
-   Compiling with VS 2012 worked well.
 1. In *Node/nw*-folder run `npm install`
-1. Run `node builder.js`
 
+1. Run `node builder.js` (Make sure the target is the same)
