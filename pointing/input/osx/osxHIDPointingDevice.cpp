@@ -48,30 +48,27 @@ namespace pointing {
     if (vendorID || productID)
       uri.scheme = "any" ; // FIXME: otherwise, won't match in osxHIDInputDevice (might want to fix this)
 
+#if 1
     std::string plist = hidDeviceFromVendorProductUsagePageUsage(vendorID, productID,
 								 primaryUsagePage, primaryUsage) ;
-    hiddev = new osxHIDInputDevice(uri, plist.c_str()) ;
+    hiddev = new osxHIDInputDevice(uri, plist.c_str()) ;    
+#else
+    hiddev = new osxHIDInputDevice(uri) ;
+#endif
 
     forced_cpi = forced_hz = -1.0 ;
     URI::getQueryArg(uri.query, "cpi", &forced_cpi) ;
     URI::getQueryArg(uri.query, "hz", &forced_hz) ;
 
-#if 0
-    use_report_callback = URI::getQueryArg(uri.query, "report") ;
-    use_queue_callback = URI::getQueryArg(uri.query, "queue") ;
     if (isBluetooth()) {
       use_queue_callback = false ;
       use_report_callback = !use_queue_callback ;      
     } else { // isUSB() or default, used for example if no path is specified
-      use_queue_callback = true ;
+      // defaults to our custom-made report parser which seems to be faster      
+      use_queue_callback = URI::getQueryArg(uri.query, "queue") ;
       use_report_callback = !use_queue_callback ;            
     }
-#else
-    // Force the use of the report callback since our custom-made report parser seems to be faster
-    use_queue_callback = false ;
-    use_report_callback = !use_queue_callback ;      
-#endif
-    std::cerr << "osxHIDPointingDevice: " << (use_queue_callback?"queue":"report") << " mode" << std::endl ;
+    std::cerr << "osxHIDPointingDevice: " << (use_queue_callback?"queue":"report") << " mode" << std::endl ;    
     
     callback = 0 ;
     callback_context = 0 ;

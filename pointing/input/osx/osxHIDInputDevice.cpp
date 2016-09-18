@@ -153,7 +153,7 @@ namespace pointing {
 
   osxHIDInputDevice::osxHIDInputDevice(URI uri,
 				       const char *device_description,
-                       const char *elements_description):parser(0) {
+				       const char *elements_description):parser(0) {
     theDevice = 0 ;
     inputreport_callback = 0 ;
     inputreport_context = 0 ;
