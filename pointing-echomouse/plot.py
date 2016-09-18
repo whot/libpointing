@@ -77,19 +77,24 @@ class TransferFunction(object):
         self.raw_data = [float(d[str(i)]) for i in range(0, int(d["max-counts"])+1)]
         self.data = self.__cook()
 
-    def __cook(self):
+    def __cook(self, ignorespecs=False):
         motor_speed, gain, visual_speed = [], [], []
         for counts, pixels in enumerate(self.raw_data):
-            ms = in2m(counts/self.family.pdev.cpi) * self.family.pdev.hz
-            # The real speed that was "measured" on screen is
-            #   vs = in2m(pixels/self.family.ddev.ppi) * self.family.ddev.hz
-            # but we use a fixed ppi (110) and the input device's
-            # frequency so that we can compare between families
-            vs = in2m(pixels/110) * self.family.pdev.hz
-            g = 0.0 if ms==0.0 else vs/ms
-            motor_speed.append(ms)
-            gain.append(g)            
-            visual_speed.append(vs)
+            if ignorespecs:
+                motor_speed.append(counts)
+                gain.append(0.0 if counts==0.0 else pixels/counts)            
+                visual_speed.append(pixels)
+            else:
+                ms = in2m(counts/self.family.pdev.cpi) * self.family.pdev.hz
+                # The real speed that was "measured" on screen is
+                #   vs = in2m(pixels/self.family.ddev.ppi) * self.family.ddev.hz
+                # but we use a fixed ppi (110) and the input device's
+                # frequency so that we can compare between families
+                vs = in2m(pixels/110) * self.family.pdev.hz
+                g = 0.0 if ms==0.0 else vs/ms
+                motor_speed.append(ms)
+                gain.append(g)            
+                visual_speed.append(vs)
         return motor_speed, gain, visual_speed
         
 class TransferFunctionFamily(object):
