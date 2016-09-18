@@ -402,7 +402,7 @@ namespace pointing {
   URI::getQueryArg(const std::string &q, const std::string &key, double *value) {
     std::string tmp ;
     if (!getQueryArg(q, key, &tmp)) return false ;
-    *value = (double)atof_l(tmp.c_str(), NULL) ;
+    *value = (double)atof_l(tmp.c_str(), NULL /* i.e. C locale */) ;
     return true ;
   }
 
@@ -410,7 +410,7 @@ namespace pointing {
   URI::getQueryArg(const std::string &q, const std::string &key, float *value) {
     std::string tmp ;
     if (!getQueryArg(q, key, &tmp)) return false ;
-    *value = atof_l(tmp.c_str(), NULL) ;
+    *value = atof_l(tmp.c_str(), NULL /* i.e. C locale */) ;
     return true ;
   }
 

@@ -39,7 +39,7 @@ windows {
       LIBS += -L$$POINTING/pointing/release -lpointing
       PRE_TARGETDEPS += $$POINTING/pointing/release/pointing.lib
     }
-  }else {
+  } else {
     CONFIG(debug, debug|release){
       LIBS += -L$$POINTING/pointing/debug -lpointing
       PRE_TARGETDEPS += $$POINTING/pointing/debug/libpointing.a

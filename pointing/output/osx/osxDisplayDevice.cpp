@@ -84,7 +84,7 @@ namespace pointing {
     int debugLevel = 0 ;
     if (URI::getQueryArg(uri.query, "debugLevel", &debugLevel)) {
       setDebugLevel(debugLevel) ;
-      listDisplays(std::cerr) ;
+      if (debugLevel>0) listDisplays(std::cerr) ;
     }
     cacheAll(uri);
   }

@@ -6,11 +6,10 @@
 
 TEMPLATE = lib
 
+TARGET   = pointing
+
 CONFIG += staticlib create_prl
 CONFIG -= qt
-#CONFIG += shared
-
-TARGET   = pointing
 
 INCLUDEPATH += ..
 VPATH += ..
@@ -121,11 +120,12 @@ windows {
   DEFINES += _WIN32_WINDOWS="0x0600"    # ???
   DEFINES += NTDDI_VERSION="0x06000000" # Windows Vista
 
-win32-msvc* {
-  QMAKE_LFLAGS_DEBUG += /INCREMENTAL:NO
-  QMAKE_CXXFLAGS_WARN_ON += -wd 4244 -wd 4305 -wd 4800 -wd 4312 -wd 4267
-  QMAKE_CXXFLAGS += -D _CRT_SECURE_NO_WARNINGS
-}
+  win32-msvc* {
+    QMAKE_LFLAGS_DEBUG += /INCREMENTAL:NO
+    QMAKE_CXXFLAGS_WARN_ON += -wd 4244 -wd 4305 -wd 4800 -wd 4312 -wd 4267
+    QMAKE_CXXFLAGS += -D _CRT_SECURE_NO_WARNINGS
+  }
+  
   CONFIG  += windows console
   HEADERS += $$HERE/utils/windows/winGetTimeOfDay.h \
              $$HERE/input/windows/USB.h \
@@ -144,6 +144,7 @@ win32-msvc* {
              $$HERE/output/windows/winDisplayDeviceManager.cpp \
              $$HERE/transferfunctions/windows/winSystemPointerAcceleration.cpp \
              $$HERE/input/windows/winPointingDeviceManager.cpp
+
 # TODO : Check those libraries:
   LIBS    += -L$$HERE/libs/windows -ldinput8 -ldxguid -lsetupapi -lgdi32 -lwbemuuid  -lAdvapi32 -luser32 -lHid# -lcomsupp
 }
