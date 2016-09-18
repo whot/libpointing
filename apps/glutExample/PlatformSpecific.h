@@ -19,6 +19,8 @@
 #include <string.h>
 
 #ifdef __APPLE__
+// GLUT has been deprecated in macOS since 10.9...
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #include <GLUT/glut.h>
 #include <OpenGL/OpenGL.h>
 #endif
