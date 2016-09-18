@@ -33,11 +33,12 @@ pointingCallback(void * /*context*/, TimeStamp::inttime timestamp,
   func->applyi(input_dx, input_dy, &output_dx, &output_dy, timestamp) ;
   double delta = (double)(timestamp - last_time)/TimeStamp::one_millisecond ;
   if (delta<=0.0) std::cout << std::endl ;
-  std::cout << timestamp << " ns (" << TimeStamp::createAsStringFrom(timestamp) << "), " 
-      << std::setw(7) << delta << " ms later (" << std::setw(7) << (1000.0/delta) << " Hz), "
-      << "(" << std::setw(3) << input_dx << ", " << std::setw(3) << input_dy << ") counts"
-      << " -> (" << std::setw(3) << output_dx << ", " << std::setw(3) << output_dy << ") pixels, "
-      << "buttons: " << buttons << std::endl ;
+  std::cout
+    << timestamp << " ns (" << TimeStamp::createAsStringFrom(timestamp) << "), " 
+    << std::setw(7) << delta << " ms later (" << std::setw(7) << (1000.0/delta) << " Hz), "
+    << "(" << std::setw(3) << input_dx << ", " << std::setw(3) << input_dy << ") counts"
+    << " -> (" << std::setw(3) << output_dx << ", " << std::setw(3) << output_dy << ") pixels, "
+    << "buttons: " << buttons << std::endl ;
   if (delta<=0.0) std::cout << std::endl ;
   last_time = timestamp;
   button_pressed = buttons&PointingDevice::BUTTON_2 ;
