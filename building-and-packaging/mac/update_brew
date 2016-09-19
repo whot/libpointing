@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# building-and-packaging/mac/update_brew_port
+# building-and-packaging/mac/update_brew
 #
 # Initial software
 # Authors: Izzat Mukhanov
@@ -68,17 +68,3 @@ os.system("git commit -m 'Update libpointing %s'"%VERSION)
 
 print "Pushing formula changes"
 os.system("git push --set-upstream origin libpointing --force")
-
-PORTFILE = "macports/devel/libpointing/Portfile"
-
-# Create a new Portfile to release
-with open(os.path.join(HERE, PORTFILE), "r") as port_file:
-    port_contents = port_file.read()
-
-to_subs = 'version'.ljust(20) + VERSION + "\n"
-replaced = re.sub('version.*\n', to_subs, port_contents, 1)
-to_subs = 'sha256    ' + sha256_val + "\n"
-replaced = re.sub('sha256 .*\n', to_subs, replaced, 1)
-
-with open(os.path.join(HERE, "Portfile"), "w") as port_file:
-    port_file.write(replaced)
