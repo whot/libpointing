@@ -27,7 +27,8 @@ unix:!macx {
     QMAKE_CXXFLAGS += -std=c++11
 }
 
-# FIXME: why this?
-windows:!win32-msvc* {
+# Compile with mingw
+win32-g++ {
+    QMAKE_CXXFLAGS += -std=gnu++0x
     QMAKE_LFLAGS += -static -lpthread -static-libgcc -static-libstdc++
 }
