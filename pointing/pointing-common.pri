@@ -22,12 +22,9 @@ macx {
     QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.10
 }
 
-# FIXME: why these?
-unix {
+# Compile with c++11 on linux (Qt5/Qt4)
+unix:!macx {
     QMAKE_CXXFLAGS += -std=c++11
-}
-win32-g++ {
-    QMAKE_CXXFLAGS += -std=gnu++0x
 }
 
 # FIXME: why this?
