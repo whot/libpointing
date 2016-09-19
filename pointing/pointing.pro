@@ -144,7 +144,7 @@ windows {
              $$HERE/transferfunctions/windows/winSystemPointerAcceleration.cpp \
              $$HERE/input/windows/winPointingDeviceManager.cpp
 
-  #LIBS    += -ldinput8 -ldxguid -lsetupapi -lgdi32 -lwbemuuid  -lAdvapi32 -luser32 -lHid# -lcomsupp
+  LIBS    += -lsetupapi -lgdi32 -lwbemuuid -lAdvapi32 -luser32 -lHid# -lcomsupp
 }
 
 OTHER_FILES += \
