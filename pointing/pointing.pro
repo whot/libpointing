@@ -74,8 +74,8 @@ include(../pointing-xorg/pointing-xorg.pri)
 macx {
   HEADERS += $$HERE/utils/osx/osxPlistUtils.h \
              $$HERE/input/osx/osxPointingDevice.h \
-	     $$HERE/input/osx/osxHIDInputDevice.h \
-	     $$HERE/input/osx/osxHIDPointingDevice.h \
+             $$HERE/input/osx/osxHIDInputDevice.h \
+             $$HERE/input/osx/osxHIDPointingDevice.h \
              $$HERE/input/osx/osxHIDUtils.h \
              $$HERE/input/osx/osxPrivateMultitouchDevice.h \
              $$HERE/input/osx/osxPrivateMultitouchSupport.h \
@@ -85,8 +85,8 @@ macx {
              $$HERE/transferfunctions/osx/osxSystemPointerAcceleration.h
   SOURCES += $$HERE/utils/osx/osxPlistUtils.cpp \
              $$HERE/input/osx/osxPointingDevice.cpp \
-  	     $$HERE/input/osx/osxHIDInputDevice.cpp \
-	     $$HERE/input/osx/osxHIDPointingDevice.cpp \
+             $$HERE/input/osx/osxHIDInputDevice.cpp \
+             $$HERE/input/osx/osxHIDPointingDevice.cpp \
              $$HERE/input/osx/osxHIDUtils.cpp \
              $$HERE/input/osx/osxPrivateMultitouchDevice.cpp \
              $$HERE/input/osx/osxPointingDeviceManager.cpp \
@@ -121,11 +121,10 @@ windows {
   DEFINES += NTDDI_VERSION="0x06000000" # Windows Vista
 
   win32-msvc* {
-    QMAKE_LFLAGS_DEBUG += /INCREMENTAL:NO
     QMAKE_CXXFLAGS_WARN_ON += -wd 4244 -wd 4305 -wd 4800 -wd 4312 -wd 4267
     QMAKE_CXXFLAGS += -D _CRT_SECURE_NO_WARNINGS
   }
-  
+
   CONFIG  += windows console
   HEADERS += $$HERE/utils/windows/winGetTimeOfDay.h \
              $$HERE/input/windows/USB.h \
@@ -145,8 +144,7 @@ windows {
              $$HERE/transferfunctions/windows/winSystemPointerAcceleration.cpp \
              $$HERE/input/windows/winPointingDeviceManager.cpp
 
-# TODO : Check those libraries:
-  LIBS    += -L$$HERE/libs/windows -ldinput8 -ldxguid -lsetupapi -lgdi32 -lwbemuuid  -lAdvapi32 -luser32 -lHid# -lcomsupp
+  #LIBS    += -ldinput8 -ldxguid -lsetupapi -lgdi32 -lwbemuuid  -lAdvapi32 -luser32 -lHid# -lcomsupp
 }
 
 OTHER_FILES += \
