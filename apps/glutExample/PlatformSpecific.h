@@ -16,7 +16,7 @@
 #ifndef PlatformSpecific_h
 #define PlatformSpecific_h
 
-#include <string.h>
+#include <cstring>
 
 #ifdef __APPLE__
 // GLUT has been deprecated in macOS since 10.9...
