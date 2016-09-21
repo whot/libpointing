@@ -114,18 +114,12 @@ unix:!macx {
 }
 
 windows {
-  # See http://blogs.msdn.com/b/oldnewthing/archive/2007/04/11/2079137.aspx
-  #     and http://msdn.microsoft.com/en-us/library/aa383745.aspx
-  DEFINES += _WIN32_WINNT="0x0600"      # Windows Vista
-  DEFINES += _WIN32_WINDOWS="0x0600"    # ???
-  DEFINES += NTDDI_VERSION="0x06000000" # Windows Vista
 
   win32-msvc* {
     QMAKE_CXXFLAGS_WARN_ON += -wd 4244 -wd 4305 -wd 4800 -wd 4312 -wd 4267
     QMAKE_CXXFLAGS += -D _CRT_SECURE_NO_WARNINGS
   }
 
-  CONFIG  += windows console
   HEADERS += $$HERE/utils/windows/winGetTimeOfDay.h \
              $$HERE/input/windows/USB.h \
              $$HERE/input/windows/winPointingDevice.h \
@@ -143,8 +137,6 @@ windows {
              $$HERE/output/windows/winDisplayDeviceManager.cpp \
              $$HERE/transferfunctions/windows/winSystemPointerAcceleration.cpp \
              $$HERE/input/windows/winPointingDeviceManager.cpp
-
-  LIBS    += -lsetupapi -lgdi32 -lwbemuuid -lAdvapi32 -luser32 -lHid# -lcomsupp
 }
 
 OTHER_FILES += \
