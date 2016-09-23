@@ -165,6 +165,7 @@
     <ClInclude Include="utils\ByteOrder.h" />
     <ClInclude Include="utils\ConfigDict.h" />
     <ClInclude Include="utils\FileUtils.h" />
+    <ClInclude Include="utils\FrequencyEstimator.h" />
     <ClInclude Include="utils\HIDItem.h" />
     <ClInclude Include="utils\HIDReportParser.h" />
     <ClInclude Include="utils\HIDTags.h" />
@@ -200,6 +201,7 @@
     <ClCompile Include="utils\ByteOrder.cpp" />
     <ClCompile Include="utils\ConfigDict.cpp" />
     <ClCompile Include="utils\FileUtils.cpp" />
+    <ClCompile Include="utils\FrequencyEstimator.cpp" />
     <ClCompile Include="utils\HIDItem.cpp" />
     <ClCompile Include="utils\HIDReportParser.cpp" />
     <ClCompile Include="utils\PointingCursor.cpp" />

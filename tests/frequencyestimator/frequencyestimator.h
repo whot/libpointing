@@ -9,7 +9,7 @@
 using namespace pointing;
 using namespace std;
 
-#define DELTA 0.0005
+#define DELTA 0.01
 
 class FrequencyEstimatorTest : public QObject
 {
@@ -35,8 +35,7 @@ private slots:
       TimeStamp::inttime t = TimeStamp::createAsInt();
       for (int i = 0; i < 25; i++)
       {
-        float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-        t += (2 + r / 2.) * TimeStamp::one_millisecond;
+        t += (2000 + rand() % 500) * TimeStamp::one_microsecond;
         fe.registerTimeStamp(t);
       }
       double result = fe.estimatedFrequency();
@@ -48,8 +47,7 @@ private slots:
       TimeStamp::inttime t = TimeStamp::createAsInt();
       for (int i = 0; i < 15; i++)
       {
-        float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-        t += (4 + r / 2.) * TimeStamp::one_millisecond;
+        t += (4000 + rand() % 250) * TimeStamp::one_microsecond;
         fe.registerTimeStamp(t);
       }
       double result = fe.estimatedFrequency();
@@ -57,8 +55,7 @@ private slots:
 
       for (int i = 0; i < 11; i++)
       {
-        float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-        t += (2 + r / 8.) * TimeStamp::one_millisecond;
+        t += (2000 + rand() % 150) * TimeStamp::one_microsecond;
         fe.registerTimeStamp(t);
       }
       result = fe.estimatedFrequency();
@@ -77,7 +74,7 @@ private slots:
         fe.registerTimeStamp(t);
       }
       double result = fe.estimatedFrequency();
-      QVERIFY(result < 90.9087 + DELTA && result > 90.9087 - DELTA);
+      QVERIFY(result < 90.90 + DELTA && result > 90.90 - DELTA);
     }
 
     void frequency117roundsTo125()
