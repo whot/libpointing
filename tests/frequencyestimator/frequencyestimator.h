@@ -7,7 +7,6 @@
 #include <pointing/utils/FrequencyEstimator.h>
 
 using namespace pointing;
-using namespace std;
 
 #define DELTA 0.01
 
@@ -35,7 +34,7 @@ private slots:
       TimeStamp::inttime t = TimeStamp::createAsInt();
       for (int i = 0; i < 25; i++)
       {
-        t += (2000 + rand() % 500) * TimeStamp::one_microsecond;
+        t += (2000 + rand() % 400 - 200) * TimeStamp::one_microsecond;
         fe.registerTimeStamp(t);
       }
       double result = fe.estimatedFrequency();
@@ -45,17 +44,17 @@ private slots:
     void changeFrequency()
     {
       TimeStamp::inttime t = TimeStamp::createAsInt();
-      for (int i = 0; i < 15; i++)
+      for (int i = 25; i > 10; i--)
       {
-        t += (4000 + rand() % 250) * TimeStamp::one_microsecond;
+        t += (4000 + 2*i) * TimeStamp::one_microsecond;
         fe.registerTimeStamp(t);
       }
       double result = fe.estimatedFrequency();
       QCOMPARE(result, 250.);
 
-      for (int i = 0; i < 11; i++)
+      for (int i = 10; i > 0; i--)
       {
-        t += (2000 + rand() % 150) * TimeStamp::one_microsecond;
+        t += (2000 + i) * TimeStamp::one_microsecond;
         fe.registerTimeStamp(t);
       }
       result = fe.estimatedFrequency();
