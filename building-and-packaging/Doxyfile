@@ -1,0 +1,44 @@
+DOXYFILE_ENCODING      = UTF-8
+PROJECT_NAME           = Libpointing
+PROJECT_NUMBER         = 
+
+PROJECT_BRIEF          = "An open-source cross-platform library to get raw events from pointing devices and master transfer functions."
+
+PROJECT_LOGO           = $(POINTING_PATH)/html/img/big-pointer.png
+OUTPUT_DIRECTORY       = html
+CREATE_SUBDIRS         = YES
+
+ABBREVIATE_BRIEF       = "The $name class" \
+                         "The $name widget" \
+                         "The $name file" \
+                         is \
+                         provides \
+                         specifies \
+                         contains \
+                         represents \
+                         a \
+                         an \
+                         the
+
+FULL_PATH_NAMES        = NO
+WARN_IF_UNDOCUMENTED   = NO
+
+INPUT                  = $(POINTING_PATH)/pointing/pointing.h \
+                         $(POINTING_PATH)/pointing/input \
+                         $(POINTING_PATH)/pointing/output \
+                         $(POINTING_PATH)/pointing/transferfunctions \
+                         #$(POINTING_PATH)/pointing-win/ \
+                         #$(POINTING_PATH)/pointing-osx/ \
+                         #$(POINTING_PATH)/pointing-xorg/ \
+
+INPUT_ENCODING         = UTF-8
+
+RECURSIVE              = YES
+
+EXCLUDE_PATTERNS       = $(POINTING_PATH)/pointing/input/osx/osxPrivateMultitouchSupport.* \
+                         $(POINTING_PATH)/pointing/input/osx/osxHIDInputDevice.* \
+                         $(POINTING_PATH)/pointing/input/osx/osxPrivateMultitouchDevice.* \
+
+HTML_OUTPUT            = ./
+
+GENERATE_LATEX         = NO

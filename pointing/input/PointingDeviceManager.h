@@ -130,6 +130,7 @@ namespace pointing
         /**
          * @brief Called from subclasses
          * @param key platform-specific unique identifier
+         * @param pdd Pointer to the platform-specific data associated with the device
          */
         //@{
         void registerDevice(identifier key, PointingDeviceData *pdd);

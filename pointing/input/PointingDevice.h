@@ -50,7 +50,6 @@ namespace pointing {
 
     /**
      * @brief registerTimestamp Registers the current timestamp to calculate frequency of the device
-     * @param timestamp Current timestamp
      */
     void registerTimestamp(TimeStamp::inttime timestamp, int dx, int dy);
 
