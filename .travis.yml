@@ -17,6 +17,18 @@ os:
 dist: trusty
 sudo: required
 
+# Blacklist
+branches:
+  except:
+    - gh-pages
+
+# Environment variables
+env:
+  global:
+    - GH_REPO_NAME: libpointing
+    - DOXYFILE: $TRAVIS_BUILD_DIR/building-and-packaging/Doxyfile
+    - GH_REPO_REF: github.com/INRIA/libpointing.git
+
 before_install:
     - |
       if [ $TRAVIS_OS_NAME == linux ] ; then
@@ -50,9 +62,9 @@ script:
 before_deploy:
     - |
       if [ $TRAVIS_OS_NAME == linux ] ; then
-          sudo pip install --upgrade pip
-          sudo pip install --upgrade requests ;
+          sudo apt-get install --yes doxygen ;
           ./building-and-packaging/linux/create-deb ;
+          ./building-and-packaging/update_site ;
       elif [ $TRAVIS_OS_NAME == osx ] ; then
           ./building-and-packaging/mac/update_brew_port
       fi
