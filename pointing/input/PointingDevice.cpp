@@ -36,77 +36,22 @@
 #include <stdexcept>
 #include <iostream>
 #include <sstream>
-#include <math.h>
 
 namespace pointing {
-
-#define errThreshold .6
 
   void PointingDevice::registerTimestamp(TimeStamp::inttime timestamp, int dx, int dy)
   {
     if (!(dx || dy))
       return;
-
-    double delta = double(timestamp - lastTime) / TimeStamp::one_millisecond;
-    lastTime = timestamp;
-    // Delta cannot be less than 0.4 ms
-    // So filter it out
-    if (delta < 0.4)
-      delta = dxInd;
-
-    sumDx += delta - dxs[dxInd];
-    dxs[dxInd] = delta;
-    dxInd = (dxInd + 1) % N;
-
-    double average = sumDx / N;
-    double variance = 0.;
-    for (int i = 0; i < N; i++)
-    {
-        double dif = dxs[i] - average;
-        variance += dif * dif;
-    }
-
-    double curEstimate = sumDx / N;
-    // Polling rate was changed
-    if (variance < stableVariance && curEstimate - estimate > errThreshold)
-    {
-      // Reset minimum variance
-      minVariance = 10e9;
-    }
-    // Improve estimate
-    if (variance < minVariance)
-    {
-      minVariance = variance;
-      if (curEstimate - estimate > errThreshold && minVariance < stableVariance)
-      {
-        stableVariance = minVariance;
-      }
-      estimate = curEstimate;
-    }
+    freqEstim.registerTimeStamp(timestamp);
   }
 
   double PointingDevice::estimatedUpdateFrequency() const
   {
-    if (minVariance >= stableVariance)
-      return -1.;
-
-    static const int stdFreqN = 4;
-    static const double stdFreqs[stdFreqN] = { 1., 2., 4., 8. };
-
-    for (int i = 0; i < stdFreqN; i++)
-    {
-      double err = fabs(estimate - stdFreqs[i]);
-      if (err < errThreshold)
-        return 1000. / stdFreqs[i];
-    }
-    return 1000. / estimate;
+    return freqEstim.estimatedFrequency();
   }
 
-  PointingDevice::PointingDevice()
-  {
-    for (int i = 0; i < N; i++)
-      dxs[i] = 0;
-  }
+  PointingDevice::PointingDevice() { }
 
   PointingDevice *
   PointingDevice::create(const char *device_uri) {

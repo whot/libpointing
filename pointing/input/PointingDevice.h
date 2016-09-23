@@ -18,6 +18,7 @@
 
 #include <pointing/utils/URI.h>
 #include <pointing/utils/TimeStamp.h>
+#include <pointing/utils/FrequencyEstimator.h>
 
 #include <string>
 #include <iostream>
@@ -38,15 +39,7 @@ namespace pointing {
 
     PointingDevice(void);
 
-    TimeStamp::inttime lastTime = 0;
-
-    static const int N = 10; // Memorize last N dx values
-    int dxInd = 0; // Circular array
-    double dxs[N];
-    double sumDx = 0.;
-    double minVariance = 10e9;
-    double stableVariance = 250.;
-    double estimate = -1.;
+    FrequencyEstimator freqEstim;
 
     /**
      * @brief registerTimestamp Registers the current timestamp to calculate frequency of the device
