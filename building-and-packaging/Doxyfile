@@ -4,7 +4,6 @@ PROJECT_NUMBER         =
 
 PROJECT_BRIEF          = "An open-source cross-platform library to get raw events from pointing devices and master transfer functions."
 
-PROJECT_LOGO           = $(POINTING_PATH)/img/big-pointer.png
 OUTPUT_DIRECTORY       = doc
 CREATE_SUBDIRS         = YES
 
