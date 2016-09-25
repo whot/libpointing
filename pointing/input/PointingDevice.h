@@ -36,7 +36,7 @@ namespace pointing {
 
   protected:
 
-    PointingDevice(void);
+    PointingDevice(void) ;
 
     TimeStamp::inttime lastTime = 0;
 

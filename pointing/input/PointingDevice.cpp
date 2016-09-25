@@ -102,10 +102,9 @@ namespace pointing {
     return 1000. / estimate;
   }
 
-  PointingDevice::PointingDevice()
-  {
+  PointingDevice::PointingDevice() {
     for (int i = 0; i < N; i++)
-      dxs[i] = 0;
+      dxs[i] = 0 ;
   }
 
   PointingDevice *
