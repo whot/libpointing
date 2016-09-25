@@ -22,6 +22,11 @@ macx {
     QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.10
 }
 
+# Compile with c++11 on unix (Qt5/Qt4)
+unix {
+    QMAKE_CXXFLAGS += -std=c++11
+}
+
 windows {
   # See http://blogs.msdn.com/b/oldnewthing/archive/2007/04/11/2079137.aspx
   #     and http://msdn.microsoft.com/en-us/library/aa383745.aspx

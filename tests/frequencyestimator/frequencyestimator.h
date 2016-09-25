@@ -5,6 +5,8 @@
 #include <QtTest/QtTest>
 #include <pointing/utils/TimeStamp.h>
 #include <pointing/utils/FrequencyEstimator.h>
+#include <math.h>
+//#include <iostream>
 
 using namespace pointing;
 
@@ -46,7 +48,8 @@ private slots:
       TimeStamp::inttime t = TimeStamp::createAsInt();
       for (int i = 25; i > 10; i--)
       {
-        t += (4000 + 2*i) * TimeStamp::one_microsecond;
+        // Make sure that variance is decreasing
+        t += (4000 + i*i) * TimeStamp::one_microsecond;
         fe.registerTimeStamp(t);
       }
       double result = fe.estimatedFrequency();
