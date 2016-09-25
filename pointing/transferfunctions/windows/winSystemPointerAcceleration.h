@@ -34,7 +34,7 @@ namespace pointing {
 
     /**
      * @brief setTransferFunction
-     * @param func The transfer function
+     * @param funcURI The transfer function URI
      */
     void setTransferFunction(URI &funcURI);
 

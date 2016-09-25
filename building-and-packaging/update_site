@@ -1,0 +1,42 @@
+#!/bin/sh
+
+echo 'Setting up the script...'
+# Exit with nonzero exit code if anything fails
+set -e
+
+# Create a clean working directory for this script.
+mkdir gh_pages_branch
+cd gh_pages_branch
+
+# Get the current gh-pages branch
+git clone -b gh-pages https://git@$GH_REPO_REF
+# Go deeper into the cloned directory libpointing
+cd $GH_REPO_NAME
+
+git config --global push.default simple
+git config user.name "Travis CI"
+git config user.email "travis@travis-ci.org"
+
+rm -rf doc
+
+# Copy generated debian packages into the distrib folder
+cp ${TRAVIS_BUILD_DIR}/building-and-packaging/linux/debian/ distrib/debian/
+
+echo 'Generating Doxygen code documentation...'
+export POINTING_PATH=${TRAVIS_BUILD_DIR}
+# Redirect both stderr and stdout to the log file AND the console.
+doxygen $DOXYFILE 2>&1 | tee doxygen.log
+
+if [ -d "doc" ] && [ -f "doc/index.html" ]; then
+
+    echo 'Uploading documentation to the gh-pages branch...'
+    git add --all
+    git commit -m "Deploy docs and packages to GitHub Pages Travis build: ${TRAVIS_BUILD_NUMBER}" -m "Commit: ${TRAVIS_COMMIT}"
+
+    git push --force "https://${GITHUB_API_KEY}@${GH_REPO_REF}" > /dev/null 2>&1
+else
+    echo '' >&2
+    echo 'Warning: No documentation (doc) files have been found!' >&2
+    echo 'Warning: Not going to push the documentation to GitHub!' >&2
+    exit 1
+fi

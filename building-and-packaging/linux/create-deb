@@ -14,6 +14,8 @@ import distutils.dir_util
 import subprocess
 import platform
 
+""" No need to do this, since packages are uploaded to gh-pages
+
 # Temporary workaround since requests is not found otherwise
 sys.path.append("/usr/local/lib/python2.7")
 sys.path.append("/usr/local/lib/python2.7/dist-packages")
@@ -22,6 +24,8 @@ sys.path.append("/usr/local/lib/python2.7/dist-packages/pip/_vendor")
 print "Current path", sys.path
 
 import requests
+
+"""
 
 # --------------------------------------------------------------------------------
 
@@ -80,6 +84,8 @@ if not os.path.exists('debian'):
 shutil.move(package_name, "debian/" + package_name)
 subprocess.call("dpkg-scanpackages debian /dev/null | gzip -9c > debian/Packages.gz", stdout=subprocess.PIPE, shell=True)
 
+"""
+
 if 'LIBPOINTING_ORG_KEY' in os.environ:
     # Upload to libpointing.org
     url = 'http://libpointing.org/data/upload-distrib.php'
@@ -89,3 +95,5 @@ if 'LIBPOINTING_ORG_KEY' in os.environ:
     print r.text
 else:
     print "LIBPOINTING_ORG_KEY variable is not defined!"
+
+"""

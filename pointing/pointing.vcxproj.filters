@@ -171,6 +171,9 @@
     <ClInclude Include="input\SystemPointingDevice.h">
       <Filter>Header Files\input</Filter>
     </ClInclude>
+    <ClInclude Include="utils\FrequencyEstimator.h">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="utils\Base64.cpp">
@@ -268,6 +271,9 @@
     </ClCompile>
     <ClCompile Include="input\SystemPointingDevice.cpp">
       <Filter>Source Files\input</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\FrequencyEstimator.cpp">
+      <Filter>Source Files\utils</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

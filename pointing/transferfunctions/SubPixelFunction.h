@@ -65,8 +65,7 @@ namespace pointing
     void setSubPixeling(bool subpixeling);
 
     /**
-     * @brief getSubPixeling Is subpixeling activated?
-     * @param subpixeling Subpixeling is turned on if True otherwise defined transfer function is applied
+     * @brief Returns true if subpixeling is activated
      */
     bool getSubPixeling() const;
 
@@ -80,7 +79,6 @@ namespace pointing
     /**
      * @brief getHumanResolution Gets the resolution of the pointing device
      * at which humans have maximum pointing task efficiency.
-     * @param humanResolution Device's Human Resolution in CPI
      */
     int getHumanResolution() const;
 

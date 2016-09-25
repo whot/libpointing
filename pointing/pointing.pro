@@ -30,6 +30,7 @@ HEADERS  = $$HERE/pointing.h \
            $$HERE/utils/HIDItem.h \
            $$HERE/utils/HIDReportParser.h \
            $$HERE/utils/PointingCursor.h \
+           $$HERE/utils/FrequencyEstimator.h \
            $$HERE/input/DummyPointingDevice.h \
            $$HERE/input/PointingDevice.h \
            $$HERE/input/SystemPointingDevice.h \
@@ -54,6 +55,7 @@ SOURCES  = $$HERE/utils/Base64.cpp \
            $$HERE/utils/HIDItem.cpp \
            $$HERE/utils/HIDReportParser.cpp \
            $$HERE/utils/PointingCursor.cpp \
+           $$HERE/utils/FrequencyEstimator.cpp \
            $$HERE/input/PointingDevice.cpp \
            $$HERE/input/SystemPointingDevice.cpp \
            $$HERE/input/DummyPointingDevice.cpp \
