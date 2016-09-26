@@ -14,13 +14,11 @@ git clone -b gh-pages https://git@$GH_REPO_REF
 cd $GH_REPO_NAME
 
 git config --global push.default simple
-git config user.name "Travis CI"
-git config user.email "travis@travis-ci.org"
 
 rm -rf doc
 
 # Copy generated debian packages into the distrib folder
-cp ${TRAVIS_BUILD_DIR}/building-and-packaging/linux/debian/ distrib/debian/
+cp -a ${TRAVIS_BUILD_DIR}/building-and-packaging/linux/debian/ distrib/debian/
 
 echo 'Generating Doxygen code documentation...'
 export POINTING_PATH=${TRAVIS_BUILD_DIR}
