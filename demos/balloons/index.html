@@ -1,0 +1,20 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <style> 
+            * { margin:0; padding:0; } /* to remove the top and left whitespace */
+
+            html, body { width:100%; height:100%; } /* just to be sure these are full screen*/
+            canvas { display:block; } /* To remove the scrollbars */
+            * {cursor: none;}
+        </style>
+        <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+        <script src="https://raw.githubusercontent.com/INRIA/libpointing/master/bindings/Node/client/pointing.js"></script>
+        <script src="balloon.js"></script>
+        <script src="script.js"></script>
+    </head>
+    <body>
+        <canvas id="canvas">
+        </canvas>
+    </body>
+</html>
