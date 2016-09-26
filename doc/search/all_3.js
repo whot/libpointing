@@ -1,8 +1,12 @@
 var searchData=
 [
-  ['callbackinfo',['CallbackInfo',['../d3/df5/structpointing_1_1_callback_info.html',1,'pointing']]],
-  ['clearstate',['clearState',['../db/ddc/classpointing_1_1_composition.html#a53c4a9ce2cfebb2ffd96058b4b7640c8',1,'pointing::Composition::clearState()'],['../de/d21/classpointing_1_1_constant_function.html#a0b1c1a0c55ee33d342bb8a91a8083fcc',1,'pointing::ConstantFunction::clearState()'],['../d9/dde/classpointing_1_1_interpolation.html#a3fcdd15507ce0f6a2db1ba767b1df3ca',1,'pointing::Interpolation::clearState()'],['../da/d1b/classpointing_1_1_naive_constant_function.html#a5f7aab19f77507d935b584f467975e1e',1,'pointing::NaiveConstantFunction::clearState()'],['../d7/df7/classpointing_1_1_sigmoid_function.html#a5f04e178c5b45f6dbb68dbc4059b6347',1,'pointing::SigmoidFunction::clearState()'],['../df/d70/classpointing_1_1_sub_pixel_function.html#a3f7ac268edaa8f0532f83e31f1d77e71',1,'pointing::SubPixelFunction::clearState()'],['../d1/da2/classpointing_1_1_transfer_function.html#aa8e25875014381765227cdeea39a1380',1,'pointing::TransferFunction::clearState()']]],
-  ['composition',['Composition',['../db/ddc/classpointing_1_1_composition.html',1,'pointing']]],
-  ['constantfunction',['ConstantFunction',['../de/d21/classpointing_1_1_constant_function.html',1,'pointing']]],
-  ['create',['create',['../d1/db3/classpointing_1_1_pointing_device.html#a6c33b8e5c8026ee11a8b633120366cb3',1,'pointing::PointingDevice::create()'],['../db/d6f/classpointing_1_1_display_device.html#a7ce11bafd35dd805c350d68b32738172',1,'pointing::DisplayDevice::create()'],['../d1/da2/classpointing_1_1_transfer_function.html#a87cbb851ea2a126016ddbf9ae8946cc8',1,'pointing::TransferFunction::create()']]]
+  ['debug',['debug',['../dc/d3f/classpointing_1_1PointingDevice.html#a012b3ba5827fdc31460db51b7cf2a18b',1,'pointing::PointingDevice']]],
+  ['deviceid',['DeviceId',['../d8/d6d/structpointing_1_1DeviceId.html',1,'pointing']]],
+  ['devicename',['DeviceName',['../d1/dbc/structpointing_1_1DeviceName.html',1,'pointing']]],
+  ['displaydevice',['DisplayDevice',['../d9/d23/classpointing_1_1DisplayDevice.html',1,'pointing']]],
+  ['displaydevicedescriptor',['DisplayDeviceDescriptor',['../db/d2b/structpointing_1_1DisplayDeviceDescriptor.html',1,'pointing']]],
+  ['displaydevicemanager',['DisplayDeviceManager',['../d7/d87/classpointing_1_1DisplayDeviceManager.html',1,'pointing']]],
+  ['dummydisplaydevice',['DummyDisplayDevice',['../da/d74/classpointing_1_1DummyDisplayDevice.html',1,'pointing']]],
+  ['dummypointingdevice',['DummyPointingDevice',['../d3/d59/classpointing_1_1DummyPointingDevice.html#a0d8c15952bff44f608c90454fff4f45f',1,'pointing::DummyPointingDevice']]],
+  ['dummypointingdevice',['DummyPointingDevice',['../d3/d59/classpointing_1_1DummyPointingDevice.html',1,'pointing']]]
 ];

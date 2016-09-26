@@ -1,6 +1,9 @@
 var searchData=
 [
-  ['naiveconstantfunction',['NaiveConstantFunction',['../da/d1b/classpointing_1_1_naive_constant_function.html',1,'pointing']]],
-  ['normalizeinput',['normalizeInput',['../d1/da2/classpointing_1_1_transfer_function.html#a793b62a767ad95a8aa8930c71748d19d',1,'pointing::TransferFunction']]],
-  ['normalizeoutput',['normalizeOutput',['../d1/da2/classpointing_1_1_transfer_function.html#a73ffd80be409b81ff2b661207f6417f8',1,'pointing::TransferFunction']]]
+  ['osxdisplaydevice',['osxDisplayDevice',['../d2/d09/classpointing_1_1osxDisplayDevice.html',1,'pointing']]],
+  ['osxdisplaydevicemanager',['osxDisplayDeviceManager',['../dd/df4/classpointing_1_1osxDisplayDeviceManager.html',1,'pointing']]],
+  ['osxhidpointingdevice',['osxHIDPointingDevice',['../d2/de5/classpointing_1_1osxHIDPointingDevice.html',1,'pointing']]],
+  ['osxpointingdevice',['osxPointingDevice',['../d1/d6b/classpointing_1_1osxPointingDevice.html',1,'pointing']]],
+  ['osxpointingdevicemanager',['osxPointingDeviceManager',['../d2/d04/classpointing_1_1osxPointingDeviceManager.html',1,'pointing']]],
+  ['osxsystempointeracceleration',['osxSystemPointerAcceleration',['../d5/dff/classpointing_1_1osxSystemPointerAcceleration.html',1,'pointing']]]
 ];

@@ -1,7 +1,8 @@
 var searchData=
 [
-  ['bounds',['Bounds',['../db/d0b/structpointing_1_1_display_device_1_1_bounds.html',1,'pointing::DisplayDevice']]],
-  ['button_5f1',['BUTTON_1',['../d1/db3/classpointing_1_1_pointing_device.html#ae81c9fd4c98488a346e563e08ec4af7aafc8dba42b7cf39bcd51e99474a50a27a',1,'pointing::PointingDevice']]],
-  ['button_5f2',['BUTTON_2',['../d1/db3/classpointing_1_1_pointing_device.html#ae81c9fd4c98488a346e563e08ec4af7aae150ba117f4cf3e96aae924c2669bbbf',1,'pointing::PointingDevice']]],
-  ['button_5f3',['BUTTON_3',['../d1/db3/classpointing_1_1_pointing_device.html#ae81c9fd4c98488a346e563e08ec4af7aa9048c1e4d8a78c2cfbd62dae091050f9',1,'pointing::PointingDevice']]]
+  ['callbackinfo',['CallbackInfo',['../d8/da6/structpointing_1_1CallbackInfo.html',1,'pointing']]],
+  ['clearstate',['clearState',['../dd/dd9/classpointing_1_1Composition.html#a53c4a9ce2cfebb2ffd96058b4b7640c8',1,'pointing::Composition::clearState()'],['../d3/def/classpointing_1_1ConstantFunction.html#a0b1c1a0c55ee33d342bb8a91a8083fcc',1,'pointing::ConstantFunction::clearState()'],['../dc/d74/classpointing_1_1Interpolation.html#a3fcdd15507ce0f6a2db1ba767b1df3ca',1,'pointing::Interpolation::clearState()'],['../d5/db5/classpointing_1_1NaiveConstantFunction.html#a5f7aab19f77507d935b584f467975e1e',1,'pointing::NaiveConstantFunction::clearState()'],['../d7/d1b/classpointing_1_1SigmoidFunction.html#a5f04e178c5b45f6dbb68dbc4059b6347',1,'pointing::SigmoidFunction::clearState()'],['../d9/dd3/classpointing_1_1SubPixelFunction.html#a3f7ac268edaa8f0532f83e31f1d77e71',1,'pointing::SubPixelFunction::clearState()'],['../d7/d8c/classpointing_1_1TransferFunction.html#aa8e25875014381765227cdeea39a1380',1,'pointing::TransferFunction::clearState()']]],
+  ['composition',['Composition',['../dd/dd9/classpointing_1_1Composition.html',1,'pointing']]],
+  ['constantfunction',['ConstantFunction',['../d3/def/classpointing_1_1ConstantFunction.html',1,'pointing']]],
+  ['create',['create',['../dc/d3f/classpointing_1_1PointingDevice.html#a6c33b8e5c8026ee11a8b633120366cb3',1,'pointing::PointingDevice::create()'],['../d9/d23/classpointing_1_1DisplayDevice.html#a7ce11bafd35dd805c350d68b32738172',1,'pointing::DisplayDevice::create()'],['../d7/d8c/classpointing_1_1TransferFunction.html#a87cbb851ea2a126016ddbf9ae8946cc8',1,'pointing::TransferFunction::create()']]]
 ];

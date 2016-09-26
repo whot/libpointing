@@ -1,11 +1,11 @@
 var searchData=
 [
-  ['osxdisplaydevice',['osxDisplayDevice',['../d6/d78/classpointing_1_1osx_display_device.html',1,'pointing']]],
-  ['osxdisplaydevicemanager',['osxDisplayDeviceManager',['../d3/d34/classpointing_1_1osx_display_device_manager.html',1,'pointing']]],
-  ['osxhidinputdevice',['osxHIDInputDevice',['../db/dd1/classpointing_1_1osx_h_i_d_input_device.html',1,'pointing']]],
-  ['osxhidpointingdevice',['osxHIDPointingDevice',['../d4/d21/classpointing_1_1osx_h_i_d_pointing_device.html',1,'pointing']]],
-  ['osxpointingdevice',['osxPointingDevice',['../d4/dac/classpointing_1_1osx_pointing_device.html',1,'pointing']]],
-  ['osxpointingdevicemanager',['osxPointingDeviceManager',['../d5/d03/classpointing_1_1osx_pointing_device_manager.html',1,'pointing']]],
-  ['osxprivatemultitouchdevice',['osxPrivateMultitouchDevice',['../de/d2a/classpointing_1_1osx_private_multitouch_device.html',1,'pointing']]],
-  ['osxsystempointeracceleration',['osxSystemPointerAcceleration',['../d5/d69/classpointing_1_1osx_system_pointer_acceleration.html',1,'pointing']]]
+  ['point',['Point',['../de/d60/structpointing_1_1DisplayDevice_1_1Point.html',1,'pointing::DisplayDevice']]],
+  ['pointingcallback',['PointingCallback',['../dc/d3f/classpointing_1_1PointingDevice.html#a5641094cf13ea013b2ac47b0e3abecf8',1,'pointing::PointingDevice']]],
+  ['pointingdevice',['PointingDevice',['../dc/d3f/classpointing_1_1PointingDevice.html',1,'pointing']]],
+  ['pointingdevicedata',['PointingDeviceData',['../df/d9f/structpointing_1_1PointingDeviceManager_1_1PointingDeviceData.html',1,'pointing::PointingDeviceManager']]],
+  ['pointingdevicedescriptor',['PointingDeviceDescriptor',['../df/d74/structpointing_1_1PointingDeviceDescriptor.html',1,'pointing']]],
+  ['pointingdevicemanager',['PointingDeviceManager',['../d2/d48/classpointing_1_1PointingDeviceManager.html',1,'pointing']]],
+  ['ppi',['ppi',['../d0/da6/structpointing_1_1winDisplayInfo.html#a8631e276c623728f26330d247a069529',1,'pointing::winDisplayInfo']]],
+  ['prependfunction',['prependFunction',['../dd/dd9/classpointing_1_1Composition.html#a5469fb33c3cc1ee5b8d3fa1896fa5676',1,'pointing::Composition']]]
 ];

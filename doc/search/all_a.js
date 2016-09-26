@@ -1,8 +1,6 @@
 var searchData=
 [
-  ['mm2counts',['mm2counts',['../d1/db3/classpointing_1_1_pointing_device.html#ac70f65a5f9aeb14cbd43d9f91ae30b04',1,'pointing::PointingDevice']]],
-  ['monitorname',['monitorName',['../dd/d71/structpointing_1_1win_display_info.html#a8c3c7602275c15e7ab79db4b44726dca',1,'pointing::winDisplayInfo']]],
-  ['mtpoint',['MTPoint',['../da/d71/structpointing_1_1_m_t_point.html',1,'pointing']]],
-  ['mttouch',['MTTouch',['../d1/d5a/structpointing_1_1_m_t_touch.html',1,'pointing']]],
-  ['mtvector',['MTVector',['../df/db7/structpointing_1_1_m_t_vector.html',1,'pointing']]]
+  ['naiveconstantfunction',['NaiveConstantFunction',['../d5/db5/classpointing_1_1NaiveConstantFunction.html',1,'pointing']]],
+  ['normalizeinput',['normalizeInput',['../d7/d8c/classpointing_1_1TransferFunction.html#a793b62a767ad95a8aa8930c71748d19d',1,'pointing::TransferFunction']]],
+  ['normalizeoutput',['normalizeOutput',['../d7/d8c/classpointing_1_1TransferFunction.html#a73ffd80be409b81ff2b661207f6417f8',1,'pointing::TransferFunction']]]
 ];

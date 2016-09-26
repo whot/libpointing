@@ -1,6 +1,9 @@
 var searchData=
 [
-  ['mtpoint',['MTPoint',['../da/d71/structpointing_1_1_m_t_point.html',1,'pointing']]],
-  ['mttouch',['MTTouch',['../d1/d5a/structpointing_1_1_m_t_touch.html',1,'pointing']]],
-  ['mtvector',['MTVector',['../df/db7/structpointing_1_1_m_t_vector.html',1,'pointing']]]
+  ['osxdisplaydevice',['osxDisplayDevice',['../d2/d09/classpointing_1_1osxDisplayDevice.html',1,'pointing']]],
+  ['osxdisplaydevicemanager',['osxDisplayDeviceManager',['../dd/df4/classpointing_1_1osxDisplayDeviceManager.html',1,'pointing']]],
+  ['osxhidpointingdevice',['osxHIDPointingDevice',['../d2/de5/classpointing_1_1osxHIDPointingDevice.html',1,'pointing']]],
+  ['osxpointingdevice',['osxPointingDevice',['../d1/d6b/classpointing_1_1osxPointingDevice.html',1,'pointing']]],
+  ['osxpointingdevicemanager',['osxPointingDeviceManager',['../d2/d04/classpointing_1_1osxPointingDeviceManager.html',1,'pointing']]],
+  ['osxsystempointeracceleration',['osxSystemPointerAcceleration',['../d5/dff/classpointing_1_1osxSystemPointerAcceleration.html',1,'pointing']]]
 ];

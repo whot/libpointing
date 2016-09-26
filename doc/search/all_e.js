@@ -1,10 +1,19 @@
 var searchData=
 [
-  ['readallfromregistry',['readAllFromRegistry',['../dd/db3/classpointing_1_1win_display_device_manager.html#a4a0e5386b22380dd057f939b57c27629',1,'pointing::winDisplayDeviceManager']]],
-  ['refreshrate',['refreshRate',['../dd/d71/structpointing_1_1win_display_info.html#ad6d1cc38539d44362937796502c730c0',1,'pointing::winDisplayInfo']]],
-  ['registerdevice',['registerDevice',['../df/da3/classpointing_1_1_pointing_device_manager.html#aa7657928b2feb4139e2c4dbc86c519bc',1,'pointing::PointingDeviceManager']]],
-  ['registertimestamp',['registerTimestamp',['../d1/db3/classpointing_1_1_pointing_device.html#a8981ebc458e03c7ede28dd3df6116855',1,'pointing::PointingDevice']]],
-  ['removedeviceupdatecallback',['removeDeviceUpdateCallback',['../df/da3/classpointing_1_1_pointing_device_manager.html#a2a9c01ebd091c36726bd637da8a6622e',1,'pointing::PointingDeviceManager::removeDeviceUpdateCallback()'],['../dc/d45/classpointing_1_1_display_device_manager.html#a07d4c3d8a2808293117b3d1b2cec0942',1,'pointing::DisplayDeviceManager::removeDeviceUpdateCallback()']]],
-  ['resx',['resx',['../dd/d71/structpointing_1_1win_display_info.html#af8c22a06713bf5cb8e8a88b8ff690470',1,'pointing::winDisplayInfo']]],
-  ['resy',['resy',['../dd/d71/structpointing_1_1win_display_info.html#a279df3d29d5b5e8ac088092e6a204cfc',1,'pointing::winDisplayInfo']]]
+  ['set',['set',['../d2/df6/classpointing_1_1xorgSystemPointerAcceleration.html#a9aa079b10ddf9c461cbe1f92efe5c94e',1,'pointing::xorgSystemPointerAcceleration::set()'],['../d5/d27/classpointing_1_1winSystemPointerAcceleration.html#a146d1d339822c510ec3eb51163ca7a08',1,'pointing::winSystemPointerAcceleration::set()']]],
+  ['setbounds',['setBounds',['../da/d74/classpointing_1_1DummyDisplayDevice.html#a9d90f030910075e66267fd06e5cd7c1d',1,'pointing::DummyDisplayDevice']]],
+  ['setcardinalitysize',['setCardinalitySize',['../d9/dd3/classpointing_1_1SubPixelFunction.html#a57c0485a3afce35e5a44b4a4fa49378d',1,'pointing::SubPixelFunction']]],
+  ['setdebuglevel',['setDebugLevel',['../d2/de5/classpointing_1_1osxHIDPointingDevice.html#a81e3fcb233f5fb25fa2d1a95625983c6',1,'pointing::osxHIDPointingDevice::setDebugLevel()'],['../dc/d3f/classpointing_1_1PointingDevice.html#a3f1bf55c1fc440e2c1c039edaa85059d',1,'pointing::PointingDevice::setDebugLevel()'],['../d0/d54/classpointing_1_1SystemPointingDevice.html#a13e0f6c8bf4adc6540192345e8459682',1,'pointing::SystemPointingDevice::setDebugLevel()'],['../d9/d23/classpointing_1_1DisplayDevice.html#acc58a504783f2d6665ab4d9b34b00dfc',1,'pointing::DisplayDevice::setDebugLevel()'],['../d7/d8c/classpointing_1_1TransferFunction.html#af8610b04b5ea048075417d7a6d795c6b',1,'pointing::TransferFunction::setDebugLevel()']]],
+  ['sethumanresolution',['setHumanResolution',['../d9/dd3/classpointing_1_1SubPixelFunction.html#a31faf320e55ab7e84fb7527d98a85a1d',1,'pointing::SubPixelFunction']]],
+  ['setpointingcallback',['setPointingCallback',['../d3/d59/classpointing_1_1DummyPointingDevice.html#a462be4433c1aa356f047deb052fe1094',1,'pointing::DummyPointingDevice::setPointingCallback()'],['../d2/de5/classpointing_1_1osxHIDPointingDevice.html#a3d8e1d1ebb53dabb57074bcbc8ac91cc',1,'pointing::osxHIDPointingDevice::setPointingCallback()'],['../dc/d3f/classpointing_1_1PointingDevice.html#ac6746bf35df66c9faf6425966a72d864',1,'pointing::PointingDevice::setPointingCallback()'],['../d0/d54/classpointing_1_1SystemPointingDevice.html#a6d37c995b7afc8430247e553a51a7d40',1,'pointing::SystemPointingDevice::setPointingCallback()']]],
+  ['setrefreshrate',['setRefreshRate',['../da/d74/classpointing_1_1DummyDisplayDevice.html#a0901e8a557fa6ee686f63e5e18db6a5d',1,'pointing::DummyDisplayDevice']]],
+  ['setresolution',['setResolution',['../da/d74/classpointing_1_1DummyDisplayDevice.html#a90c74e4b1d062f3b3ae8b4305ef2c3f9',1,'pointing::DummyDisplayDevice']]],
+  ['setsize',['setSize',['../da/d74/classpointing_1_1DummyDisplayDevice.html#af90fbc841a95c3530150ebeba9fa1948',1,'pointing::DummyDisplayDevice']]],
+  ['setsubpixeling',['setSubPixeling',['../d9/dd3/classpointing_1_1SubPixelFunction.html#a106e2561c6fe1b638950751e98eb8c09',1,'pointing::SubPixelFunction']]],
+  ['settransferfunction',['setTransferFunction',['../d5/d27/classpointing_1_1winSystemPointerAcceleration.html#a93ee9ad4a93683fb89f2612dce6263bb',1,'pointing::winSystemPointerAcceleration']]],
+  ['sigmoidfunction',['SigmoidFunction',['../d7/d1b/classpointing_1_1SigmoidFunction.html',1,'pointing']]],
+  ['size',['Size',['../d3/db9/structpointing_1_1DisplayDevice_1_1Size.html',1,'pointing::DisplayDevice']]],
+  ['size',['size',['../d2/d48/classpointing_1_1PointingDeviceManager.html#a18446b212aa465da254cefcf51eb8ab1',1,'pointing::PointingDeviceManager::size()'],['../d7/d87/classpointing_1_1DisplayDeviceManager.html#aff3aa857b9017df63818aee809d64258',1,'pointing::DisplayDeviceManager::size()'],['../dd/dd9/classpointing_1_1Composition.html#adc00643b23cb62515f4e53b0b476a876',1,'pointing::Composition::size()']]],
+  ['subpixelfunction',['SubPixelFunction',['../d9/dd3/classpointing_1_1SubPixelFunction.html',1,'pointing']]],
+  ['systempointingdevice',['SystemPointingDevice',['../d0/d54/classpointing_1_1SystemPointingDevice.html',1,'pointing']]]
 ];

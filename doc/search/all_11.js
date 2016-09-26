@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['urifrompoint',['uriFromPoint',['../dd/db3/classpointing_1_1win_display_device_manager.html#a9080bd939b85ce3a3dd8e6e6c2f4b9ef',1,'pointing::winDisplayDeviceManager']]]
+  ['valuefromtable',['valueFromTable',['../dc/d74/classpointing_1_1Interpolation.html#a90407ca91731e80d853573227ce62540',1,'pointing::Interpolation']]]
 ];
