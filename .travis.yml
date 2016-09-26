@@ -62,11 +62,11 @@ script:
 before_deploy:
     - |
       if [ $TRAVIS_OS_NAME == linux ] ; then
-          sudo apt-get install --yes doxygen ;
+          sudo apt-get install --qq doxygen ;
           ./building-and-packaging/linux/create-deb ;
           ./building-and-packaging/update_site ;
       elif [ $TRAVIS_OS_NAME == osx ] ; then
-          ./building-and-packaging/mac/update_brew_port
+          ./building-and-packaging/mac/update_brew
       fi
 
 deploy:
