@@ -1,1 +1,1 @@
-My gh-pages branch
+This branch is used for the [Doxygen](http://inria.github.io/libpointing/doc/) documentation of libpointing, images and some packages. Please refer to the [Maintainer's-Guide](https://github.com/INRIA/libpointing/wiki/Maintainer's-Guide) for more details.
