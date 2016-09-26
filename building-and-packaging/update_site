@@ -18,7 +18,7 @@ git config --global push.default simple
 rm -rf doc
 
 # Copy generated debian packages into the distrib folder
-cp -a ${TRAVIS_BUILD_DIR}/building-and-packaging/linux/debian/ distrib/debian/
+cp -a ${TRAVIS_BUILD_DIR}/building-and-packaging/linux/debian/* distrib/debian/
 
 echo 'Generating Doxygen code documentation...'
 export POINTING_PATH=${TRAVIS_BUILD_DIR}
