@@ -20,6 +20,8 @@
 
 namespace pointing {
 
+  // --- default values ---------------------------------------------------
+  
 #define OSX_DEFAULT_VENDOR    0
 #define OSX_DEFAULT_PRODUCT   0
 #define OSX_DEFAULT_USAGEPAGE kHIDPage_GenericDesktop
@@ -27,8 +29,14 @@ namespace pointing {
 #define OSX_DEFAULT_CPI       400.001
 #define OSX_DEFAULT_HZ        125.001
 
+  // --- for testing/debugging purposes -----------------------------------
+  
+#define DEBUG_MODE                 0
+
+#define FORCE_QUEUE_MODE           0
+
 #define USE_IOHIDValueGetTimeStamp 1
- 
+  
   // ----------------------------------------------------------------------
 
   osxHIDPointingDevice::osxHIDPointingDevice(URI uri) {
@@ -48,18 +56,16 @@ namespace pointing {
     if (vendorID || productID)
       uri.scheme = "any" ; // FIXME: otherwise, won't match in osxHIDInputDevice (might want to fix this)
 
-#if 1
     std::string plist = hidDeviceFromVendorProductUsagePageUsage(vendorID, productID,
 								 primaryUsagePage, primaryUsage) ;
     hiddev = new osxHIDInputDevice(uri, plist.c_str()) ;    
+
+    callback = 0 ;
+    callback_context = 0 ;
+#if FORCE_QUEUE_MODE
+    use_queue_callback = true ;
+    use_report_callback = !use_queue_callback ;
 #else
-    hiddev = new osxHIDInputDevice(uri) ;
-#endif
-
-    forced_cpi = forced_hz = -1.0 ;
-    URI::getQueryArg(uri.query, "cpi", &forced_cpi) ;
-    URI::getQueryArg(uri.query, "hz", &forced_hz) ;
-
     if (isBluetooth()) {
       use_queue_callback = false ;
       use_report_callback = !use_queue_callback ;      
@@ -68,14 +74,15 @@ namespace pointing {
       use_queue_callback = URI::getQueryArg(uri.query, "queue") ;
       use_report_callback = !use_queue_callback ;            
     }
-    std::cerr << "osxHIDPointingDevice: " << (use_queue_callback?"queue":"report") << " mode" << std::endl ;    
-    
-    callback = 0 ;
-    callback_context = 0 ;
+#endif
     if (use_report_callback)
       hiddev->setInputReportCallback(hidReportCallback, this) ;
     if (use_queue_callback)
       hiddev->setQueueCallback(hidQueueCallback, this) ;
+
+    forced_cpi = forced_hz = -1.0 ;
+    URI::getQueryArg(uri.query, "cpi", &forced_cpi) ;
+    URI::getQueryArg(uri.query, "hz", &forced_hz) ;
   }
 
   bool
@@ -85,41 +92,29 @@ namespace pointing {
 
   URI
   osxHIDPointingDevice::getURI(bool expanded, bool crossplatform) const {
-
     URI uri;
 
-    if (crossplatform)
-    {
+    if (crossplatform) {
       uri.scheme = "any";
-
-      int vendorId, productId;
+      int vendorId, productId ;
       if ((vendorId = getVendorID()))
-        URI::addQueryArg(uri.query, "vendor", vendorId) ;
-
+	URI::addQueryArg(uri.query, "vendor", vendorId) ;
       if ((productId = getProductID()))
-        URI::addQueryArg(uri.query, "product", productId) ;
-    }
-
-    else
-    {
+	URI::addQueryArg(uri.query, "product", productId) ;
+    } else {
       uri = hiddev->getURI(expanded) ;
-
       // FIXME: query args for modes (report and queue) are useless as
       // long as they are not both fully supported
-
       if (primaryUsagePage!=OSX_DEFAULT_USAGEPAGE)
-        URI::addQueryArg(uri.query, "usagePage", primaryUsagePage) ;
-
+	URI::addQueryArg(uri.query, "usagePage", primaryUsagePage) ;
       if (primaryUsage!=OSX_DEFAULT_USAGE)
-        URI::addQueryArg(uri.query, "usage", primaryUsage) ;
+	URI::addQueryArg(uri.query, "usage", primaryUsage) ;
     }
 
     if (expanded || hiddev->debugLevel)
       URI::addQueryArg(uri.query, "debugLevel", hiddev->debugLevel) ;
-
     if (expanded || forced_cpi>0)
       URI::addQueryArg(uri.query, "cpi", getResolution()) ;
-
     if (expanded || forced_hz>0)
       URI::addQueryArg(uri.query, "hz", getUpdateFrequency()) ;
 
@@ -208,7 +203,6 @@ namespace pointing {
 
   void
   osxHIDPointingDevice::setPointingCallback(PointingCallback cbck, void *ctx) {
-    // std::cerr << "setPointingCallback " << cbck << " " << ctx << std::endl ;
     callback = cbck ;
     callback_context = ctx ;
     if (callback) {
@@ -255,14 +249,8 @@ namespace pointing {
 
   bool
   osxHIDPointingDevice::PointingReport::setButton(uint32_t index, uint32_t value) {
-    // FIXME
-    // if (index>=nbbuttons) return false ;
-    // btns[index] = value ; 
     int tmp = 1<<index ;
-    if (value)
-      btns = btns | tmp ;
-    else
-      btns = btns & ~tmp ;
+    btns = value ? (btns | tmp) : (btns & ~tmp) ;
     return true ;
   }
 
@@ -270,13 +258,6 @@ namespace pointing {
   osxHIDPointingDevice::PointingReport::isOlderThan(TimeStamp::inttime timestamp) const {
     return (t!=TimeStamp::undef /*&& timestamp!=TimeStamp::undef*/ && t<timestamp) ;
   }
-
-  /*
-  bool
-  osxHIDPointingDevice::PointingReport::isMoreRecentThan(TimeStamp::inttime timestamp) const {
-    return (t!=TimeStamp::undef && t>timestamp) ;
-  }
-  */
 
   std::string
   osxHIDPointingDevice::PointingReport::toString(void) const {
@@ -303,107 +284,107 @@ namespace pointing {
     uint64_t nanoseconds = (abstime - self->epoch_mach) * self->mach_timebaseinfo.numer / self->mach_timebaseinfo.denom ;
     TimeStamp::inttime timestamp = self->epoch + nanoseconds*TimeStamp::one_nanosecond ;
 #else
-  void
-  osxHIDPointingDevice::hidReportCallback(void *context,
-					  IOReturn /*result*/,
-					  void */*sender*/,
-					  IOHIDReportType /*type*/,
-					  uint32_t /*reportID*/,
-					  uint8_t *report,
-					  CFIndex /*reportLength*/) {
-    TimeStamp::inttime timestamp = TimeStamp::createAsInt() ;
-    osxHIDPointingDevice *self = (osxHIDPointingDevice*)context ;    
+    void
+      osxHIDPointingDevice::hidReportCallback(void *context,
+					      IOReturn /*result*/,
+					      void */*sender*/,
+					      IOHIDReportType /*type*/,
+					      uint32_t /*reportID*/,
+					      uint8_t *report,
+					      CFIndex /*reportLength*/) {
+      TimeStamp::inttime timestamp = TimeStamp::createAsInt() ;
+      osxHIDPointingDevice *self = (osxHIDPointingDevice*)context ;    
 #endif    
 
-    if (!self->hiddev->parser->setReport(report)) return ;
+#if DEBUG_MODE
+      std::cerr << timestamp << " osxHIDPointingDevice::hidReportCallback" << std::endl ;
+#endif
+      
+      if (!self->hiddev->parser->setReport(report)) return ;
 
-    int dx = 0, dy = 0, buttons = 0;
-    self->hiddev->parser->getReportData(&dx, &dy, &buttons) ;
+      int dx = 0, dy = 0, buttons = 0;
+      self->hiddev->parser->getReportData(&dx, &dy, &buttons) ;
 	
-    PointingReport r ;
-    r.t = timestamp ;
-    r.dx = dx ;
-    r.dy = dy ;
-    r.btns = buttons ;
-    self->report(r) ;      
-  }
+      PointingReport r ;
+      r.t = timestamp ;
+      r.dx = dx ;
+      r.dy = dy ;
+      r.btns = buttons ;
+      self->report(r) ;      
+    }
 
-  void
-  osxHIDPointingDevice::hidQueueCallback(void *context, IOReturn /*result*/, void *sender) {
-    // std::cerr << "osxHIDPointingDevice::hidQueueCallback" << std::endl ;
-
+    void
+    osxHIDPointingDevice::hidQueueCallback(void *context, IOReturn /*result*/, void *sender) {
 #if !USE_IOHIDValueGetTimeStamp
-    TimeStamp::inttime timestamp = TimeStamp::createAsInt() ;
+      TimeStamp::inttime timestamp = TimeStamp::createAsInt() ;
 #endif
     
-    osxHIDPointingDevice *self = (osxHIDPointingDevice*)context ;
-    IOHIDQueueRef queue = (IOHIDQueueRef)sender ;
+      osxHIDPointingDevice *self = (osxHIDPointingDevice*)context ;
+      IOHIDQueueRef queue = (IOHIDQueueRef)sender ;
 
-    while (true) {
+      while (true) {
 
-      IOHIDValueRef hidvalue = IOHIDQueueCopyNextValueWithTimeout(queue, 0.) ;
-      if (!hidvalue) break ;
+	IOHIDValueRef hidvalue = IOHIDQueueCopyNextValueWithTimeout(queue, 0.) ;
+	if (!hidvalue) break ;
 
 #if USE_IOHIDValueGetTimeStamp
-      TimeStamp::inttime abstime = IOHIDValueGetTimeStamp(hidvalue) ;
-      uint64_t nanoseconds = (abstime - self->epoch_mach) * self->mach_timebaseinfo.numer / self->mach_timebaseinfo.denom ;
-      TimeStamp::inttime timestamp = self->epoch + nanoseconds*TimeStamp::one_nanosecond ;
+	TimeStamp::inttime abstime = IOHIDValueGetTimeStamp(hidvalue) ;
+	uint64_t nanoseconds = (abstime - self->epoch_mach) * self->mach_timebaseinfo.numer / self->mach_timebaseinfo.denom ;
+	TimeStamp::inttime timestamp = self->epoch + nanoseconds*TimeStamp::one_nanosecond ;
 #endif
 
-      if (self->qreport.isOlderThan(timestamp)) {
-	// Flush the old qreport before creating a new one
-	self->report(self->qreport) ;
-	self->qreport.clear() ;
-      }
-
-      IOHIDElementRef element = IOHIDValueGetElement(hidvalue) ;
-      uint32_t usagepage = IOHIDElementGetUsagePage(element) ;
-      uint32_t usage = IOHIDElementGetUsage(element) ;
-      //std::cerr << usagepage << std::endl;
-      //std::cerr << usage << std::endl;
-      if (usagepage==kHIDPage_GenericDesktop) {
-	if (usage==kHIDUsage_GD_X || usage==kHIDUsage_GD_Y) {
-      // Could use IOHIDValueGetScaledValue(hidvalue, kIOHIDValueScaleTypePhysical)
-      CFIndex d = IOHIDValueGetIntegerValue(hidvalue) ;
-
-      //std::cerr << IOHIDValueGetBytePtr(hidvalue) << std::endl;
-      //std::cerr << IOHIDValueGetLength(hidvalue) << std::endl;
-      if (d) {
-	    if (usage==kHIDUsage_GD_X) self->qreport.dx = (int32_t)d ; else self->qreport.dy = (int32_t)d ;
-	    self->qreport.t = timestamp ;
-	  }
+#if DEBUG_MODE
+	std::cerr << timestamp << " osxHIDPointingDevice::hidQueueCallback" << std::endl ;
+#endif
+	
+	if (self->qreport.isOlderThan(timestamp)) {
+	  self->report(self->qreport) ; // Flush the old qreport before creating a new one
+	  self->qreport.clear() ;
 	}
-	// FIXME: GD_Z, GD_Wheel, etc.
-      } else if (usagepage==kHIDPage_Button) {
-	// kHIDUsage_Button_1 is 1
-	self->qreport.setButton(usage-1, (uint32_t)IOHIDValueGetIntegerValue(hidvalue)) ;
-	self->qreport.t = timestamp ;
+
+	IOHIDElementRef element = IOHIDValueGetElement(hidvalue) ;
+	uint32_t usagepage = IOHIDElementGetUsagePage(element) ;
+	uint32_t usage = IOHIDElementGetUsage(element) ;
+	if (usagepage==kHIDPage_GenericDesktop) {
+	  if (usage==kHIDUsage_GD_X || usage==kHIDUsage_GD_Y) {
+	    // Could use IOHIDValueGetScaledValue(hidvalue, kIOHIDValueScaleTypePhysical)?
+	    CFIndex d = IOHIDValueGetIntegerValue(hidvalue) ;
+	    if (d) {
+	      if (usage==kHIDUsage_GD_X) self->qreport.dx = (int32_t)d ; else self->qreport.dy = (int32_t)d ;
+	      self->qreport.t = timestamp ;
+	    }
+	  }
+	  // FIXME: GD_Z, GD_Wheel, etc.
+	} else if (usagepage==kHIDPage_Button) {
+	  self->qreport.setButton(usage-1, // kHIDUsage_Button_1 is 1
+				  (uint32_t)IOHIDValueGetIntegerValue(hidvalue)) ;
+	  self->qreport.t = timestamp ;
+	}
+
+	CFRelease(hidvalue) ;
       }
 
-      CFRelease(hidvalue) ;
+      // Flush the qreport we were constructing, if any
+      if (self->qreport.t!=TimeStamp::undef)
+	self->report(self->qreport) ;
+      self->qreport.clear() ;
     }
 
-    // Flush the qreport we were constructing, if any
-    if (self->qreport.t!=TimeStamp::undef)
-      self->report(self->qreport) ;
-    self->qreport.clear() ;
-  }
-
-  void
-  osxHIDPointingDevice::report(osxHIDPointingDevice::PointingReport &r) {
-    if (r.t) {
-      registerTimestamp(r.t, r.dx, r.dy);
-      if (callback) {
-        if (hiddev->debugLevel>1)
-      std::cerr << "osxHIDPointingDevice::report: " << r.toString() << std::endl ;
-        if (r.t==TimeStamp::undef) std::cerr << "TimeStamp::undef!" << std::endl ;
-        callback(callback_context, r.t, r.dx, r.dy, r.btns) ;
-      } else if (hiddev->debugLevel>2) {
-        std::cerr << "osxHIDPointingDevice::report: skipping " << r.toString() << std::endl ;
+    void
+      osxHIDPointingDevice::report(osxHIDPointingDevice::PointingReport &r) {
+      if (r.t) {
+	registerTimestamp(r.t, r.dx, r.dy);
+	if (callback) {
+	  if (hiddev->debugLevel>1)
+	    std::cerr << "osxHIDPointingDevice::report: " << r.toString() << std::endl ;
+	  if (r.t==TimeStamp::undef) std::cerr << "TimeStamp::undef!" << std::endl ;
+	  callback(callback_context, r.t, r.dx, r.dy, r.btns) ;
+	} else if (hiddev->debugLevel>2) {
+	  std::cerr << "osxHIDPointingDevice::report: skipping " << r.toString() << std::endl ;
+	}
       }
     }
+
+    // -----------------------------------------------------------------------
+
   }
-
-  // -----------------------------------------------------------------------
-
-}

@@ -23,13 +23,19 @@
 
 namespace pointing {
 
-  int osxHIDInputDevice::queueSize = 4096 ;
+  // --- default values ---------------------------------------------------
 
+  int osxHIDInputDevice::queueSize = 4096 ;
+  
 #define OSX_DEFAULT_DEBUGLEVEL 0
 #define OSX_DEFAULT_SEIZEDEVICE false
 
-#define USE_CURRENT_RUNLOOP 0
+  // --- for testing/debugging purposes -----------------------------------
 
+#define DEBUG_MODE              0
+
+#define DEBUG_MATCHING_ELEMENTS 1
+  
   // -----------------------------------------------------------------------
 
   osxHIDInputDevice::__device::__device(IOHIDDeviceRef dev) {
@@ -40,31 +46,27 @@ namespace pointing {
 
   osxHIDInputDevice::__device::~__device() {
     if (queue) {
-      // std::cerr << "osxHIDInputDevice(" << this << "): stopping queue" << std::endl ;
       IOHIDQueueStop(queue) ;
-      // std::cerr << "osxHIDInputDevice(" << this << "): releasing queue" << std::endl ;
       CFRelease(queue) ;
     }
-    // std::cerr << "osxHIDInputDevice(" << this << "): releasing device" << std::endl ;
     CFRelease(device) ;
   }
 
   // -----------------------------------------------------------------------
 
   void
-  osxHIDInputDevice::AddDevice(void *context, IOReturn /*result*/, void */*sender*/, IOHIDDeviceRef device) {
+  osxHIDInputDevice::AddDevice(void *context,
+			       IOReturn /*result*/, void */*sender*/, IOHIDDeviceRef device) {
     osxHIDInputDevice *self = (osxHIDInputDevice*)context ;
 
     URI devUri = hidDeviceURI(device) ;
-    
-    bool match = self->theDevice==0 && (self->uri.isEmpty() || self->uri.scheme=="any" || self->uri.resemble(devUri)) ;
 
+    bool match = self->theDevice==0 && (self->uri.isEmpty() || self->uri.scheme=="any" || self->uri.resemble(devUri)) ;
     if (self->debugLevel>0) {
       std::cerr << (match?"+ ":"  ") ;
       hidDebugDevice(device, std::cerr) ;
       std::cerr << std::endl ;
     }
-
     if (!match) return ;
 
     self->theDevice = new __device(device) ;
@@ -74,18 +76,26 @@ namespace pointing {
     if (descriptor) {
       const UInt8 *bytes = CFDataGetBytePtr(descriptor) ;
       CFIndex length = CFDataGetLength(descriptor) ;
-      if (!self->parser->setDescriptor(bytes, length))
+      if (self->inputreport_callback && !self->parser->setDescriptor(bytes, length))
         std::cerr << "osxHIDInputDevice::AddDevice: unable to parse the HID report descriptor" << std::endl;
-      if (self->debugLevel > 1)
-      {
-        std::cerr << "HID descriptors: [ " << std::flush ;
+      if (self->debugLevel > 1) {
+        std::cerr << "    HID report descriptor: [ " << std::flush ;
         for (int i=0; i<length; ++i)
           std::cerr << std::hex << std::setfill('0') << std::setw(2) << (int)bytes[i] << " " ;
         std::cerr << "]" << std::endl ;
       }
     }
+
+#if DEBUG_MODE
+      std::cerr << "Setting up callbacks" << std::endl ;
+#endif
+
+    // ----------------------------------------------------------------
     
     if (self->inputreport_callback) {
+#if DEBUG_MODE
+      std::cerr << "Setting up report callback" << std::endl ;
+#endif
 #if __MAC_OS_X_VERSION_MIN_REQUIRED >= 101000
       IOHIDDeviceRegisterInputReportWithTimeStampCallback(device,
 					     self->theDevice->report, sizeof(self->theDevice->report),
@@ -97,14 +107,27 @@ namespace pointing {
 #endif
     }
 
+    // ----------------------------------------------------------------
+    
     if (self->value_callback) {
+#if DEBUG_MODE
+      std::cerr << "Setting up value callback" << std::endl ;
+#endif     
       IOHIDDeviceSetInputValueMatchingMultiple(device, self->elements_match) ; 
       IOHIDDeviceRegisterInputValueCallback(device, self->value_callback, self->value_context) ;
     }
 
+    // ----------------------------------------------------------------
+    
     if (self->queue_callback) {
+#if DEBUG_MODE
+      std::cerr << "Setting up queue callback" << std::endl ;
+#endif
       self->theDevice->queue = IOHIDQueueCreate(kCFAllocatorDefault, device, queueSize, kIOHIDOptionsTypeNone) ;
       if (self->elements_match) {
+#if DEBUG && DEBUG_MATCHING_ELEMENTS	
+	std::cerr << "Queue, elements_match" << std::endl ;
+#endif
 	CFIndex mcount = CFArrayGetCount(self->elements_match) ;
 	for (CFIndex mindex=0; mindex<mcount; ++mindex) {
 	  CFDictionaryRef matching = (CFDictionaryRef)CFArrayGetValueAtIndex(self->elements_match, mindex) ;
@@ -114,7 +137,7 @@ namespace pointing {
 	  for (CFIndex eindex=0; eindex<ecount; ++eindex) {
 	    IOHIDElementRef e = (IOHIDElementRef)CFArrayGetValueAtIndex(elements, eindex) ;
 	    IOHIDQueueAddElement(self->theDevice->queue, e) ;
-#if 0
+#if DEBUG && DEBUG_MATCHING_ELEMENTS
 	    std::cerr << "elements_match EINDEX: " << eindex
 		      << ", usagepage: " << IOHIDElementGetUsagePage(e)
 		      << ", usage: " << IOHIDElementGetUsage(e)
@@ -123,13 +146,16 @@ namespace pointing {
 	  }
 	}
       } else {
+#if DEBUG && DEBUG_MATCHING_ELEMENTS	
+	std::cerr << "Queue, no elements_match" << std::endl ;
+#endif
 	CFArrayRef elements = IOHIDDeviceCopyMatchingElements(device, 0, kIOHIDOptionsTypeNone) ;
 	if (elements) {
 	  CFIndex ecount = CFArrayGetCount(elements) ;
 	  for (CFIndex eindex=0; eindex<ecount; ++eindex) {
 	    IOHIDElementRef e = (IOHIDElementRef)CFArrayGetValueAtIndex(elements, eindex) ;
 	    IOHIDQueueAddElement(self->theDevice->queue, e) ;
-#if 0
+#if DEBUG && DEBUG_MATCHING_ELEMENTS
 	    std::cerr << "!elements_match EINDEX: " << eindex
 		      << ", usagepage: " << IOHIDElementGetUsagePage(e)
 		      << ", usage: " << IOHIDElementGetUsage(e)
@@ -139,16 +165,11 @@ namespace pointing {
 	}
       }
       IOHIDQueueRegisterValueAvailableCallback(self->theDevice->queue, self->queue_callback, self->queue_context) ;
-#if USE_CURRENT_RUNLOOP
-      CFRunLoopRef runLoop = CFRunLoopGetCurrent() ; 
-      CFStringRef runLoopMode = kCFRunLoopDefaultMode ;
-#else
-      CFRunLoopRef runLoop = CFRunLoopGetMain() ;
-      CFStringRef runLoopMode = kCFRunLoopCommonModes ;
-#endif
-      IOHIDQueueScheduleWithRunLoop(self->theDevice->queue, runLoop, runLoopMode) ;
+      IOHIDQueueScheduleWithRunLoop(self->theDevice->queue, CFRunLoopGetMain(), kCFRunLoopDefaultMode) ;
       IOHIDQueueStart(self->theDevice->queue) ;
     }
+
+    // ----------------------------------------------------------------
   }
 
   osxHIDInputDevice::osxHIDInputDevice(URI uri,
@@ -158,7 +179,7 @@ namespace pointing {
     inputreport_callback = 0 ;
     inputreport_context = 0 ;
     value_callback = 0 ;
-    value_context = 0 ;
+    value_context = 0 ;    
     queue_callback = 0 ;
     queue_context = 0 ;
     debugLevel = OSX_DEFAULT_DEBUGLEVEL ;
@@ -203,15 +224,7 @@ namespace pointing {
   
     IOHIDManagerRegisterDeviceMatchingCallback(manager, AddDevice, (void*)this) ;
     IOHIDManagerRegisterDeviceRemovalCallback(manager, RemoveDevice, (void*)this) ;
-  
-#if USE_CURRENT_RUNLOOP
-    CFRunLoopRef runLoop = CFRunLoopGetCurrent() ; 
-    CFStringRef runLoopMode = kCFRunLoopDefaultMode ;
-#else
-    CFRunLoopRef runLoop = CFRunLoopGetMain() ;
-    CFStringRef runLoopMode = kCFRunLoopCommonModes ;
-#endif
-    IOHIDManagerScheduleWithRunLoop(manager, runLoop, runLoopMode) ;
+    IOHIDManagerScheduleWithRunLoop(manager, CFRunLoopGetMain(), kCFRunLoopDefaultMode) ;
 
     IOOptionBits inOptions = seizeDevice ? kIOHIDOptionsTypeSeizeDevice : kIOHIDOptionsTypeNone ;
     if (IOHIDManagerOpen(manager, inOptions)!=kIOReturnSuccess) 
@@ -268,17 +281,10 @@ namespace pointing {
   }
 
   osxHIDInputDevice::~osxHIDInputDevice(void) {
-    // std::cerr << "osxHIDInputDevice(" << this << "): deleting theDevice" << std::endl ;
     delete theDevice ;
     delete parser ;
-
-    // std::cerr << "osxHIDInputDevice(" << this << "): deleting device_match" << std::endl ;
     if (device_match) CFRelease(device_match) ;
-
-    // std::cerr << "osxHIDInputDevice(" << this << "): releasing elements_match" << std::endl ;
     if (elements_match) CFRelease(elements_match) ;
-
-    // std::cerr << "osxHIDInputDevice(" << this << "): releasing manager" << std::endl ;
     if (manager) {
       IOHIDManagerClose(manager, kIOHIDOptionsTypeNone) ;
       CFRelease(manager) ;

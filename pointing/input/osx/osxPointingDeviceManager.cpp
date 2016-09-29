@@ -21,8 +21,6 @@
 
 namespace pointing {
 
-#define USE_CURRENT_RUNLOOP 0
-
 #if 0
   bool isNotPointingDevice(IOHIDDeviceRef devRef)
   {
@@ -123,15 +121,7 @@ namespace pointing {
 
     IOHIDManagerRegisterDeviceMatchingCallback(manager, AddDevice, (void*)this);
     IOHIDManagerRegisterDeviceRemovalCallback(manager, RemoveDevice, (void*)this);
-
-#if USE_CURRENT_RUNLOOP
-    CFRunLoopRef runLoop = CFRunLoopGetCurrent();
-    CFStringRef runLoopMode = kCFRunLoopDefaultMode;
-#else
-    CFRunLoopRef runLoop = CFRunLoopGetMain();
-    CFStringRef runLoopMode = kCFRunLoopCommonModes;
-#endif
-    IOHIDManagerScheduleWithRunLoop(manager, runLoop, runLoopMode);
+    IOHIDManagerScheduleWithRunLoop(manager, CFRunLoopGetMain(), kCFRunLoopDefaultMode);
 
     if (IOHIDManagerOpen(manager, kIOHIDOptionsTypeNone)!=kIOReturnSuccess)
       throw std::runtime_error("IOHIDManagerOpen failed");

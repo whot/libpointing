@@ -26,7 +26,7 @@ bool button_pressed = false ;
 
 void
 pointingCallback(void * /*context*/, TimeStamp::inttime timestamp,
-     int input_dx, int input_dy, int buttons) {
+		 int input_dx, int input_dy, int buttons) {
   if (!func) return ;
 
   int output_dx=0, output_dy=0 ;
@@ -48,48 +48,48 @@ int
 main(int argc, char** argv) {
   try {
 
-    if (argc < 3)
+    if (argc < 1)
       std::cerr << "Usage: " << argv[0]
 		<< " [inputdeviceURI [outputdeviceURI [transferfunctionURI]]]"
 		<< std::endl  ;
 
     // --- Pointing device ----------------------------------------------------
 
-    PointingDevice *input = PointingDevice::create(argc>1?argv[1]:"any:?debugLevel=1") ;
+    PointingDevice *input = PointingDevice::create(argc>1?argv[1]:"default:") ;
     for (TimeStamp reftime, now;
-   !input->isActive() && now-reftime<15*TimeStamp::one_second; 
-   now.refresh())
+	 !input->isActive() && now-reftime<15*TimeStamp::one_second; 
+	 now.refresh())
       PointingDevice::idle(500) ;
 
     std::cout << std::endl << "Pointing device" << std::endl ;
     std::cout << "  " << input->getURI(true).asString() << std::endl
-        << "  " << input->getResolution() << " CPI, " 
-        << input->getUpdateFrequency() << " Hz" << std::endl 
-        << "  device is " << (input->isActive()?"":"not ") << "active" << std::endl 
-        << std::endl ;
+	      << "  " << input->getResolution() << " CPI, " 
+	      << input->getUpdateFrequency() << " Hz" << std::endl 
+	      << "  device is " << (input->isActive()?"":"not ") << "active" << std::endl 
+	      << std::endl ;
 
     // --- Display device -----------------------------------------------------
 
-    DisplayDevice *output = DisplayDevice::create(argc>2?argv[2]:"any:?debugLevel=1") ;
+    DisplayDevice *output = DisplayDevice::create(argc>2?argv[2]:"default:") ;
 
     double hdpi, vdpi;
     output->getResolution(&hdpi, &vdpi) ;
     DisplayDevice::Size size = output->getSize() ;
     DisplayDevice::Bounds bounds = output->getBounds() ;
     std::cout << std::endl << "Display device" << std::endl
-        << "  " << output->getURI(true).asString() << std::endl
-        << "  " << bounds.size.width << " x " << bounds.size.height << " pixels, "
-        << size.width << " x " << size.height << " mm" << std::endl
-        << "  " << hdpi << " x " << vdpi << " PPI, "
-        << output->getRefreshRate() << " Hz" << std::endl ;
+	      << "  " << output->getURI(true).asString() << std::endl
+	      << "  " << bounds.size.width << " x " << bounds.size.height << " pixels, "
+	      << size.width << " x " << size.height << " mm" << std::endl
+	      << "  " << hdpi << " x " << vdpi << " PPI, "
+	      << output->getRefreshRate() << " Hz" << std::endl ;
 
     // --- Transfer function --------------------------------------------------
 
     func = TransferFunction::create(argc>3?argv[3]:"system:?debugLevel=2", input, output) ;
 
     std::cout << std::endl << "Transfer function" << std::endl
-        << "  " << func->getURI(true).asString() << std::endl
-        << std::endl ;
+	      << "  " << func->getURI(true).asString() << std::endl
+	      << std::endl ;
 
     // --- Ready to go --------------------------------------------------------
 

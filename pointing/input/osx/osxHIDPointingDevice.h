@@ -36,7 +36,6 @@ namespace pointing {
       PointingReport& operator = (PointingReport& src) ;
       void clear(void) ; // preserves btns
       bool isOlderThan(TimeStamp::inttime t) const ;
-      // bool isMoreRecentThan(TimeStamp::inttime t) const ;
       bool setButton(uint32_t index, uint32_t value) ;
       std::string toString(void) const ;
     } ;

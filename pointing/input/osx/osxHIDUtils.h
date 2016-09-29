@@ -19,43 +19,47 @@
 #include <pointing/utils/URI.h>
 
 #include <IOKit/hid/IOHIDDevice.h>
-#include <IOKit/hid/IOHIDValue.h>
 #include <IOKit/usb/IOUSBLib.h>
 
 #include <iostream>
 #include <string>
 
 namespace pointing {
+  
+  int32_t
+  hidDeviceGetIntProperty(IOHIDDeviceRef device,
+			  CFStringRef prop, int32_t defval=0) ;
 
-  int32_t hidDeviceGetIntProperty(IOHIDDeviceRef device, CFStringRef prop, int32_t defval=0) ;
+  std::string
+  hidDeviceGetStringProperty(IOHIDDeviceRef device,
+			     CFStringRef prop, std::string defval="") ;
 
-  std::string hidDeviceGetStringProperty(IOHIDDeviceRef device, CFStringRef prop, std::string defval="") ;
+  URI
+  hidDeviceURI(IOHIDDeviceRef device) ;
+  
+  SInt32 // -1 if resolution is unknown
+  hidGetPointingResolution(IOHIDDeviceRef device) ;
 
-  URI hidDeviceURI(IOHIDDeviceRef device) ;
+  
+  double // in seconds (-1 if interval is unknown)
+  hidGetReportInterval(IOHIDDeviceRef device) ;
 
-  std::string hidDeviceName(IOHIDDeviceRef device);
-  std::string hidDeviceSerialNumber(IOHIDDeviceRef device);
+  void
+  hidDebugDevice(IOHIDDeviceRef device, std::ostream& out) ;
+  
+  // -----------------------------------------------------------------------
+    
+  std::string // can be used to create an osxHIDInputDevice
+  hidDeviceFromVendorProductUsagePageUsage(int vendorID, int productID,
+					   int primaryUsagePage, int primaryUsage) ;
 
-  void hidDebugDevice(IOHIDDeviceRef device, std::ostream& out) ;
-
-  void hidDebugValue(IOHIDValueRef hidvalue, std::ostream& out) ;
-
-  io_service_t hidGetParentService(IOHIDDeviceRef device, io_name_t classname) ;
-  io_service_t hidGetParentService(io_service_t service, io_name_t classname) ;
-
-  // Return -1 if resolution is unknown
-  SInt32 hidGetPointingResolution(IOHIDDeviceRef device) ;
-  SInt32 hidGetPointingResolution(io_service_t service) ;
-
-  // Result is in seconds (-1 if interval is unknown)
-  double hidGetReportInterval(IOHIDDeviceRef device) ;
-
-  IOUSBInterfaceInterface190 **getUSBInterface(io_service_t hiddriver, int usbclass, int usbsubclass, int endpoints) ;
-
-  std::string hidDeviceFromVendorProductUsagePageUsage(int vendorID, int productID,
-						       int primaryUsagePage, int primaryUsage) ;
-  std::string hidAnyPointingDevice(void) ;
-  std::string hidXYElements(void) ;
+  // -----------------------------------------------------------------------
+  
+  std::string
+  hidAnyPointingDevice(void) ;
+  
+  std::string
+  hidXYElements(void) ;
 
 }
 
