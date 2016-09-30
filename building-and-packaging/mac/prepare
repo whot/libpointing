@@ -196,6 +196,7 @@ def generateMakefile():
     testexec = os.path.join(SRC,TEST_PROG_EXEC)
     with open(os.path.join(DIST, "Makefile"), "w") as makefile:
         print >> makefile, "PREFIX ?= /usr/local"
+        print >> makefile, "DESTDIR ?="
         print >> makefile
         print >> makefile, "LIBPOINTING = libpointing.dylib"
         print >> makefile
@@ -221,17 +222,17 @@ def generateMakefile():
         print >> makefile, "clean:\n\trm -f $(OBJECTS)"
         print >> makefile, "distclean: clean\n\trm -f lib/$(LIBPOINTING)"
         print >> makefile, "install:"
-        print >> makefile, "\tmkdir -p $(PREFIX)/include"
-        print >> makefile, "\tcp -r %s/pointing $(PREFIX)/include"%INC
-        print >> makefile, "\tcp -r %s/pointing-xorg $(PREFIX)/include"%INC
-        print >> makefile, "\tcp -r %s/pointing-echomouse $(PREFIX)/include"%INC
-        print >> makefile, "\tmkdir -p $(PREFIX)/lib"
-        print >> makefile, "\tcp -r lib $(PREFIX)"
+        print >> makefile, "\tmkdir -p $(DESTDIR)$(PREFIX)/include"
+        print >> makefile, "\tcp -r %s/pointing $(DESTDIR)$(PREFIX)/include"%INC
+        print >> makefile, "\tcp -r %s/pointing-xorg $(DESTDIR)$(PREFIX)/include"%INC
+        print >> makefile, "\tcp -r %s/pointing-echomouse $(DESTDIR)$(PREFIX)/include"%INC
+        print >> makefile, "\tmkdir -p $(DESTDIR)$(PREFIX)/lib"
+        print >> makefile, "\tcp -r lib $(DESTDIR)$(PREFIX)"
         print >> makefile, "uninstall:"
-        print >> makefile, "\trm -rf $(PREFIX)/include/pointing"
-        print >> makefile, "\trm -rf $(PREFIX)/include/pointing-xorg"
-        print >> makefile, "\trm -rf $(PREFIX)/include/pointing-echomouse"
-        print >> makefile, "\trm -f $(PREFIX)/lib/$(LIBPOINTING)"
+        print >> makefile, "\trm -rf $(DESTDIR)$(PREFIX)/include/pointing"
+        print >> makefile, "\trm -rf $(DESTDIR)$(PREFIX)/include/pointing-xorg"
+        print >> makefile, "\trm -rf $(DESTDIR)$(PREFIX)/include/pointing-echomouse"
+        print >> makefile, "\trm -f $(DESTDIR)$(PREFIX)/lib/$(LIBPOINTING)"
         print >> makefile, "tarball: distclean\n\tcd .. && tar cvzf libpointing-mac-%s.tar.gz libpointing-%s/"%(VERSION,VERSION)
         print >> makefile, "\topenssl dgst -sha256 ../libpointing-mac-%s.tar.gz"%VERSION
 
