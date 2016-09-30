@@ -205,9 +205,9 @@ def generateMakefile():
         print >> makefile, "SOURCES =", " ".join(sources)
         print >> makefile
         print >> makefile, "CXX      ?= g++"
-        print >> makefile, "CPPFLAGS =", " ".join(CPPFLAGS)
-        print >> makefile, "CXXFLAGS =", " ".join(CXXFLAGS)
-        print >> makefile, "LDFLAGS  =", " ".join(LDFLAGS)
+        print >> makefile, "CPPFLAGS :=", " ".join(CPPFLAGS), "$(CPPFLAGS)"
+        print >> makefile, "CXXFLAGS :=", " ".join(CXXFLAGS), "$(CXXFLAGS)"
+        print >> makefile, "LDFLAGS  :=", " ".join(LDFLAGS), "$(LDFLAGS)"
         print >> makefile, "LIBS     =", " ".join(LIBS)
         print >> makefile
         print >> makefile, "OBJECTS = $(SOURCES:.cpp=.o)"
