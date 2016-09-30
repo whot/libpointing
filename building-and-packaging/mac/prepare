@@ -223,11 +223,11 @@ def generateMakefile():
         print >> makefile, "distclean: clean\n\trm -f lib/$(LIBPOINTING)"
         print >> makefile, "install:"
         print >> makefile, "\tmkdir -p $(DESTDIR)$(PREFIX)/include"
-        print >> makefile, "\tcp -r %s/pointing $(DESTDIR)$(PREFIX)/include"%INC
-        print >> makefile, "\tcp -r %s/pointing-xorg $(DESTDIR)$(PREFIX)/include"%INC
-        print >> makefile, "\tcp -r %s/pointing-echomouse $(DESTDIR)$(PREFIX)/include"%INC
+        print >> makefile, "\tcp -R %s/pointing $(DESTDIR)$(PREFIX)/include"%INC
+        print >> makefile, "\tcp -R %s/pointing-xorg $(DESTDIR)$(PREFIX)/include"%INC
+        print >> makefile, "\tcp -R %s/pointing-echomouse $(DESTDIR)$(PREFIX)/include"%INC
         print >> makefile, "\tmkdir -p $(DESTDIR)$(PREFIX)/lib"
-        print >> makefile, "\tcp -r lib $(DESTDIR)$(PREFIX)"
+        print >> makefile, "\tcp -R lib $(DESTDIR)$(PREFIX)"
         print >> makefile, "uninstall:"
         print >> makefile, "\trm -rf $(DESTDIR)$(PREFIX)/include/pointing"
         print >> makefile, "\trm -rf $(DESTDIR)$(PREFIX)/include/pointing-xorg"
