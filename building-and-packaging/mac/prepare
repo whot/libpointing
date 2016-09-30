@@ -195,7 +195,7 @@ def generateMakefile():
     testsrc = os.path.join(SRC,TEST_PROG_SOURCE)
     testexec = os.path.join(SRC,TEST_PROG_EXEC)
     with open(os.path.join(DIST, "Makefile"), "w") as makefile:
-        print >> makefile, "ifndef PREFIX\n\tPREFIX = /usr/local\nendif"
+        print >> makefile, "PREFIX ?= /usr/local"
         print >> makefile
         print >> makefile, "LIBPOINTING = libpointing.dylib"
         print >> makefile
