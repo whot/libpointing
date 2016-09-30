@@ -214,7 +214,7 @@ def generateMakefile():
         print >> makefile
         print >> makefile, "all: lib/$(LIBPOINTING)"
         print >> makefile
-        print >> makefile, "lib/$(LIBPOINTING): $(OBJECTS)\n\t$(CXX) -dynamiclib -o $@ $^ $(LDFLAGS) $(LIBS)"
+        print >> makefile, "lib/$(LIBPOINTING): $(OBJECTS)\n\t$(CXX) -dynamiclib -install_name $(PREFIX)/lib/$(LIBPOINTING) -o $@ $^ $(LDFLAGS) $(LIBS)"
         print >> makefile
         print >> makefile, "%s: %s\n\t$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -lpointing"%(testexec,testsrc)
         print >> makefile
