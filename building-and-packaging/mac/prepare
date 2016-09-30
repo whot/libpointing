@@ -204,7 +204,7 @@ def generateMakefile():
         print >> makefile
         print >> makefile, "SOURCES =", " ".join(sources)
         print >> makefile
-        print >> makefile, "CXX      = g++"
+        print >> makefile, "CXX      ?= g++"
         print >> makefile, "CPPFLAGS =", " ".join(CPPFLAGS)
         print >> makefile, "CXXFLAGS =", " ".join(CXXFLAGS)
         print >> makefile, "LDFLAGS  =", " ".join(LDFLAGS)
