@@ -1,0 +1,5 @@
+Archive: distrib
+Component: main
+Origin: libpointing
+Label: libpointing debian repository
+Architecture: all
