@@ -18,7 +18,9 @@ unix {
   HERE = $(PWD)/../..
 } else {
   HERE = $$PWD/..
-} 
+}
+
+QMAKE_CXXFLAGS += -std=c++11
 
 HEADERS  = $$HERE/native/org_libpointing_DisplayDevice.h \
            $$HERE/native/org_libpointing_PointingDevice.h \

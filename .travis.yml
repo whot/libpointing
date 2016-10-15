@@ -60,7 +60,10 @@ script:
     - make check -s
 
 after_success:
-    - make -C ./bindings/Java/Jar all
+    - cd bindings/Java/Jar
+    - make all
+    - tar -cvf libpointing-java-bindings-$TRAVIS_OS_NAME.tar build libpointing.jar
+    - cd ../../..
 
 before_deploy:
     - |
