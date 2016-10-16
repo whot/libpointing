@@ -59,12 +59,6 @@ script:
     - make
     - make check -s
 
-after_success:
-    - cd bindings/Java/Jar
-    - make all
-    - tar -cvf libpointing-java-bindings-$TRAVIS_OS_NAME.tar build libpointing.jar
-    - cd ../../..
-
 before_deploy:
     - |
       if [ $TRAVIS_OS_NAME == linux ] ; then
@@ -74,6 +68,10 @@ before_deploy:
       elif [ $TRAVIS_OS_NAME == osx ] ; then
           ./building-and-packaging/mac/update_brew
       fi
+    - cd bindings/Java/Jar
+    - make all
+    - tar -cvf libpointing-java-bindings-$TRAVIS_OS_NAME.tar build libpointing.jar
+    - cd ../../..
 
 deploy:
     provider: releases
@@ -82,6 +80,7 @@ deploy:
         - "building-and-packaging/linux/debian/*.deb"
         - "building-and-packaging/mac/*.tar.gz"
         - "building-and-packaging/mac/Portfile"
+        - "bindings/Java/Jar/*.tar"
     file_glob: true
     skip_cleanup: true
     on:
