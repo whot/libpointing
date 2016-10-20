@@ -29,7 +29,7 @@ Run one of the examples from ../ with make && make run
 
 ## Editing and compilation
 
-* Please run compile.bat, it will generate *class** and header files.
+* Please run compile.bat, it will generate *class* and header files.
 * Compile the project which is located in msvc-folder.
 * From obtained dll now you can generate `libpointing.jar` with makejar.bat.
 
