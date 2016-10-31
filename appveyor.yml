@@ -74,11 +74,15 @@ after_build:
   - if not %cname%==mingw call compile.bat
   - if not %cname%==mingw msbuild /m /p:Configuration=%CONFIGURATION% /p:Platform=%ARCH% msvc\libpointingJavaBindingDll.vcxproj /p:PlatformToolset=%PT% /t:Rebuild
   - if not %cname%==mingw call makejar.bat
+  - if not %cname%==mingw 7z a libpointing-java-bindings-%cname%.zip build\*
+  - if not %cname%==mingw 7z a libpointing-java-bindings-%cname%.zip libpointing.jar
   - if not %cname%==mingw cd %APPVEYOR_BUILD_FOLDER%
 
 artifacts:
   - path: '*.zip'
     name: libpointing-archive
+  - path: 'bindings\Java\Jar\*.zip'
+    name: libpointing-java-archive
 
 deploy:
     provider: GitHub
