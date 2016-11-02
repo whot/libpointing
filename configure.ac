@@ -8,9 +8,9 @@ m4_define([libpointing_version],
 
 AC_INIT([libpointing],
         [libpointing_version],
-        []
+        [https://github.com/INRIA/libpointing], 
         [libpointing],
-        [])
+        [https://github.com/INRIA/libpointing])
 
 AC_SUBST([LIBPOINTING_VERSION_MAJOR], [libpointing_major_version])
 AC_SUBST([LIBPOINTING_VERSION_MINOR], [libpointing_minor_version])
@@ -24,7 +24,7 @@ AC_DEFINE([LIBPOINTING_VERSION_MICRO], [libpointing_micro_version], "libpointing
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
-AM_INIT_AUTOMAKE([1.11 foreign no-dist-gzip dist-xz])
+AM_INIT_AUTOMAKE([1.11 foreign no-dist-gzip dist-xz subdir-objects])
 
 AM_SILENT_RULES([yes])
 AC_USE_SYSTEM_EXTENSIONS
