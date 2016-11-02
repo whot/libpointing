@@ -84,3 +84,6 @@ libpointing_la_CXXFLAGS = \
     $(LIBXRANDR_CFLAGS) \
     $(LIBXI_CFLAGS) \
     $(LIBX11_CFLAGS)
+
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = libpointing.pc
